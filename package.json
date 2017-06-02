@@ -1,0 +1,41 @@
+{
+  "name": "polykey",
+  "version": "0.0.1",
+  "description": "Distributed peer to peer secret sharing and management system",
+  "author": "Roger Qiu <roger.qiu@matrix.ai> https://matrix.ai",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MatrixAI/PolyKey"
+  },
+  "homepage": "https://matrix.ai/",
+  "keywords": [
+    "gpg",
+    "openpgp",
+    "passwords",
+    "secrets",
+    "git"
+  ],
+  "scripts": {
+    "flow": "flow"
+  },
+  "dependencies": {
+    "openpgp": "^2.5.4",
+    "react": "15.4.1",
+    "react-dom": "15.4.1",
+    "react-router": "^4.1.1",
+    "react-native": "0.42.3",
+    "react-native-cli": "^2.0.1",
+    "react-native-openpgp": "^1.0.3",
+    "styled-components": "^2.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-eslint": "^7.2.3",
+    "electron-rebuild": "^1.5.11",
+    "eslint": "^3.19.0",
+    "flow-bin": "^0.47.0",
+    "webpack": "^2.6.1",
+    "webpack-dev-server": "^2.4.5"
+  }
+}
