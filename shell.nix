@@ -7,9 +7,10 @@
     nodeEnv // (with pkgs; {
       shell = nodeEnv.shell.override (oldAttrs: {
         buildInputs = oldAttrs.buildInputs ++ [
-          # add extra build inputs (existing) at the build phase
-          # as necessary, here we can add any nix packages
           nodePackages.node2nix
         ];
+        shellHook = oldAttrs.shellHook + ''
+          export PATH="$NODE_PATH/.bin:$PATH"
+        '';
       });
     })

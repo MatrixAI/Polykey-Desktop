@@ -20,14 +20,16 @@
     "flow": "flow"
   },
   "dependencies": {
+    "js-git": "git+https://github.com/MatrixAI/js-git.git",
     "openpgp": "^2.5.4",
     "react": "15.4.1",
     "react-dom": "15.4.1",
-    "react-router": "^4.1.1",
     "react-native": "0.42.3",
     "react-native-cli": "^2.0.1",
     "react-native-openpgp": "^1.0.3",
-    "styled-components": "^2.0.0"
+    "react-router": "^4.1.1",
+    "styled-components": "^2.0.0",
+    "tar": "^3.1.5"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

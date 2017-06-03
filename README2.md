@@ -62,3 +62,21 @@ After updating the package.json, you can then regenerate the dependencies for ni
 React, React Native all need exact versions, since they have very specific compatibility pairings. This is also due to the flattened dependency tree of npm 3.x. So we cannot have any kind of `~` or `^` magic in those versions. This might also apply to electron, but I have not encountered any npm complaints yet.
 
 Also nodegit is not really easily installable, instead of putting it inside my package.json, I am going to investigate how to override the configure script using the nixpkgs buildNodePackage toolchain.
+
+---
+
+Constraints:
+
+1. No plaintext at all in the filesystem during operations, this is dangerous because it is a compromise if the process dies for whatever reason.
+2. Version history on a per-key basis. Each key is a directory containing subkeys.
+3. Key sharing based on pub key signatures, imported from gnupg. Maintains its own contact list to be portable. Not every system will have gpg installed.
+4. Portable to all major platforms: windows, linux, osx, ios, android
+5. CLI usable, don't need to invoke the gui when not needed
+6. Can work with a readonly filesystem, this just means no changing of keys can be applied, and no logs can only be sent to external sources (accounting), so only read operations can be applied
+7. Encryption and decryption needs to be compatible with gpg.
+8. Partial sharing
+9. Version history of keys is based on plaintext history, so that means committing to git is done before encryption.
+10. Nested git repository, the master keynode is always a git repository thus contains the history of manipulations on encrypted keynodes, it cannot view the plaintext of each subkey. So you maintain history of the entire keynode. But each individual keyset has its own history maintained in its own git repository.
+11. The need to maintain all operations in memory, means we need to use an in-memory implementation of git, which means js-git needs to be extended with what we are doing.
+
+There's js-git official and this fork with much more recent commits extended with es6 support and promises? https://github.com/strangesast/js-git
