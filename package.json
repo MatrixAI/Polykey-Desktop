@@ -16,10 +16,18 @@
     "secrets",
     "git"
   ],
+  "bin": {
+    "build": "babel src/ -d lib/",
+    "polykey": "bin/polykey",
+    "prepublish": "npm run build"
+  },
   "scripts": {
     "flow": "flow"
   },
   "dependencies": {
+    "co": "^4.6.0",
+    "commander": "^2.9.0",
+    "git-fs-db": "git+https://github.com/MatrixAI/git-fs-db.git",
     "js-git": "git+https://github.com/MatrixAI/js-git.git",
     "openpgp": "^2.5.4",
     "react": "15.4.1",
@@ -29,11 +37,15 @@
     "react-native-openpgp": "^1.0.3",
     "react-router": "^4.1.1",
     "styled-components": "^2.0.0",
-    "tar": "^3.1.5"
+    "tar": "^3.1.5",
+    "vorpal": "^1.12.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
+    "babel-plugin-root-import": "^5.1.0",
+    "babel-preset-env": "^1.5.1",
+    "babel-preset-flow": "^6.23.0",
     "electron-rebuild": "^1.5.11",
     "eslint": "^3.19.0",
     "flow-bin": "^0.47.0",

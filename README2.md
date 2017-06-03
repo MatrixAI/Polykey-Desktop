@@ -80,3 +80,64 @@ Constraints:
 11. The need to maintain all operations in memory, means we need to use an in-memory implementation of git, which means js-git needs to be extended with what we are doing.
 
 There's js-git official and this fork with much more recent commits extended with es6 support and promises? https://github.com/strangesast/js-git
+
+---
+
+http://www.jedi.be/blog/2013/05/14/Compiling%20-%20packaging%20a%20nodejs%20project%20as%20a%20single%20binary/
+
+---
+
+The CLI interface should be both automatable and interactive. For interactivity, one can use the vorpal library. For single one-off commands one can use:
+
+---
+
+We need to try js-git and create some stuff.
+
+loadAs always returns an array, with the second element undefined, why?
+
+Syncing and merging will the most stuff that still needs to be implemented with js-git.
+
+commit:
+  tree,
+  parents,
+  author:
+    name,
+    email,
+    date
+  commiter:
+    name,
+    email,
+    date
+  message
+
+tree:
+  'filename':
+    mode,
+    hash
+  'filename':
+    mode,
+    hash
+
+array:
+  {
+    name,
+    mode,
+    hash
+  }
+  
+To get anything done we must always have access to the commithash.
+
+When going through a tree stream, it's a depth first traversal of the commit's tree. It starts at the root of the tree with:
+
+  mode,
+  hash,
+  body,
+  path
+  
+That is the path starts at '/'.
+
+And then it goes down the first path.
+
+Whenever we are creating a commit, we create a tree. That tree is basically a snapshot of the state of the filesystem or repo. But does this mean we don't save the entire state in the tree, what performs the minimal diff for the tree? Something after the commit, or only the changes?
+
+Each tree only has 1 child level, so creating deeply nested folder structure relies on creating blobs for each level and then encapsulating it in a tree datastructure.

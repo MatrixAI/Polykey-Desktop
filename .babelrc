@@ -1,3 +1,11 @@
 {
-  "presets": [ "flow" ]
+  "plugins": [
+    [
+      "babel-plugin-root-import",
+      {
+        "rootPathSuffix": "src"
+      }
+    ]
+  ],
+  "presets": [ "env", "flow" ]
 }
