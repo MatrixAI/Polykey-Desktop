@@ -242,4 +242,63 @@ gpg --key-id-format long --list-keys
 gpg --fingerprint --with-colon email@address
 gpg --fingerpring email@address
 
+---
 
+Finally the master key needs to be kept safely.
+
+gpg --export-secret-key --armor
+
+The master key shouldn't be stored in the same polykey keynode. Although you could store subkeys (or "other" master keys) into the polykey keynode.
+
+Password protecting your master key inherently gives 2 factor authentication.
+
+You also shouldn't store the master key along with your keynode in the same place.
+
+Back up your keynode to different areas on the interwebs, while keep your master key in a separate area.
+
+You could carry 2 USBs, one for the keynode, and another for the master key, where the keynode USB is used more often, but the master key USB is kept securely under physical lock.
+
+---
+
+The files for GPG 1 to backup are:
+
+~/.gnupg/gpg.conf
+~/.gnupg/pubring.gpg
+~/.gnupg/secring.gpg
+
+For GPG 2, there's
+
+~/.gnupg/pubring.kbx
+~/.gnupg/openpgp-revocs.d
+
+Note that the trust database is in ~/.gnupg/trustdb.gpg but you don't need to back this up. Instead you should backup gpg --export-ownertrust. This gives you the list of keys to trust. Polykey should be able to take any of the keys in the trust database and use it for key sharing.
+
+You can reimport the trust database by doing gpg --import-ownertrust.
+
+It appears the main reason, is that the trustdb can be corrupted, but the this can recreate the trust database.
+
+It seems that GPG2 auto generates revocation certificates for any private key you create, whereas GPG 1 needs to be prompted to create it.
+
+Of course it seems that gpg.conf can be kept in the dotfiles clear, but pubring.gpg, secring.gpg and other databases should be considered secret. Otherwise you may end up leaking various information.
+
+---
+
+~/.keys/data
+~/.keys/data/abc124gfdg8gj.tar
+~/.keys/tags
+~/.keys/share
+~/.keys/share/72F28C3C7E70B2C48ABBE4A760C1FBE8E6B85B80/abc124gfdg8gj.tar
+
+~/.keys/tags and .keys/share are all symlinks pointing back to data.
+
+Maintain tar index, and symlink index?
+
+Symlink index is just a linear scan of all tags and shares.
+
+Tags and shares are differentiated as tags are just for organisation, whereas share is for sharing.
+
+Share contains fingerprints.
+
+One problem is that introduction that people must learn how to use gpg before polykey. And the incompatibilities of gpg and gpg2. Then it should work seamlessly with gpg and gpg2.
+
+Try to haskell gpgme project.
