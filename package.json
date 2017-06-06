@@ -28,6 +28,8 @@
     "co": "^4.6.0",
     "commander": "^2.9.0",
     "git-fs-db": "git+https://github.com/MatrixAI/git-fs-db.git",
+    "git-node-fs": "^1.0.0",
+    "gitkit": "^0.1.0",
     "js-git": "git+https://github.com/MatrixAI/js-git.git",
     "openpgp": "^2.5.4",
     "react": "15.4.1",

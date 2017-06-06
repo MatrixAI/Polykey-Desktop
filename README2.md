@@ -141,3 +141,150 @@ And then it goes down the first path.
 Whenever we are creating a commit, we create a tree. That tree is basically a snapshot of the state of the filesystem or repo. But does this mean we don't save the entire state in the tree, what performs the minimal diff for the tree? Something after the commit, or only the changes?
 
 Each tree only has 1 child level, so creating deeply nested folder structure relies on creating blobs for each level and then encapsulating it in a tree datastructure.
+
+---
+
+Ok so we have to figure out these supporting functionalities for git:
+
+1. The ability to create a new repository on the disk (init)
+
+What id the difference between git-fs-db and git-db-fs and js-git's db fs mixin?
+
+Also git-node-fs...?
+
+Every mixin adds in extra functions to the repo object. The fs-db mixin adds in functions relating to filesystem operations of git.
+
+So the different backing stores like mem-db also implements these operations, but do it differently like in being in ram.
+
+Fs-db also relies on an underlying filesystem abstraction system, which implements the functions readFile, readChunk, writeFile, readDir, so all of this is duck typed, there is no type checking using the interfaces.
+
+It appears that the packages that define these functions are also git-fs-db and git-node-fs, I'm not sure what the difference between the 2 are. There's also git-chrome-db, which appears to use localstorage to store it in the browser.
+
+Ok so 
+
+js-git/mixins/fs-db relies on:
+
+* git-node-fs
+* git-chrome-fs (chrome specific implementation of the filesystem api, not a web standard, probably used by electron apps and chrome apps)
+
+The git-fs-db does not appear to be applicable here.
+
+Cool so the one I need is basically js-git/mixins/fs-db + git-node-fs AND js-git/mixins/mem-db.
+
+I don't it's proper to add both mixins. Also the order of adding mixins doesn't seem to apply.
+
+The fs-db and mem-db mixins provide the functions:
+
+* saveAs - saving an object of some sort
+* loadAs - read an object of some sort
+* saveRaw - save an object with a binary value
+* loadRaw - read an object as binary
+* hasHash - check if a object with a hash exists
+* readRef - reads a ref (not sure what this is)
+* updateRef - updates a ref (not sure what this is)
+* listRefs - list all refs with a search prefix (not sure what this is)
+
+This is what sucks about this shit! Duck typing sucks without good documentation.
+
+The db mixins maintain a map of objects, and a map of refs. The objects are indexed hashes. That's what the hash is used to lookup objects.
+
+What are refs? 
+
+However using the fs-db mixin also provides these extra functions:
+
+* init - init a git repository onto disk?
+* setShallow - shallow git repository?
+
+The init function takes a ref (or not), and creates a new .git folder in some path set by the rootPath, and creates a HEAD file, with the contents 'ref: refs/heads/master'. Or the ref specified. Now this is not enough to be constituting a git repository. It is missing the config file, the description file, and the directories of hooks, info, objects, and refs.
+
+Ok i get it now, objects match the same object structure in the mem-fs, and refs are basically things like tags and branches and the current default reference. They are pointers to the version history of the repository.
+
+So what do we need to create the minimal git repository that `git status` says it is a repository? ALL we need is:
+
+1. HEAD
+2. empty objects directory
+3. empty refs directory
+
+That's it!!
+
+So are these extra directories meant to be created by init or some later functionality?
+
+Upon creating a blob object, this now creates an object directory and a subsequent object inside it. However without a ref directory, it is not yet a git repository.
+
+The object file format is specialised however.
+
+Without extra mixins, the saveAs only takes binary buffers, provided by the Buffer class. We can pack strings into a buffer using Buffer.from("Hello World\n").
+
+The hash being returned by blobHash is EQUAL to the file path to the object itself, except that the first 2 characters are separated in this own directory, could be for performance reasons.
+
+It appears that with only mixInCreateTree and mixInFsDb, the loadAs functions do not return an array unlike before, instead they return exactly what we expect. One of the mixins is screwing up the API behaviour I think.
+
+Furthermore performing the loadAs functions do not create the ref directory, so it's still not a proper git repository. Before we attemp to PR this repository, or just add in our own additions, we should check what happens if we perform a commit, perhaps this will create the relevant ref directory.
+
+However this is just a binary blob, how does this map to files? The hash is a SHA1 hash.
+
+The equivalent of saveAs with blob is `git hash-object -w --stdin`.
+
+Then of course loadAs with blob is then `git cat-file -p ...` where `...` is the hash.
+
+Each object is just like a key-value data store, git uses this to represent versions of content. So if you create a file, and write some stuff into it, you can create a git object and store it in there, but if you write some other content, you can store that content as a git object as well, and all of this can be manipulated using the above two commands, and this is not only it, you also have the tree objects and possibly commit objects.
+
+The actual objects, are encoded using a special encoder, and also compressed.
+
+We can also create tree objects immediately using the saveAs tree option, but we just need to specify that the hash points to the blobHash that we previously created. But does this actually create a file in our repository?
+
+This does not create a file in our repository, all we get is the version history being created.
+
+Trees are how git's database tracks directories and filenames, the objects are just content, without any names.
+
+Git normally takes the state of your index/staging area and writing a series of tree objects from it. Oh.. so this is what git add and finally git commit does. But probably git add specifically. And we need to analogue of git add, otherwise we're not going anywhere with this.
+
+Wait a minute, the reason why this doesn't have a git add, is because, and in-memory version of git, the index is just your in-memory objects. But we are going to untar a bunch of files in-memory, including the .git directory, and the whole thing will be loaded into memory (actually is there a way to do this?) Make changes to it, which changes the .git history (which is mem-fs), and then repack it into an encrypted tar, and then resave it onto disk?
+
+The commit saving requires the usage of mixInFormats. I believe this is due to the commit message which is a normal string, and not a buffer. Furthermore, unlike the creation of blobs, trees, the creation of commit objects is not purely content addressed, but also has a random/time component to it. This basically allows you to repeatedly create multiple commits pointint to same tree hash, with the same message and the same author details.
+
+The formats mixin is pretty much required to make this usable, otherwise the types are strict, and the error messages are undecipherable. But an actually commit object is is totally:
+
+```
+{
+  author: {
+    name: "...",
+    email: "...",
+    date: new Date()
+  },
+  committer: {
+    name: "...",
+    email: "...",
+    date: new Date()
+  },
+  tree: treehash,
+  parents: [],
+  message: "..."
+}
+```
+
+So it's not about any kind of encoding, it's just that such a thing is the full message.
+
+But it's a good idea to have this ready to go.
+
+So... even after adding a commit it's not enough, it complains that there are no commits yet, when we already have created a commit object.
+
+Going back to proper git, we can see that git add -A actually creates the objects for the untracked file, and I'm guessing it also performs the diff, which acquires objects for diffed files (or perhaps not, I'm not sure, if the diffing happens later). We definitely need these things:
+
+* refs
+* objects
+* HEAD
+
+To actually make git show up the log, the refs directory needs to have a heads subdir, with a master file pointing to the git object hash that I suppose the current state of the master needs to be at. So once I created this file, and put in the hash, the command git log worked, also git status worked, and indicated that the greeting.txt was deleted from the working directory. The logs directory and the index file sesem to be auto created from the git command. So it appears the only thing needed is the refs, objects and HEAD, and the relevant structure underneath it.
+
+So what really determines if there is a commit log? I'm not sure...
+
+https://github.com/creationix/js-git/issues/122#issuecomment-146045401
+
+> JS-git doesn't have support for the working directory so you can't do things like git status. Also I haven't implemented diff yet so anything involving that can't be done including merges. The network actions like push and pull aren't done either. The main thing you can do currently with js-git is read/write the core git database directly.
+
+No support for the working directory, and no support for the staging area I think?
+
+With the lack of support of many working directory things, it appears that this implementation may be better: https://github.com/SamyPesse/gitkit-js
+
+Try using gitkit next, and see if it provides a better way.

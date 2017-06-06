@@ -1,42 +1,92 @@
 // @flow
 
 import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import commander from 'commander';
 import co from 'co';
 
 import modes from 'js-git/lib/modes';
+
+// underlying data base
 import mixInMemDb from 'js-git/mixins/mem-db';
+import mixInFsDb from 'js-git/mixins/fs-db';
+
 import mixInCreateTree from 'js-git/mixins/create-tree';
 import mixInPackOps from 'js-git/mixins/pack-ops';
 import mixInWalkers from 'js-git/mixins/walkers';
 import mixInReadCombiner from 'js-git/mixins/read-combiner';
 import mixInFormats from 'js-git/mixins/formats';
 
-function main (argv, env) {
+import gitNodeFs from 'git-node-fs';
 
-  // args is the resulting arguments
-  commander
-    .version('0.0.1')
-    .usage('[options] <file ...>')
-    .option(
-      '-c, --config <path>',
-      'Path to configuration, default: ~/.polykey/config',
-      env.HOME + '/.polykey/config'
-    )
-    .parse(argv);
+function testFilesystem () {
 
-  try {
-    fs.accessSync(commander.config, fs.constants.F_OK | fs.constants.R_OK);
-  } catch (e) {
-    /* console.log('Config file doesn\'t exit or cannot be read');*/
-  }
-
-  // config option
-  /* console.log(commander.config);*/
-  // subsequent arguments
-  /* console.log(commander.args);*/
+  // every mixin adds extra functionality to the repo object
+  // that's what the mixins are doing
+  // i see...
 
   let repo = {};
+
+  repo.rootPath = path.join(os.tmpdir(), "test/.git");
+
+  mixInFsDb(repo, gitNodeFs);
+
+  // mixInFormats(repo);
+
+  co(function * () {
+
+    let something = yield repo.init();
+    console.log('INIT: ', something);
+
+    let blob = Buffer.from('Hello World\n');
+    console.log('BLOB:', blob);
+
+    let blobHash = yield repo.saveAs('blob', blob);
+    console.log('BLOBHASH:', blobHash);
+
+    let blob2 = yield repo.loadAs('blob', blobHash);
+    console.log('BLOB2:', blob2);
+
+    let treeHash = yield repo.saveAs("tree", {
+      "greeting.txt": { mode: modes.file, hash: blobHash }
+    });
+
+    console.log('TREE:', treeHash);
+
+    let commitHash = yield repo.saveAs("commit", {
+      committer: {
+        name: "roger",
+        email: "roger@roger.com",
+        date: new Date()
+      },
+      author: {
+        name: "roger",
+        email: "roger@roger.com",
+        date: new Date()
+      },
+      tree: treeHash,
+      parents: [],
+      message: "COMMIT MESSAGE!!!"
+    });
+
+    console.log('Commit:', commitHash);
+
+  }).then(function (v) {
+    console.log(v);
+  }, function (e) {
+    console.log(e);
+  });
+
+
+  console.log(repo);
+
+}
+
+function oldtest () {
+
+  let repo = {};
+
   mixInMemDb(repo);
   mixInCreateTree(repo);
   mixInPackOps(repo);
@@ -55,7 +105,7 @@ function main (argv, env) {
     let commitHash = yield repo.saveAs("commit", {
       author: {
         name: "roger",
-        email: "roger@roger.com",
+        email: "roger@roger.com"
       },
       tree: treeHash,
       message: "testcommit\n"
@@ -146,6 +196,34 @@ function main (argv, env) {
     console.log(v);
 
   });
+
+}
+
+function main (argv, env) {
+
+  // args is the resulting arguments
+  commander
+    .version('0.0.1')
+    .usage('[options] <file ...>')
+    .option(
+      '-c, --config <path>',
+      'Path to configuration, default: ~/.polykey/config',
+      env.HOME + '/.polykey/config'
+    )
+    .parse(argv);
+
+  try {
+    fs.accessSync(commander.config, fs.constants.F_OK | fs.constants.R_OK);
+  } catch (e) {
+    /* console.log('Config file doesn\'t exit or cannot be read');*/
+  }
+
+  // config option
+  /* console.log(commander.config);*/
+  // subsequent arguments
+  /* console.log(commander.args);*/
+
+  testFilesystem();
 
 }
 
