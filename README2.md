@@ -288,3 +288,190 @@ No support for the working directory, and no support for the staging area I thin
 With the lack of support of many working directory things, it appears that this implementation may be better: https://github.com/SamyPesse/gitkit-js
 
 Try using gitkit next, and see if it provides a better way.
+
+--- 
+
+For shell, we use standard npm inside a nix-shell. This allows easier manipulation of the dependencies.
+
+For build/default.nix, this uses node2nix and brings in a deterministic branch of nixpkgs and builds against that, also the exact versions of npm packages are encoded in the node-packages.nix.
+
+---
+
+Gitkit's native fs layer just creates promises from the native node functions, so all it does is override some of the async cps functions into promises. Both the in-memory and the native filesystem exposes the same apis. So while the git functions expose methods with working with a git database, you still have to use the underlying methods to produce changes in the working directory. So one of the key features is the need to apply changes in the in-memory filesystem, and the reifying it onto disk. The way to do this is to use a tar library that can be passed the memory-fs, and archive the contents recursively, which we can then output as a single file.
+
+Writing files using the memory filesystem, one must be aware of mkdirp, which is needed prior being able to create the file in a deeply nested directory.
+
+But the filesystem api does not have mkdirp!!
+
+To get access to it, you need to use mkdirp package or the fs-extra package but that requires forking the native module in the gitkit package, and allowinit to use the fs-extra package instead of the fs package, we'll keep it simple and just use the mkdirp package. Also we should probably bring in the rimraf and ncp packages. Also becareful with rimraf, it really should only delete the directory and nothing else.
+
+Ok so I have an experiment, init an in-memory repository, and add a file, add one commit, and then tar it up and save it on disk.
+
+The GitKit.WorkingIndex points to models/workingIndex.js.
+
+It calls Git.WorkingUtils.add(repo, filePath)
+
+Where is this add function?
+
+Module exports of WorkingUtils index.js exposes the add function as the default export of add file. It should be the addToIndex function. But how is this acquired?
+
+What is the difference between the models and the utils? The models include WorkingIndex, but no WorkingUtils, the utils are just functions?
+
+It returns a promise all, based on an array, where the first subpromise is to readFromRepo, then createEntry for that file, which probably creates an object. Spread spreads the values of the promise.all (it's basically fmap). Oh it's not fmap, instead it calls the subsequent function with its parameters set to the values of the array. It's like fold, but with multiple parameters, kind of like an uncurried function if lists were used instead of tuples.
+
+The workingIndex.readFromRepo is the first promise to be called. The readFromRepo then tries to read the index file, but the initial repository doesn't have an index file, as the git add is the one that first creates it. This is a contradiction!
+
+We need to change the git add function so it creates a index file if it doesn't already exist. The index is a binary file, containing a sorted list of path names, each with permissions and the SHA1 of the blob object. Using `git ls-files --stage` shows you the human readable contents of it.
+
+The format is:
+
+network byte order for binary numbers (big endian)
+
+12 byte header of:
+
+4 byte signature : DIRC
+4 byte version: 2,3,4
+2 byte number of index entries (only up to 65k?)
+
+There's a function called WorkingIndex.writeToRepo which appears to take a workingIndex contents and writing it, the only function that calls this is WorkingUtils.add. This calls it with `WorkingIndex.writeToRepo(repo, workingIndex)`. But all this just does is pass the read index file and rewrite it. Ok not exactly. The index file is parsed, entries acquired, with the new file path added to the entry, and then with the new entries set using immutable style, and then rewritten.
+
+The index file is parsed but `repo.readGitFile`, and converted into a buffer using WorkingIndex.createFromBuffer. That should mean we can find the parser, then we should be able to find the code that writes the index file. It is in models/repo.js
+
+Oh it is actually WorkingIndex.createFromBuffer.
+
+The creation code is WorkingIndex.toBuffer.
+
+(remember that capitals are models or classes)
+
+Ok so add calls addToIndex which calls WorkingIndex (models).readFromRepo,this calls WorkingIndex.createFromBuffer, which parses the index file. The result is that calling WorkingIndex.writeToRepo, which calls toBuffer, which creates a new index file.
+
+What we need to do is to make add work even when there's no index file already, so that means if there is no index file, we need to return an empty working index so that getEntries returns [], and a new entry is added, before being written.
+
+The readGitFile checks whether the repository is bare, and if so, it returns the filepath, otherwise, it joins '.git' with filepath, which in this case is the index file. Not a bare repository, so '.git/index'. Afterwards calling Repository.prototype.readFile, which calls this.getFS().read. Ok do we handle it here by dealing with the promise error and handling it?
+
+```js
+WorkingIndex.readFromRepo = function(repo, fileName) {
+    fileName = fileName || 'index';
+
+    return repo.readGitFile(fileName)
+    .then(WorkingIndex.createFromBuffer, function (err) {
+
+      // reduces the need to bring extra libraries
+
+      if (
+        err.code == 'ENOENT' &&
+        err.path &&
+        err.path.endsWith('.git/index')
+      ) {
+
+        // we know now that the file is missing, and we should create it
+        // create a dummy index file, how to do this?
+        
+        return new WorkingIndex({ version: 2, entries: Immutable.OrderedMap });
+
+      } else {
+
+        throw err;
+
+      }
+
+    });
+};
+```
+
+The createFromBuffer relies on immutable and IndexEntry model to create entries. The firste entriesBuf is another slice of 12 bytes, and with the version,this is passed to `IndexEntry.createFromBuffer(entriesBuf, version)`. The next entriesBuf = result.buffer, and the entries = entries.set with the result data. Why is the build up of the entries really inefficient using immutable, instead a standard mutable buildup and then conversion to immutable would be better. Oh it's not that inefficient due to structure sharing on modern VMs using hash map tries and vector tries.
+
+Each slice has start and end. The start is where the new buffer will start, and then buffer will slice until the end. This seems like a binary head function. It is copy on write. Yep it is breaking up 12 bytes at a time for some reason. No the first time it is used, it is just used to pop off 12 bytes, which is the header, the next time it is used, it is the IndexEntry.createFromBuffer that is slicing out the contents, and it appears to know how long each entry will be. It uses the Dissolve parser to do this. And returns the un-used buffer in the result.
+
+The result is a construction `new WorkingIndex({ version: ..., entries: ...})`. Ok first we need to create a default version, and the entries is just going to be an empty ordered map.
+
+--- 
+
+Problems:
+
+1. Create index file if index file is not found for the add function - done
+2. Immutable objects like OrderedMap does not have an each function, it has a forEach function. This is written completely wrong!
+3. Path is not set when creating an index entry, this is wrong, we need a path!!
+4. Immutable.js sets a default values, like default Date, but this is wrong as well, because, these become strings, and not integers.
+5. Records are not used properly, they define objects with default values, but the usage od Number() or String() is just confusing, as this implies some sort of type checking, but this is not enforced. Furthermore it gets even more confusing with usages of Date() since these have default date values which is just a date string, these are very non-standard.
+
+The setting up of default dates in such a way is bad, as this means the dates get set on the first usage and do not get changed on each new add/commit, it should be recalculated each time, when these things occur. I'd prefer using adt. Anyway a record here is just an object with default values.
+
+First thing to do is to remove the default dates, as this does not make sense with regards to a index entry.
+
+Any field that is required should be undefined, such as the date fields, and really we should be using adt.js
+
+ctime is the last time 
+
+These entries are usually filled by the stat call, the in-memory filesystem does not have a stat call right? OMG... so a memory fs doesn't have these stat information, then what does it mean then...?
+
+Also what about mtime?
+
+mtime - last time a file data changed = this is NOW right?
+
+Alot of this data is meant to be fed from the stat call, but in an in-memory filesystem, there is no stat call, the ctime and mtime is always equal to when I perform the add operation. Both the metadata and the data gets changed right? Who knows, the in-memory filesystem has no metadata. Also uid and gid needs to be filled with the user who is using the application, the mode is dependent on the type of the file/directory/gitlink, not sure what dev or ino is. But I can see this information in hexdump -C ./.git/index. Furthermore path is supposed to be filled, with the path excluding root directory without the leading slash.
+
+Perhaps we need the add operation to check against that the permissions or other metadata is different and compare, but I'm not sure how to do this, or whether this is important.
+
+---
+
+The `dev` I think is the device ID that contains the file, I don't think this is relevant to the in-memory filesystem. This has something to do with the major and minor device numbers that indicate which disk it contains. It appears that 24h/36d is saying 0x24 and 36 in decmial is the same. So basically that means device number 36. It's the major and minor device number combined into one value. Since we are going to save it to the disk, we could override it and add it to where the tar file is going to reside. I wonder what this is used for. The user-level tool is `git update index`. But during the git add operation, this has no information, so how to override it? It should be part of the add function.
+
+```js
+fs.statSync(process.cwd())
+```
+
+We change to the relevant directory, and we can get the dev in decimal form. This can be encoded for the dev for every file inside the tar archive.
+
+Inode simply doesn't exist for these files, so we will just have to leave it as 0.
+
+Also the spec seems to indicate that the dev and ino is exactly the 32bit data for that is given by stat call. This is strange because the 32 bit data is organised in 12 bits for the major number and 20 bits for the minor number.
+
+This is an index file with marked sections:
+
+```
+          |HEADER........................... | CTIME.....|
+00000000  44 49 52 43 00 00 00 02  00 00 00 01 59 37 c1 07  |DIRC........Y7..|
+          |CTIMEN...| MTIME.....|  MTIMEN....| DEV.......|
+00000010  1c 25 38 80 59 37 c1 07  1c 25 38 80 00 00 00 24  |.%8.Y7...%8....$|
+          |INODE....|
+00000020  00 00 04 11 00 00 81 a4  00 00 03 e8 00 00 03 e8  |................|
+00000030  00 00 00 04 8b ae f1 b4  ab c4 78 17 8b 00 4d 62  |..........x...Mb|
+00000040  03 1c f7 fe 6d b6 f9 03  00 04 74 65 73 74 00 00  |....m.....test..|
+00000050  00 00 00 00 58 0a a8 3d  db a9 b8 fa 79 0c 51 1e  |....X..=....y.Q.|
+00000060  31 85 f2 d0 47 64 e3 e1                           |1...Gd..|
+00000068
+```
+
+We can see that the 24 which, which is 24 in hex, because it is a single byte, so it is stored as just a standard network integer int. But does that make sense to major and minor numbers? Not sure. The normal call to stat in NodeJS gives back a decimal, is this properly setup by `Concentrate().uint32be()`? Yes it does, it does work. `Concentrate().uint32be(22)` returns a buffer with hex 16 at the very end.
+
+Ok so we need to add overrides to the add function if we want to pass our own stat data into the entry, without which, the filesystem will need to support the stat data, another way is to override the memory filesystem so it returns a particular stat call. (So we return )
+
+The memory fs will need overridding the statSync call, because it doesn't return a proper stat object. Oh it is returning the interface, but all of the properties are empty. Ok so the only function to override is the statSync call, and just make sure the resulting object also has dev property. Instead of duck typing, we can extend the class specifically and add our own methods into it.
+
+Here's how you extend the memory fs and override the stat call:
+
+```js
+import MemoryFileSystem from 'memory-fs';
+
+let mfs = new MemoryFileSystem;
+
+let mfs2 = Object.create(mfs);
+
+mfs2.statSync = function (p) {
+
+  return { 
+    ...this.constructor.prototype.statSync.bind(this)(p),
+    dev: 22
+  };
+
+};
+```
+
+Using the object spread syntax and whatever.
+
+Also prefer to change to use the call syntax instead of bind. Another way is to use es6 class extend since it can achieve the same thing in a cleaner more obvious manner. The module exports the class.
+
+Finally mode should be undefined, since you would know what you're adding right? But permissions should be obvious.
+
+Root and group id should default to root.

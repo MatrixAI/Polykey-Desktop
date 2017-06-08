@@ -5,7 +5,8 @@
       {
         "rootPathSuffix": "src"
       }
-    ]
+    ],
+    "transform-object-rest-spread"
   ],
   "presets": [ "env", "flow" ]
 }
