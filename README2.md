@@ -434,10 +434,13 @@ This is an index file with marked sections:
 00000000  44 49 52 43 00 00 00 02  00 00 00 01 59 37 c1 07  |DIRC........Y7..|
           |CTIMEN...| MTIME.....|  MTIMEN....| DEV.......|
 00000010  1c 25 38 80 59 37 c1 07  1c 25 38 80 00 00 00 24  |.%8.Y7...%8....$|
-          |INODE....|
+          |INODE....| MODE......|  UID.......| GID.......|
 00000020  00 00 04 11 00 00 81 a4  00 00 03 e8 00 00 03 e8  |................|
+          |FILESIZE.| SHA1................................
 00000030  00 00 00 04 8b ae f1 b4  ab c4 78 17 8b 00 4d 62  |..........x...Mb|
+          ......................|  FLAG| PATH......| NUL..
 00000040  03 1c f7 fe 6d b6 f9 03  00 04 74 65 73 74 00 00  |....m.....test..|
+          ....|
 00000050  00 00 00 00 58 0a a8 3d  db a9 b8 fa 79 0c 51 1e  |....X..=....y.Q.|
 00000060  31 85 f2 d0 47 64 e3 e1                           |1...Gd..|
 00000068
@@ -475,3 +478,26 @@ Also prefer to change to use the call syntax instead of bind. Another way is to 
 Finally mode should be undefined, since you would know what you're adding right? But permissions should be obvious.
 
 Root and group id should default to root.
+
+Mode is a 32 bits is split into 4 bit object type, 3 bit unused and 9 bit unix permission.
+
+The code is missing the 32 bit mode, it just goes from inode to uid. Currently the mode only uses 16 bits. That is the the right side, maybe because of big endian ordering?
+
+In git the 9 bit permission mode is only allowed to be 0755 or 0644. So even if the file has a different set of permissions that's not allowed, and it needs to be either. Symlinks and gitlinks are both 0 for the entire field. So we cannot just take the decimal form of the file and embed it into the index file. Remeber that the mode call of the statSync actually returns 4 bits and 3 bits and then 9 bits, so it does it correctly. Directories are not recorded in the git index, only files and gitlinks. Whether something is 755 or 644 is really about whether the user has a execute permission or not, if it does, it defaults on to 755, and if it doesn't, then it defaults to 644. So we just need a permission check on the 10th bit, we can use a bitwise & operation.
+
+Since the file is not executable we should be seeing 1000 000 110 100 100, with this Concentrate().uint32be(33188).result() returns 00 00 81 a4, which is the correct result. So to do this, we must first check if it is a normal file, and then secondly if it is executable, and that is done here during the toBuffer.
+
+Also we only accept regular files (1000), symlink (1010), and gitlink (1110). I don't know what a gitlink is. Goddamn it, the stat mode library has to take entire stat object, how stupid is that. Actually resolved via js type monkey patching!! `new Mode({ mode: stat.mode })`. Ok this should allow testing of both files and executable bit, if it is a file, then allow for executble or not, if symlink or git symlink, then it is all 0s for the mode... note that testing for gitlink requires something outside of statmode.
+
+For the purpose of our in-memory filesystem, we should extend it to add a proper stat call, and the ability to add in stats for files. That is the creation of a file should also add in a stat data, there will be a default version.
+
+This explains the flags and extended flags:
+https://stackoverflow.com/a/25806452/582917
+
+I don't really understand what flags should be set here.
+
+---
+
+These libraries are so terrible, it's as if we need to rewrite stat-mode, memoryfs, and the entire gitkit, it's just so broken... Getting bogged down in this bullshit. Statmode can be worked around, no need to rewrite. But memory fs requires a way to simulate the stat data, or else we are screwed!!! Instead of just data being being an object of keys to buffers, they will have to be keys to arrays of buffer data and metadata object, or an object containing both somehow. It's probably better to remain backwards compatible, but we shouldn't overload the buffer type.
+
+Ok let's do this, we need to rewrite gitkit and memory-fs, got to start with memory-fs.

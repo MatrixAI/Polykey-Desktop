@@ -1,12 +1,8 @@
 {
   "plugins": [
-    [
-      "babel-plugin-root-import",
-      {
-        "rootPathSuffix": "src"
-      }
-    ],
+    ["babel-plugin-root-import", {"rootPathSuffix": "src"}],
+    "partial-application",
     "transform-object-rest-spread"
   ],
-  "presets": [ "env", "flow" ]
+  "presets": [ "env", "react", "flow" ]
 }
