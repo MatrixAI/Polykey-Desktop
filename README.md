@@ -105,7 +105,7 @@ Each time you encrypt and decrypt, you've got to enter your password again, this
 
 For publically readable emails, you wouldn't encrypt, you'd just sign it. The verification of it has to do something like HMAC (hash + message). In the case of an email, that's an email attachment each time. That kind of makes it annoying, as every email now has an attachment. A smarter email would understand that and put it separate from emails normally. And putting it into the body is gross.
 
-If you only want to sign the messsage use 
+If you only want to sign the messsage use
 
 gpg --clearsign ./filename
 
@@ -222,7 +222,7 @@ https://blogs.windows.com/buildingapps/2016/12/02/symlinks-windows-10/#fjxiQeQMQ
 
 New apps need to use this: SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE to make sure that windows understands that the app understands to create symlinks even without administrator mode. Perhaps powershell call out, or some sort of .NET API.
 
-To be really portable, we need an alternative way to tag files or group files, an alternative to symlinks can be understanding text-link format, and just using that within Polykey. (Windows shortcuts? (but it requires environment variables to work, as there's no relative shortcutting mechanism)) 
+To be really portable, we need an alternative way to tag files or group files, an alternative to symlinks can be understanding text-link format, and just using that within Polykey. (Windows shortcuts? (but it requires environment variables to work, as there's no relative shortcutting mechanism))
 
 Note that the KEYID is the last 8 hexadecimal characters of the fingerprint after removing spaces. A KEYID could also be used for names in our sharing mechanism instead of the full fingerprint. But there's a greater chance of duplication right? It depends on how many people one could be sharing.
 
@@ -302,3 +302,45 @@ Share contains fingerprints.
 One problem is that introduction that people must learn how to use gpg before polykey. And the incompatibilities of gpg and gpg2. Then it should work seamlessly with gpg and gpg2.
 
 Try to haskell gpgme project.
+
+---
+
+Here's how we receive other people's keys and verify signatures:
+
+```
+gpg --keyserver pool.sks-keyservers.net --recv-keys [keyId]
+```
+
+Note that the sks keyservers is not just 1 server, but a pool of servers, so it's often more reliable! An alternative to using pgp keyservers is to use keybase!
+
+How do you know which keyid you want? Usually the person you want to trust has told you this. But someone might write on their website: https://pgp.mit.edu/pks/lookup?op=vindex&search=0x2BD5824B7F9470E6 Remember this means you're trusting the website to accurately reflect the details of this person!
+
+Now you have his signature, you can proceed to verify a downloaded file according to pgp:
+
+```
+gpg --verify ./file.asc ./file
+```
+
+You night then see something like this:
+
+```
+gpg --verify ./electrum-3.0.3-setup.exe.asc ./electrum-3.0.3-setup.exe                                                                     pty3 23:54:17
+gpg: Signature made Tue, Dec 12, 2017  7:06:09 PM NZST using RSA key ID 7F9470E6
+gpg: Good signature from "Thomas Voegtlin (https://electrum.org) <thomasv@electrum.org>"
+gpg:                 aka "ThomasV <thomasv1@gmx.de>"
+gpg:                 aka "Thomas Voegtlin <thomasv1@gmx.de>"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 6694 D8DE 7BE8 EE56 31BE  D950 2BD5 824B 7F94 70E6
+```
+
+It would be good if the signature of the file came with the file, unfortunately this would often need an archive of some sort.
+
+This is one level higher than simple integrity checks that come with SHA256 or MD5. Those only check if the file generates a content hash that is matching. This signature check checks for whether a key was used to sign the file (similar to an identity check). But then to really tie it to a true identity, you need to match it against a signature given through a secure channel. Where security depends on what you trust, like the website that you got the download from or from keybase where you can social verification techniques.
+
+> Unless you directly signed the software issuer's key, all you know is somebody signed the software. There is no primary certificate authority in OpenPGP, everybody can add a key with arbitrary names, it is up to you to decide which to put trust in. This is usually done by meeting and exchanging the key's fingerprints, but depending on your level of paranoia you might be fine with verifying the key fingerprint against some they put on their website (which then should be transmitted SSL-encrypted together with a reasonable certificate, of course).
+> https://security.stackexchange.com/a/56613/37070
+
+Specifically the usage of a digital signature is about 3 things: authenticity (message was created by known sender), non-repudiation (sender cannot deny) and integrity (wasn't modified in transit).
+
+Therefore one should put their signatures on business cards that you hand out! Or direct them to a keybase site.
