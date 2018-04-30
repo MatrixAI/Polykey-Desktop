@@ -2,7 +2,13 @@
   "plugins": [
     ["babel-plugin-root-import", {"rootPathSuffix": "src"}],
     "partial-application",
-    "transform-object-rest-spread"
+    "transform-object-rest-spread",
+    ["transform-class-properties", {"spec": true}]
   ],
-  "presets": [ "env", "react", "flow" ]
+  "presets": [ "env", "react", "flow" ],
+  "env": {
+    "production": {
+      "presets": [ "babili" ]
+    }
+  }
 }
