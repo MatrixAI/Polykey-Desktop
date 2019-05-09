@@ -1,9 +1,10 @@
 import fs from 'fs'
 import crypto from 'crypto'
 import process from 'process'
-import openpgp from 'openpgp'
+import * as openpgp from 'openpgp'
 import debugLogger from 'debug'
 
+// TODO: this entire file needs to be more legit with its await. Catch em all
 const debug = debugLogger('decrypt');
 
 // TODO: flow type annotations
@@ -33,25 +34,34 @@ export default class Cryptor {
   }
 
   // used for asymmetric encryption
-  async loadKeyPair(privKey: string, pubKey: string): Promise<void> {
+  async loadKeyPair(privKey: string, pubKey: string, passphrase: string = ''): Promise<void> {
     this._privCipher = (await openpgp.key.readArmored(privKey)).keys[0]
+    try {
+      await this._privCipher.decrypt(passphrase)
+    } catch(err) {
+      throw err;
+    }
     this._pubCipher = (await openpgp.key.readArmored(pubKey)).keys[0]
   }
 
-  loadPrivateKey(privKey: string): void {
+  async loadPrivateKey(privKey: string, passphrase: string = ''): Promise<void> {
     this._privKey = privKey
+    this._privCipher = (await openpgp.key.readArmored(privKey)).keys[0]
+    await this._privCipher.decrypt(passphrase)
   }
 
-  loadPublicKey(pubKey: string): void {
+  async loadPublicKey(pubKey: string): Promise<void> {
     this._pubKey = pubKey
+    this._pubCipher = (await openpgp.key.readArmored(pubKey)).keys[0]
   }
 
-  async publicEncrypt(data: string|Buffer): Promise<{data:string}> {
+  async publicEncrypt(data: string|Buffer): Promise<string> {
     let message;
     if (typeof data === 'string') {
       message = openpgp.message.fromText(data)
     } else {
-      message = openpgp.message.fromBinary([...data])
+      // TODO: is this legit?
+      message = openpgp.message.fromText(data.toString())
     }
 
     const options = {
@@ -61,20 +71,85 @@ export default class Cryptor {
 
     const ciphertext = await openpgp.encrypt(options)
 
-    return ciphertext
+    return ciphertext.data
   }
 
-  async privateDecrypt(ciphertext: string) {
+  async privateDecrypt(ciphertext: string): Promise<string> {
     const message = await openpgp.message.readArmored(ciphertext)
     const options = {
       message: message,    // parse armored message
       privateKeys: [this._privCipher]                                 // for decryption
     }
-    await openpgp.decrypt(options)
+    const plaintext = await openpgp.decrypt(options)
 
+    // TODO: dont think this is legit?
+    return <string>plaintext.data
   }
 
+  async signData(data: string|Buffer, privkey?: {key: string, passphrase: string}): Promise<string> {
+    let key;
+    if (privkey) {
+      key = (await openpgp.key.readArmored(privkey.key)).keys[0]
+      key.decrypt(privkey.passphrase)
+    } else {
+      key = this._privCipher
+    }
 
+    let message;
+    if (typeof data === 'string') {
+      message = openpgp.message.fromText(data)
+    } else {
+      // TODO: is this legit?
+      message = openpgp.message.fromText(data.toString())
+    }
+
+    const options = {
+      message: message,
+      privateKeys: key
+    }
+
+    const signed = await openpgp.sign(options)
+
+    return signed.data
+  }
+
+  async verifyData(data: string|Buffer, pubkey ?: string): Promise<Boolean> {
+    let key;
+    if (pubkey) {
+      key = (await openpgp.key.readArmored(pubkey)).keys[0]
+    } else {
+      key = this._pubCipher
+    }
+
+    if (typeof data !== 'string') {
+      data = data.toString()
+    }
+
+
+    let message
+    try {
+      message = await openpgp.message.readArmored(data)
+    } catch(err) {
+      console.log(err)
+      return false;
+    }
+
+    const options = {
+      message: message, // parse armored message
+      publicKeys: key // for verification
+    }
+
+    // const valid = (await openpgp.verify(options)).signatures[0].valid
+    try {
+      const verification = (await openpgp.verify(options))
+      const valid = verification.signatures[0].valid
+      return valid
+    } catch(err) {
+      console.log(err)
+      return false;
+    }
+
+  }
 
   hashSync(data: string|Buffer, outputEncoding: 'hex' | 'latin1' |  'base64' = 'hex'): Buffer {
     const hash = crypto.createHash('sha256');
