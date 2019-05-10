@@ -12,7 +12,6 @@ import isValidPath from 'is-valid-path'
 import debugLogger from 'debug'
 
 const debug = debugLogger('encrypt');
-  
 
 const SALT_SIZE = 16 // in bytes
 
@@ -86,7 +85,7 @@ export default class Encrypt extends Command {
 
     const outputBuf = Buffer.concat([salt, iv, encryptedContents], (salt.length +iv.length + encryptedContents.length));
 
-    if (flags['output']) { 
+    if (flags['output']) {
       if (!isValidPath(flags['output'])) {
         throw Error("Invalid path: " + flags['output'])
       }
@@ -96,9 +95,7 @@ export default class Encrypt extends Command {
       console.log(outputBuf.toString('base64'))
     }
 
-    
-    
-    /* 
+    /*
     The things is that we have a required flag. Either password or key are requried
     We could make only key required, and generating a key piped in 
     */
