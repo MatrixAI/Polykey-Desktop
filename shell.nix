@@ -1,8 +1,24 @@
 {
-  pkgs ? import (fetchTarball https://github.com/NixOS/nixpkgs-channels/archive/00e56fbbee06088bf3bf82169032f5f5778588b7.tar.gz) {}
+  pkgs ? import ./pkgs.nix,
+  nodeVersion ? "8_x",
 }:
   with pkgs;
-  stdenv.mkDerivation {
-    name = "polykey";
-    buildInputs = [ python2 nodejs flow ];
-  }
+  let
+    drv = import ./default.nix { inherit pkgs nodeVersion; };
+    nodePackages = lib.getAttrFromPath
+                   (lib.splitString "." ("nodePackages_" + nodeVersion))
+		   pkgs;
+  in
+    drv.overrideAttrs (attrs: {
+      src = null;
+      buildInputs = [ nodePackages.node2nix ] ++
+                    attrs.buildInputs;
+      shellHook = ''
+        echo 'Entering ${attrs.name}'
+        set -v
+
+        export PATH="$(pwd)/dist/bin:$(npm bin):$PATH"
+
+        set +v
+      '';
+    })

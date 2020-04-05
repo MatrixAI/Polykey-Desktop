@@ -1,16 +1,29 @@
-{ pkgs ? import <nixpkgs> { inherit system; }, system ? builtins.currentSystem }:
+{
+  pkgs ? import ./pkgs.nix,
+  nodeVersion ? "8_x"
+}:
+  with pkgs;
   let
-    # this exposes 3 overridable attributes: shell, package, tarball
-    nodeEnv = import ./node.nix { inherit pkgs system; };
+    nodejs = lib.getAttrFromPath
+            (lib.splitString "." ("nodejs-" + nodeVersion))
+            pkgs;
+    nodePackages = lib.getAttrFromPath
+                   (lib.splitString "." ("nodePackages_" + nodeVersion))
+                   pkgs;
   in
-    # override the shell attribute with an extra build input, which is node2nix
-    nodeEnv // (with pkgs; {
-      shell = nodeEnv.shell.override (oldAttrs: {
-        buildInputs = oldAttrs.buildInputs ++ [
-          nodePackages.node2nix
-        ];
-        shellHook = oldAttrs.shellHook + ''
-          export PATH="$NODE_PATH/.bin:$PATH"
-        '';
-      });
-    })
+    stdenv.mkDerivation {
+      name = "polykey-cli";
+      version = "0.0.1";
+      src = lib.cleanSourceWith {
+        filter = (path: type:
+          ! (builtins.any
+            (r: (builtins.match r (builtins.baseNameOf path)) != null)
+            [
+              "node_modules"
+              "\.env"
+            ])
+        );
+        src = lib.cleanSource attrs.src;
+      };
+      buildInputs = [ nodejs dos2unix nodePackages.typescript ];
+    }
