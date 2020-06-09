@@ -1,6 +1,0 @@
-#!/usr/bin/env node
-
-/* import main from '~/main.js';*/
-import main from '~/main2.js';
-
-main(process.argv, process.env);
