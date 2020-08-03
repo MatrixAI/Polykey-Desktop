@@ -1,6 +1,6 @@
 {
   pkgs ? import ./pkgs.nix,
-  nodeVersion ? "8_x"
+  nodeVersion ? "12_x"
 }:
   with pkgs;
   let
@@ -12,7 +12,7 @@
                    pkgs;
   in
     stdenv.mkDerivation {
-      name = "polykey-cli";
+      name = "PolyKey";
       version = "0.0.1";
       src = lib.cleanSourceWith {
         filter = (path: type:
@@ -25,5 +25,6 @@
         );
         src = lib.cleanSource attrs.src;
       };
-      buildInputs = [ nodejs dos2unix nodePackages.typescript ];
+      buildInputs = [ nodejs dos2unix ];
+      checkInputs = [ webpack ];
     }

@@ -1,21 +1,47 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "importHelpers": true,
-    "module": "commonjs",
-    "outDir": "lib",
-    "rootDir": "src",
+    "target": "ES2018",
+    "module": "CommonJS",
     "strict": true,
-    "target": "es2017",
-    "composite": true,
-    "sourceMap": true,
-    // Enable support for importing CommonJS modules targeting es6 modules
+    "jsx": "preserve",
+    "importHelpers": true,
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
     "esModuleInterop": true,
-    // When using above interop will get missing default export error from type check since
-    // modules use "export =" instead of "export default", enable this to ignore errors.
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "baseUrl": "./src",
+    "types": [
+      "webpack-env",
+      "jest",
+      "vuetify",
+    ],
+    "paths": {
+      "@/*": [ "renderer/*" ],
+      "@server/*": [ "main/*" ]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/vuetify/types",
+      "./types"
+    ],
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
