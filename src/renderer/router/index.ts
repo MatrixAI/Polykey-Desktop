@@ -5,9 +5,16 @@ import NewVault from '@/components/vaults/NewVault.vue';
 import NewSecret from '@/components/vaults/secrets/NewSecret.vue';
 import VaultInformation from '@/components/vaults/VaultInformation.vue';
 
+import Social from '@/components/social/Social.vue';
+
+import Keys from '@/components/keys/Keys.vue';
+
+import Configuration from '@/components/configuration/Configuration.vue';
+
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
+  // Vaults
   {
     path: "/Vaults",
     component: Vaults,
@@ -25,7 +32,21 @@ const routes: Array<RouteConfig> = [
     path: "/Vaults/NewVault",
     component: NewVault
   },
-
+  // Social
+  {
+    path: "/Social",
+    component: Social,
+  },
+  // Keys
+  {
+    path: "/Keys",
+    component: Keys,
+  },
+  // Configuration
+  {
+    path: "/Configuration",
+    component: Configuration,
+  },
 ];
 
 const router = new VueRouter({
@@ -34,6 +55,6 @@ const router = new VueRouter({
   routes
 });
 
-router.replace('Vaults')
+router.replace('Configuration')
 
 export default router;

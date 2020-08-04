@@ -57,9 +57,8 @@ const namingRule = name =>
   "Name must only contain letters, numbers and hyphens";
 
 @Component({
-  name: "SecretInformation"
 })
-export default class SecretInformation extends Vue {
+export default class KeyPairInformation extends Vue {
   @secrets.State
   public selectedVaultName!: string;
 

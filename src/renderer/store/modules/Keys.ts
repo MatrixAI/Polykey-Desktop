@@ -1,4 +1,5 @@
 import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
+import { polykeyClient } from '@/store'
 
 @Module({ namespaced: true })
 class Keys extends VuexModule {
@@ -13,7 +14,8 @@ class Keys extends VuexModule {
     this.keyNames = keyNames
   }
   @Action
-  public updateKeyNames(keyNames: string[]): void {
+  public async loadKeyNames(): Promise<void> {
+    const keyNames = await polykeyClient.key
     this.context.commit('setKeyNames', keyNames)
   }
 }

@@ -2,10 +2,11 @@
   <v-container fluid pa-0 class="d-flex flex-column flex-grow-1 fill-parent-height">
     <v-row no-gutters class="top-row flex-grow-1 flex-shrink-1">
       <v-col class="side-panel fill-parent-height">
-        <h2 style="text-align: center;">Vaults</h2>
+        <h2 style="text-align: center;">Users</h2>
         <v-list-item>
           <v-list-item-content>
-            <v-btn color="success" rounded small @click="newVault()">New Vault</v-btn>
+            <v-btn color="success" rounded small @click="newVault()">Find</v-btn>
+            <v-btn color="success" rounded small @click="newVault()">Find</v-btn>
           </v-list-item-content>
         </v-list-item>
         <v-list :item-height="50" color="transparent">
@@ -96,6 +97,7 @@ const vaults = namespace('Vaults');
 const secrets = namespace('Secrets');
 
 @Component({
+  name: 'NewVault',
   components: {
     SecretInformation,
   },

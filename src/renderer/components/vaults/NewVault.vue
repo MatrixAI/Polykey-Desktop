@@ -60,6 +60,7 @@
       </v-container>
 
       <v-card-actions>
+        <v-btn @click="cancel">Cancel</v-btn>
         <v-btn color="warning" @click="resetValidation">Clear</v-btn>
         <v-spacer></v-spacer>
         <v-btn color="success" @click="newVault">Create</v-btn>
@@ -69,39 +70,34 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { namespace } from "vuex-class";
-import { polykeyClient } from "../../store";
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { namespace } from 'vuex-class';
+import { polykeyClient } from '../../store';
 
-const vaults = namespace("Vaults");
-const alertNamespace = namespace("Alert");
+const vaults = namespace('Vaults');
+const alert = namespace('Alert');
 
 const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) ||
-  !name ||
-  "Name must only contain letters, numbers and hyphens";
+  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
 
 @Component({
-  name: "NewVault"
+  name: 'NewVault',
 })
 export default class NewVault extends Vue {
   @vaults.Action
   public loadVaultNames!: () => void;
 
-  @alertNamespace.Action
+  @alert.Action
   public toggleAlert!: (props: { visible: boolean; message?: string }) => void;
 
   public valid: boolean = false;
-  public vaultName = "";
-  public vaultNameRules = [
-    name => !!name || "Vault name is required",
-    namingRule
-  ];
-  public peerNames = ["@github/morty-smith", "@github/jerry-smith"];
-  public selectedPeers = [""];
-  public initialSecretName = "";
+  public vaultName = '';
+  public vaultNameRules = [name => !!name || 'Vault name is required', namingRule];
+  public peerNames = ['@github/morty-smith', '@github/jerry-smith'];
+  public selectedPeers = [''];
+  public initialSecretName = '';
   public initialSecretNameRules = [namingRule];
-  public initialSecretContent = "";
+  public initialSecretContent = '';
 
   validate(): boolean {
     return (<any>this.$refs.newVaultForm).validate();
@@ -112,33 +108,35 @@ export default class NewVault extends Vue {
   resetValidation() {
     this.reset();
   }
+  cancel() {
+    this.$router.back();
+  }
   async newVault() {
     if (this.validate()) {
-      const successful = await polykeyClient.newVault(
-        "/home/robbie/.polykey",
-        this.vaultName
-      );
+      const successful = await polykeyClient.newVault('/home/robbie/.polykey', this.vaultName);
 
       this.loadVaultNames();
       // Add a new secret if one was provided
       if (this.initialSecretName) {
         const successful = await polykeyClient.createSecret(
-          "/home/robbie/.polykey",
+          '/home/robbie/.polykey',
           this.vaultName,
           this.initialSecretName,
-          Buffer.from(this.initialSecretContent)
+          Buffer.from(this.initialSecretContent),
         );
       }
 
       // Go back
       this.toggleAlert({
         visible: true,
-        message: `New Vault created at ${"/home/robbie/.polykey/" +
-          this.vaultName}`
+        message: `New Vault created at ${'/home/robbie/.polykey/' + this.vaultName}`,
       });
       this.$router.back();
     } else {
-      alert("Please address form errors");
+      this.toggleAlert({
+        visible: true,
+        message: "Please check form errors"
+      });
     }
   }
 }

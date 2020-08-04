@@ -24,9 +24,13 @@ class Secrets extends VuexModule {
     this.selectedSecretContent = props.secretContent
   }
   @Action({ rawError: true })
-  public async selectSecret(secretName: string): Promise<void> {
-    const secretContent = await polykeyClient.getSecret('/home/robbie/.polykey', this.selectedVaultName, secretName)
-    this.context.commit('setSelectedSecret', { secretName, secretContent })
+  public async selectSecret(secretName?: string): Promise<void> {
+    if (secretName) {
+      const secretContent = await polykeyClient.getSecret('/home/robbie/.polykey', this.selectedVaultName, secretName)
+      this.context.commit('setSelectedSecret', { secretName, secretContent })
+    } else {
+      this.context.commit('setSelectedSecret', { secretName: '', secretContent: '' })
+    }
   }
 }
 export default Secrets

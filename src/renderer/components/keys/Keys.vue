@@ -2,14 +2,29 @@
   <v-container fluid pa-0 class="d-flex flex-column flex-grow-1 fill-parent-height">
     <v-row no-gutters class="top-row flex-grow-1 flex-shrink-1">
       <v-col class="side-panel fill-parent-height">
-        <h2 style="text-align: center;">Vaults</h2>
+        <h2 style="text-align: center;">Keys</h2>
         <v-list-item>
-          <v-list-item-content>
-            <v-btn color="success" rounded small @click="newVault()">New Vault</v-btn>
-          </v-list-item-content>
+          <v-container>
+            <v-btn color="success" rounded small @click="newVault()">New Key</v-btn>
+            <v-btn color="success" rounded small @click="newVault()">New KeyPair</v-btn>
+          </v-container>
         </v-list-item>
         <v-list :item-height="50" color="transparent">
+          <v-subheader>Primary KeyPair</v-subheader>
           <v-list-item-group v-model="selectedVaultIndex" color="primary" mandatory>
+            <v-list-item color="primary" link :ripple="false">
+              <v-list-item-icon>
+                <v-icon>fas fa-key</v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-title>Primary</v-list-item-title>
+
+              <v-spacer></v-spacer>
+              <v-btn link icon x-small color="warning" disabled>
+                <v-icon>fas fa-trash</v-icon>
+              </v-btn>
+            </v-list-item>
+            <v-subheader>Keys</v-subheader>
             <v-list-item
               v-for="item in vaultNames"
               :key="item"
@@ -18,7 +33,7 @@
               :ripple="false"
             >
               <v-list-item-icon>
-                <v-icon>fas fa-shield-alt</v-icon>
+                <v-icon>fas fa-key</v-icon>
               </v-list-item-icon>
 
               <v-list-item-title>{{item}}</v-list-item-title>
@@ -60,11 +75,7 @@
           </v-banner>
           <SecretInformation v-if="pathList[pathList.length-1].type == 'secret'" />
           <v-list v-else-if="secretNames.length != 0">
-            <v-list-item
-              v-for="item in secretNames"
-              :key="item"
-              :ripple="false"
-            >
+            <v-list-item v-for="item in secretNames" :key="item" :ripple="false">
               <v-list-item-icon>
                 <v-icon>fas fa-key</v-icon>
               </v-list-item-icon>
@@ -90,22 +101,24 @@
 import { namespace } from 'vuex-class';
 import { polykeyClient } from '@/store';
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue';
+import KeyInformation from '@/components/keys/KeyInformation.vue';
+import KeyPairInformation from '@/components/keys/KeyPairInformation.vue';
 
 const vaults = namespace('Vaults');
 const secrets = namespace('Secrets');
 
 @Component({
   components: {
-    SecretInformation,
+    KeyInformation,
+    KeyPairInformation
   },
 })
 export default class Vaults extends Vue {
-  newVault() {
-    this.$router.push('Vaults/NewVault');
+  newKey() {
+    this.$router.push('Keys/NewKey');
   }
-  newSecret() {
-    this.$router.push('Vaults/NewSecret');
+  newKeyPair() {
+    this.$router.push('Keys/NewKeyPair');
   }
 
   async destroyVault(vaultName: string) {
@@ -118,7 +131,6 @@ export default class Vaults extends Vue {
     await polykeyClient.destroySecret('/home/robbie/.polykey', this.selectedVaultName, secretName);
     this.loadSecretNames(this.selectedVaultName);
     console.log(this.secretNames);
-
   }
 
   public get pathList() {

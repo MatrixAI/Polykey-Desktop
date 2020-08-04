@@ -8,11 +8,11 @@
     color="primary"
   >
     <NavigationButton faIcon="fas fa-lock" route="Vaults" />
-    <NavigationButton faIcon="fas fa-users" route="Users" />
-    <NavigationButton faIcon="fas fa-key" route="Secrets" />
+    <NavigationButton faIcon="fas fa-users" route="Social" />
+    <NavigationButton faIcon="fas fa-key" route="Keys" />
     <NavigationButton faIcon="fas fa-share-alt-square" route="Sharing" />
     <template v-slot:append>
-      <NavigationButton faIcon="fas fa-cogs" rout="Configuration" />
+      <NavigationButton faIcon="fas fa-cogs" route="Configuration" />
     </template>
   </v-navigation-drawer>
 </template>

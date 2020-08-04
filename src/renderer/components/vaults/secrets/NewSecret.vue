@@ -1,74 +1,70 @@
 <template>
-  <v-layout style="padding: 10px;">
-    <v-flex>
-      <v-card color="FloralWhite">
-        <v-form v-model="valid" ref="newVaultForm">
-          <v-container>
-            <v-row>
-              <h2>New Secret - {{selectedVaultName}}</h2>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-list outlined>
-                  <v-text-field
-                    v-model="secretName"
-                    :rules="secretNameRules"
-                    label="Secret Name"
-                    counter="100"
-                    required
-                    outlined
-                    style="padding-left: 10px; padding-right: 10px"
-                    placeholder="Enter a new secret name"
-                  ></v-text-field>
+  <v-card color="FloralWhite" style="margin: 10px;">
+    <v-form width="100%" v-model="valid" ref="newVaultForm">
+      <v-container fluid width="100%">
+          <h2>New Secret - {{selectedVaultName}}</h2>
+        <v-row>
+          <v-col>
+            <v-list outlined>
+              <v-text-field
+                v-model="secretName"
+                :rules="secretNameRules"
+                label="Secret Name"
+                counter="100"
+                required
+                outlined
+                style="padding-left: 10px; padding-right: 10px"
+                placeholder="Enter a new secret name"
+              ></v-text-field>
 
-                  <v-textarea
-                    v-model="secretContent"
-                    label="Secret Content"
-                    required
-                    outlined
-                    style="padding-left: 10px; padding-right: 10px"
-                    placeholder="Enter the content of the secret"
-                  ></v-textarea>
-                </v-list>
-              </v-col>
-            </v-row>
-          </v-container>
+              <v-textarea
+                v-model="secretContent"
+                label="Secret Content"
+                required
+                outlined
+                style="padding-left: 10px; padding-right: 10px"
+                placeholder="Enter the content of the secret"
+              ></v-textarea>
+            </v-list>
+          </v-col>
+        </v-row>
+      </v-container>
 
-          <v-card-actions>
-            <v-btn @click="cancel">Cancel</v-btn>
-            <v-btn color="warning" @click="resetValidation">Clear</v-btn>
-            <v-spacer></v-spacer>
-            <v-btn color="success" @click="newSecret">Create</v-btn>
-          </v-card-actions>
-        </v-form>
-      </v-card>
-    </v-flex>
-  </v-layout>
+      <v-card-actions>
+        <v-btn @click="cancel">Cancel</v-btn>
+        <v-btn color="warning" @click="resetValidation">Clear</v-btn>
+        <v-spacer></v-spacer>
+        <v-btn color="success" @click="newSecret">Create</v-btn>
+      </v-card-actions>
+    </v-form>
+  </v-card>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { namespace } from "vuex-class";
-import { polykeyClient } from "@/store";
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { namespace } from 'vuex-class';
+import { polykeyClient } from '@/store';
 
-const vaults = namespace("Vaults");
+const vaults = namespace('Vaults');
+const alert = namespace('Alert');
 
 const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) ||
-  !name ||
-  "Name must only contain letters, numbers and hyphens";
+  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
 
 @Component({
-  name: "NewSecret"
+  name: 'NewSecret',
 })
 export default class NewSecret extends Vue {
   @vaults.State
   public selectedVaultName!: string;
 
+  @alert.Action
+  public toggleAlert!: (props: { visible: boolean; message?: string }) => void;
+
   public valid: boolean = false;
-  public secretName = "";
+  public secretName = '';
   public secretNameRules = [namingRule];
-  public secretContent = "";
+  public secretContent = '';
 
   validate(): boolean {
     return (<any>this.$refs.newVaultForm).validate();
@@ -82,17 +78,20 @@ export default class NewSecret extends Vue {
   async newSecret() {
     if (this.validate()) {
       const successful = await polykeyClient.createSecret(
-        "/home/robbie/.polykey",
+        '/home/robbie/.polykey',
         this.selectedVaultName,
         this.secretName,
-        Buffer.from(this.secretContent)
+        Buffer.from(this.secretContent),
       );
       console.log(successful);
       if (successful) {
         this.$router.back();
       }
     } else {
-      alert("Please address errors");
+      this.toggleAlert({
+        visible: true,
+        message: 'Please check form errors',
+      });
     }
   }
 
