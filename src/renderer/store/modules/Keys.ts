@@ -15,8 +15,8 @@ class Keys extends VuexModule {
   }
   @Action
   public async loadKeyNames(): Promise<void> {
-    const keyNames = await polykeyClient.key
-    this.context.commit('setKeyNames', keyNames)
+    // const keyNames = await polykeyClient.key
+    // this.context.commit('setKeyNames', keyNames)
   }
 }
 export default Keys
