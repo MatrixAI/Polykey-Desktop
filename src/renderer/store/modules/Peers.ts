@@ -1,5 +1,6 @@
 import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 import { polykeyClient } from '..'
+import { getConfiguration } from './Configuration'
 
 @Module({ namespaced: true })
 class Peers extends VuexModule {
@@ -10,7 +11,7 @@ class Peers extends VuexModule {
   }
   @Action({ rawError: true })
   public async loadPeerNames(): Promise<void> {
-    const vaultNames = await polykeyClient.listVaults('/home/robbie/.polykey')
+    const vaultNames = await polykeyClient.listVaults(getConfiguration().activeNodePath)
     this.context.commit('setVaultNames', vaultNames)
   }
 }

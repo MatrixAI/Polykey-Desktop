@@ -24,6 +24,7 @@ import NewVault from "./components/vaults/NewVault.vue";
 import { Component, Vue } from "vue-property-decorator";
 import { namespace } from "vuex-class";
 import { polykeyClient } from "@/store";
+import { getConfiguration } from './store/modules/Configuration';
 
 const vaults = namespace("Vaults");
 
@@ -47,8 +48,8 @@ export default class App extends Vue {
     }
     // Load polykey
     const successful = await polykeyClient.registerNode(
-      "/home/robbie/.polykey",
-      "passphrase"
+      getConfiguration().activeNodePath,
+      "pass"
     );
     if (successful) {
       console.log(`if was successful: ${successful}`);

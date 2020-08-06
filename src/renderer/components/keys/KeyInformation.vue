@@ -6,20 +6,8 @@
             <v-row>
               <v-col>
                 <v-list outlined>
-                  <v-text-field
-                    v-model="selectedSecretName"
-                    :rules="secretNameRules"
-                    label="Secret Name"
-                    counter="100"
-                    required
-                    :disabled="!edit"
-                    outlined
-                    style="padding-left: 10px; padding-right: 10px"
-                    placeholder="Enter a new secret name"
-                  ></v-text-field>
-
                   <v-textarea
-                    v-model="selectedSecretContent"
+                    v-model="selectedKeyContent"
                     label="Secret Content"
                     required
                     :disabled="!edit"
@@ -31,14 +19,6 @@
               </v-col>
             </v-row>
           </v-container>
-
-          <v-card-actions>
-            <v-btn @click="back" v-if="!edit">Back</v-btn>
-            <v-btn @click="cancel" v-else>Cancel</v-btn>
-            <v-spacer></v-spacer>
-            <v-btn color="warning" @click="editSecret" v-if="!edit">Edit</v-btn>
-            <v-btn color="success" @click="saveSecret" v-else>Save</v-btn>
-          </v-card-actions>
         </v-form>
     </v-flex>
   </v-layout>
@@ -49,7 +29,7 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import { namespace } from "vuex-class";
 import { polykeyClient } from "@/store";
 
-const secrets = namespace("Secrets");
+const keys = namespace('Keys');
 
 const namingRule = name =>
   /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) ||
@@ -59,35 +39,11 @@ const namingRule = name =>
 @Component({
 })
 export default class KeyInformation extends Vue {
-  @secrets.State
-  public selectedVaultName!: string;
+  @keys.State
+  public selectedKeyName!: string;
 
-  @secrets.State
-  public selectedSecretName!: string;
-  updatedSecretName: string = this.selectedSecretName
-  get secretName() {
-    return this.selectedSecretName
-  }
-  set secretName(value: string) {
-    this.updatedSecretName = value
-  }
-
-  @secrets.Action
-  public selectSecret!: (secretName: string) => void;
-
-  @secrets.State
-  public selectedSecretContent!: string;
-  updatedSecretContent: string = this.selectedSecretContent
-  get secretContent() {
-    if (this.edit) {
-      return this.selectedSecretContent
-    } else {
-      return this.updatedSecretContent
-    }
-  }
-  set secretContent(value: string) {
-    this.updatedSecretContent = value
-  }
+  @keys.State
+  public selectedKeyContent!: string;
 
   edit: boolean = false
   editSecret() {
@@ -114,7 +70,6 @@ export default class KeyInformation extends Vue {
   }
 
   back() {
-    this.selectSecret('')
   }
 }
 </script>

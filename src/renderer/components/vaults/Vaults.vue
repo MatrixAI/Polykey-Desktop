@@ -32,7 +32,7 @@
         </v-list>
       </v-col>
       <v-col class="main-panel fill-parent-height">
-        <v-card>
+        <v-card v-if="vaultNames.length != 0">
           <v-banner single-line>
             <v-layout>
               <v-flex>
@@ -60,11 +60,7 @@
           </v-banner>
           <SecretInformation v-if="pathList[pathList.length-1].type == 'secret'" />
           <v-list v-else-if="secretNames.length != 0">
-            <v-list-item
-              v-for="item in secretNames"
-              :key="item"
-              :ripple="false"
-            >
+            <v-list-item v-for="item in secretNames" :key="item" :ripple="false">
               <v-list-item-icon>
                 <v-icon>fas fa-key</v-icon>
               </v-list-item-icon>
@@ -81,6 +77,10 @@
           </v-list>
           <h4 style="text-align: center;" v-else>No secrets found</h4>
         </v-card>
+        <div v-else>
+          <h3 style="text-align: center;">No Vault Found</h3>
+          <h5 style="text-align: center; color: grey;">Please create one</h5>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -91,6 +91,7 @@ import { namespace } from 'vuex-class';
 import { polykeyClient } from '@/store';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue';
+import { getConfiguration } from '@/store/modules/Configuration';
 
 const vaults = namespace('Vaults');
 const secrets = namespace('Secrets');
@@ -109,16 +110,15 @@ export default class Vaults extends Vue {
   }
 
   async destroyVault(vaultName: string) {
-    await polykeyClient.destroyVault('/home/robbie/.polykey', vaultName);
+    await polykeyClient.destroyVault(getConfiguration().activeNodePath, vaultName);
     this.loadVaultNames();
   }
 
   async destroySecret(secretName: string) {
     console.log(this.secretNames);
-    await polykeyClient.destroySecret('/home/robbie/.polykey', this.selectedVaultName, secretName);
+    await polykeyClient.destroySecret(getConfiguration().activeNodePath, this.selectedVaultName, secretName);
     this.loadSecretNames(this.selectedVaultName);
     console.log(this.secretNames);
-
   }
 
   public get pathList() {

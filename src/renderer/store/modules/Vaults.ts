@@ -1,5 +1,6 @@
-import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 import { polykeyClient } from '@/store'
+import { getConfiguration } from '@/store/modules/Configuration'
+import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 
 @Module({ namespaced: true })
 class Vaults extends VuexModule {
@@ -15,7 +16,7 @@ class Vaults extends VuexModule {
   }
   @Action({ rawError: true })
   public async loadVaultNames(): Promise<void> {
-    const vaultNames = await polykeyClient.listVaults('/home/robbie/.polykey')
+    const vaultNames = await polykeyClient.listVaults(getConfiguration().activeNodePath)
     this.context.commit('setVaultNames', vaultNames)
   }
   @Action({ rawError: true })

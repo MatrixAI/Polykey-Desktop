@@ -8,8 +8,10 @@ import VaultInformation from '@/components/vaults/VaultInformation.vue';
 import Social from '@/components/social/Social.vue';
 
 import Keys from '@/components/keys/Keys.vue';
+import NewKey from '@/components/keys/NewKey.vue';
 
 import Configuration from '@/components/configuration/Configuration.vue';
+import NewKeyNode from '@/components/configuration/NewKeyNode.vue';
 
 Vue.use(VueRouter);
 
@@ -42,10 +44,18 @@ const routes: Array<RouteConfig> = [
     path: "/Keys",
     component: Keys,
   },
+  {
+    path: "/Keys/NewKey",
+    component: NewKey,
+  },
   // Configuration
   {
     path: "/Configuration",
     component: Configuration,
+  },
+  {
+    path: "/Configuration/NewKeyNode",
+    component: NewKeyNode,
   },
 ];
 

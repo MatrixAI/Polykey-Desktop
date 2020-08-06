@@ -72,7 +72,8 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
-import { polykeyClient } from '../../store';
+import { polykeyClient } from '@/store';
+import { getConfiguration } from '@/store/modules/Configuration';
 
 const vaults = namespace('Vaults');
 const alert = namespace('Alert');
@@ -113,13 +114,13 @@ export default class NewVault extends Vue {
   }
   async newVault() {
     if (this.validate()) {
-      const successful = await polykeyClient.newVault('/home/robbie/.polykey', this.vaultName);
+      const successful = await polykeyClient.newVault(getConfiguration().activeNodePath, this.vaultName);
 
       this.loadVaultNames();
       // Add a new secret if one was provided
       if (this.initialSecretName) {
         const successful = await polykeyClient.createSecret(
-          '/home/robbie/.polykey',
+          getConfiguration().activeNodePath,
           this.vaultName,
           this.initialSecretName,
           Buffer.from(this.initialSecretContent),

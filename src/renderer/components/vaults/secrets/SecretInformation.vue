@@ -1,63 +1,51 @@
 <template>
   <v-layout style="padding: 10px;">
     <v-flex>
-        <v-form v-model="valid" ref="newVaultForm">
-          <v-container>
-            <v-row>
-              <v-col>
-                <v-list outlined>
-                  <v-text-field
-                    v-model="selectedSecretName"
-                    :rules="secretNameRules"
-                    label="Secret Name"
-                    counter="100"
-                    required
-                    :disabled="!edit"
-                    outlined
-                    style="padding-left: 10px; padding-right: 10px"
-                    placeholder="Enter a new secret name"
-                  ></v-text-field>
+      <v-form v-model="valid" ref="newVaultForm">
+        <v-container>
+          <v-row>
+            <v-col>
+              <h4>{{selectedSecretName}}</h4>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-textarea
+                v-model="secretContent"
+                label="Secret Content"
+                required
+                :disabled="!edit"
+                outlined
+                placeholder="Enter the content of the secret"
+              ></v-textarea>
+            </v-col>
+          </v-row>
+        </v-container>
 
-                  <v-textarea
-                    v-model="selectedSecretContent"
-                    label="Secret Content"
-                    required
-                    :disabled="!edit"
-                    outlined
-                    style="padding-left: 10px; padding-right: 10px"
-                    placeholder="Enter the content of the secret"
-                  ></v-textarea>
-                </v-list>
-              </v-col>
-            </v-row>
-          </v-container>
-
-          <v-card-actions>
-            <v-btn @click="back" v-if="!edit">Back</v-btn>
-            <v-btn @click="cancel" v-else>Cancel</v-btn>
-            <v-spacer></v-spacer>
-            <v-btn color="warning" @click="editSecret" v-if="!edit">Edit</v-btn>
-            <v-btn color="success" @click="saveSecret" v-else>Save</v-btn>
-          </v-card-actions>
-        </v-form>
+        <v-card-actions>
+          <v-btn @click="back" v-if="!edit">Back</v-btn>
+          <v-btn @click="cancel" v-else>Cancel</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="warning" @click="editSecret" v-if="!edit">Edit</v-btn>
+          <v-btn color="success" @click="saveSecret" v-else>Save</v-btn>
+        </v-card-actions>
+      </v-form>
     </v-flex>
   </v-layout>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { namespace } from "vuex-class";
-import { polykeyClient } from "@/store";
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { namespace } from 'vuex-class';
+import { polykeyClient } from '@/store';
 
-const secrets = namespace("Secrets");
+const secrets = namespace('Secrets');
 
 const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) ||
-  !name ||
-  "Name must only contain letters, numbers and hyphens";
+  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
 
 @Component({
-  name: "SecretInformation"
+  name: 'SecretInformation',
 })
 export default class SecretInformation extends Vue {
   @secrets.State
@@ -65,40 +53,42 @@ export default class SecretInformation extends Vue {
 
   @secrets.State
   public selectedSecretName!: string;
-  updatedSecretName: string = this.selectedSecretName
-  get secretName() {
-    return this.selectedSecretName
-  }
-  set secretName(value: string) {
-    this.updatedSecretName = value
-  }
 
   @secrets.Action
   public selectSecret!: (secretName: string) => void;
 
+  @secrets.Action
+  public updateSecret!: (props: { secretName: string; secretContent: string }) => void;
+
   @secrets.State
   public selectedSecretContent!: string;
-  updatedSecretContent: string = this.selectedSecretContent
+  updatedSecretContent: string = '';
   get secretContent() {
     if (this.edit) {
-      return this.selectedSecretContent
+      return this.updatedSecretContent;
     } else {
-      return this.updatedSecretContent
+      return this.selectedSecretContent;
     }
   }
   set secretContent(value: string) {
-    this.updatedSecretContent = value
+    this.updatedSecretContent = value;
   }
 
-  edit: boolean = false
+  edit: boolean = false;
   editSecret() {
-    this.edit = true
+    this.updatedSecretContent = this.selectedSecretContent;
+    this.edit = true;
   }
   saveSecret() {
-    this.edit = false
+    const x = this.updatedSecretContent;
+    console.log(x);
+
+    this.updateSecret({ secretName: this.selectedSecretName, secretContent: this.updatedSecretContent });
+    this.edit = false;
   }
   cancel() {
-    this.edit = false
+    this.selectSecret(this.selectedSecretName);
+    this.edit = false;
   }
 
   valid: boolean = false;
@@ -115,7 +105,7 @@ export default class SecretInformation extends Vue {
   }
 
   back() {
-    this.selectSecret('')
+    this.selectSecret('');
   }
 }
 </script>
