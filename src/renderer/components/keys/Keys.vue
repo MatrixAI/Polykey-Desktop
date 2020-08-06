@@ -3,15 +3,9 @@
     <v-row no-gutters class="top-row flex-grow-1 flex-shrink-1">
       <v-col class="side-panel fill-parent-height">
         <h2 style="text-align: center;">Keys</h2>
-        <v-list-item>
-          <v-container>
-            <v-btn color="success" rounded small @click="newVault()">New Key</v-btn>
-            <v-btn color="success" rounded small @click="newVault()">New KeyPair</v-btn>
-          </v-container>
-        </v-list-item>
         <v-list :item-height="50" color="transparent">
           <v-subheader>Primary KeyPair</v-subheader>
-          <v-list-item-group v-model="selectedVaultIndex" color="primary" mandatory>
+          <v-list-item-group v-model="selectedKeyIndex" color="primary" mandatory>
             <v-list-item color="primary" link :ripple="false">
               <v-list-item-icon>
                 <v-icon>fas fa-key</v-icon>
@@ -24,14 +18,12 @@
                 <v-icon>fas fa-trash</v-icon>
               </v-btn>
             </v-list-item>
-            <v-subheader>Keys</v-subheader>
-            <v-list-item
-              v-for="item in vaultNames"
-              :key="item"
-              color="primary"
-              link
-              :ripple="false"
-            >
+            <v-subheader>
+              Keys
+              <v-spacer></v-spacer>
+              <v-btn color="success" rounded small @click="newKey()">New Key</v-btn>
+            </v-subheader>
+            <v-list-item v-for="item in keyNames" :key="item" color="primary" link :ripple="false">
               <v-list-item-icon>
                 <v-icon>fas fa-key</v-icon>
               </v-list-item-icon>
@@ -51,46 +43,13 @@
           <v-banner single-line>
             <v-layout>
               <v-flex>
-                <v-btn-toggle rounded style="background-color: transparent;">
-                  <v-list
-                    v-for="item in pathList"
-                    :key="item.name"
-                    style="background-color: transparent;"
-                  >
-                    <v-btn small @click="changeView(item)">
-                      <v-icon x-small v-if="item.type == 'vault'">fas fa-shield-alt</v-icon>
-                      <v-icon x-small v-else-if="item.type == 'secret'">fas fa-file</v-icon>
-                      <v-icon x-small v-else></v-icon>
-
-                      <span style="padding-left: 5px;">{{item.name}}</span>
-                    </v-btn>
-                  </v-list>
-                </v-btn-toggle>
+                <h3 v-if="selectedKeyIndex == 0">Key Pair - Primary</h3>
+                <h3 v-else>Key - {{selectedKeyName}}</h3>
               </v-flex>
-              <v-spacer></v-spacer>
-              <v-btn icon small color="success" @click="newSecret">
-                <v-icon small>fas fa-plus</v-icon>
-              </v-btn>
             </v-layout>
           </v-banner>
-          <SecretInformation v-if="pathList[pathList.length-1].type == 'secret'" />
-          <v-list v-else-if="secretNames.length != 0">
-            <v-list-item v-for="item in secretNames" :key="item" :ripple="false">
-              <v-list-item-icon>
-                <v-icon>fas fa-key</v-icon>
-              </v-list-item-icon>
-
-              <v-list-item-title>{{item}}</v-list-item-title>
-              <v-spacer></v-spacer>
-              <v-btn link icon small color="info" @click="selectSecret(item)">
-                <v-icon>fas fa-edit</v-icon>
-              </v-btn>
-              <v-btn link icon small color="warning" @click="destroySecret(item)">
-                <v-icon>fas fa-trash</v-icon>
-              </v-btn>
-            </v-list-item>
-          </v-list>
-          <h4 style="text-align: center;" v-else>No secrets found</h4>
+          <KeyPairInformation v-if="selectedKeyIndex == 0" />
+          <KeyInformation v-else />
         </v-card>
       </v-col>
     </v-row>
@@ -104,77 +63,56 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import KeyInformation from '@/components/keys/KeyInformation.vue';
 import KeyPairInformation from '@/components/keys/KeyPairInformation.vue';
 
-const vaults = namespace('Vaults');
-const secrets = namespace('Secrets');
+const keys = namespace('Keys');
 
 @Component({
   components: {
     KeyInformation,
-    KeyPairInformation
+    KeyPairInformation,
   },
 })
 export default class Vaults extends Vue {
   newKey() {
     this.$router.push('Keys/NewKey');
   }
-  newKeyPair() {
-    this.$router.push('Keys/NewKeyPair');
-  }
+  deleteKey() {}
 
-  async destroyVault(vaultName: string) {
-    await polykeyClient.destroyVault('/home/robbie/.polykey', vaultName);
-    this.loadVaultNames();
-  }
+  @keys.Action
+  public loadKeyNames!: () => void;
+  @keys.Action
+  public loadKeyPair!: () => void;
+  @keys.Action
+  public selectKey!: (keyName: string) => void;
 
-  async destroySecret(secretName: string) {
-    console.log(this.secretNames);
-    await polykeyClient.destroySecret('/home/robbie/.polykey', this.selectedVaultName, secretName);
-    this.loadSecretNames(this.selectedVaultName);
-    console.log(this.secretNames);
-  }
+  @keys.State
+  public keyNames!: string[];
 
-  public get pathList() {
-    const list = [{ type: 'vault', name: this.selectedVaultName }];
-    if (this.selectedSecretName) {
-      list.push({
-        type: 'secret',
-        name: this.selectedSecretName,
-      });
+  @keys.State
+  public selectedKeyName!: string;
+  private selectedKeyIndexStore: number = 0;
+  public get selectedKeyIndex() {
+    console.log(this.selectedKeyIndexStore);
+
+    if (this.selectedKeyIndexStore == 0) {
+      return 0
     }
-    return list;
+    return this.keyNames.indexOf(this.selectedKeyName);
+  }
+  public set selectedKeyIndex(value: number) {
+    this.selectedKeyIndexStore = value;
+    const keyName = this.keyNames[value];
+    this.selectKey(keyName);
   }
 
-  @vaults.Action
-  public loadVaultNames!: () => void;
-  @vaults.Action
-  public selectVault!: (vaultName: string) => void;
-
-  @vaults.State
-  public vaultNames!: string[];
-  @vaults.State
-  public selectedVaultName!: string;
-  public get selectedVaultIndex() {
-    return this.vaultNames.indexOf(this.selectedVaultName);
-  }
-  public set selectedVaultIndex(value: number) {
-    const vaultName = this.vaultNames[value];
-    this.selectVault(vaultName);
-    this.loadSecretNames(vaultName);
-  }
-
-  @secrets.State
-  public secretNames!: string[];
-  @secrets.Action
-  public loadSecretNames!: (vaultName: string) => void;
-
-  @secrets.State
-  public selectedSecretName!: string;
-  @secrets.Action
-  public selectSecret!: (secretName: string) => void;
+  @keys.State
+  public publicKey!: string;
+  @keys.State
+  public privateKey!: string;
 
   constructor() {
     super();
-    this.loadVaultNames();
+    this.loadKeyNames();
+    this.loadKeyPair();
   }
 }
 </script>

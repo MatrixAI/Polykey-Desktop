@@ -7,6 +7,7 @@ import Alert from '@/store/modules/Alert';
 import Vaults from '@/store/modules/Vaults';
 import Drawer from '@/store/modules/Drawer';
 import Secrets from '@/store/modules/Secrets';
+import Configuration from '@/store/modules/Configuration';
 import RendererIPCStream from '@/store/RendererIPCStream';
 import PolykeyClient from 'js-polykey/dist/lib/browser-client';
 import ConfirmationDialog from '@/store/modules/ConfirmationDialog';
@@ -39,7 +40,8 @@ const store = new Vuex.Store({
     Peers: Peers,
     Vaults: Vaults,
     Secrets: Secrets,
-    Keys: Keys
+    Keys: Keys,
+    Configuration: Configuration
   }
 })
 

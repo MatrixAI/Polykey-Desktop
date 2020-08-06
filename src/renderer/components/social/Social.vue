@@ -92,6 +92,7 @@ import { namespace } from 'vuex-class';
 import { polykeyClient } from '@/store';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue';
+import { getConfiguration } from '@/store/modules/Configuration';
 
 const vaults = namespace('Vaults');
 const secrets = namespace('Secrets');
@@ -111,13 +112,13 @@ export default class Vaults extends Vue {
   }
 
   async destroyVault(vaultName: string) {
-    await polykeyClient.destroyVault('/home/robbie/.polykey', vaultName);
+    await polykeyClient.destroyVault(getConfiguration().activeNodePath, vaultName);
     this.loadVaultNames();
   }
 
   async destroySecret(secretName: string) {
     console.log(this.secretNames);
-    await polykeyClient.destroySecret('/home/robbie/.polykey', this.selectedVaultName, secretName);
+    await polykeyClient.destroySecret(getConfiguration().activeNodePath, this.selectedVaultName, secretName);
     this.loadSecretNames(this.selectedVaultName);
     console.log(this.secretNames);
 

@@ -13,11 +13,11 @@ class ConfirmationDialog extends VuexModule {
     this.confirmed = confirmed
     this.isOpen = false
   }
-  @Action
+  @Action({ rawError: true })
   public toggleOpen(isOpen?: boolean) {
     this.context.commit('setOpen', isOpen ?? !this.isOpen)
   }
-  @Action
+  @Action({ rawError: true })
   public confirm() {
     this.context.commit('setConfirmed', !this.confirm)
   }

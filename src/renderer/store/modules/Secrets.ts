@@ -1,5 +1,6 @@
 import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 import { polykeyClient } from '..'
+import { getConfiguration } from './Configuration'
 
 @Module({ namespaced: true })
 class Secrets extends VuexModule {
@@ -12,7 +13,7 @@ class Secrets extends VuexModule {
   }
   @Action({ rawError: true })
   public async loadSecretNames(vaultName: string): Promise<void> {
-    const secretNames = await polykeyClient.listSecrets('/home/robbie/.polykey', vaultName)
+    const secretNames = await polykeyClient.listSecrets(getConfiguration().activeNodePath, vaultName)
     this.context.commit('setSecretNames', { vaultName, secretNames })
   }
 
@@ -26,10 +27,17 @@ class Secrets extends VuexModule {
   @Action({ rawError: true })
   public async selectSecret(secretName?: string): Promise<void> {
     if (secretName) {
-      const secretContent = await polykeyClient.getSecret('/home/robbie/.polykey', this.selectedVaultName, secretName)
+      const secretContent = await polykeyClient.getSecret(getConfiguration().activeNodePath, this.selectedVaultName, secretName)
       this.context.commit('setSelectedSecret', { secretName, secretContent })
     } else {
       this.context.commit('setSelectedSecret', { secretName: '', secretContent: '' })
+    }
+  }
+  @Action({ rawError: true })
+  public async updateSecret(props: { secretName: string; secretContent: string }): Promise<void> {
+    const successful = await polykeyClient.updateSecret(getConfiguration().activeNodePath, this.selectedVaultName, props.secretName, Buffer.from(props.secretContent))
+    if (successful) {
+      this.context.commit('setSelectedSecret', { secretName: props.secretName, secretContent: props.secretContent })
     }
   }
 }

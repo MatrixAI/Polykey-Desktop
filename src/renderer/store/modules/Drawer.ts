@@ -8,7 +8,7 @@ class Drawer extends VuexModule {
   public setDrawer(open: boolean): void {
     this.isOpen = open
   }
-  @Action
+  @Action({ rawError: true })
   public toggleDrawer(isOpen?: boolean) {
     this.context.commit('setDrawer', isOpen ?? !this.isOpen)
   }
@@ -17,7 +17,7 @@ class Drawer extends VuexModule {
   public setSelectedRoute(route: string): void {
     this.selectedRoute = route
   }
-  @Action
+  @Action({ rawError: true })
   public selectRoute(route: string) {
     this.context.commit('setSelectedRoute', route)
   }

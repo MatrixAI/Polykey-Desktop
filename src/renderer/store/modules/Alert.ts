@@ -11,7 +11,7 @@ class Alert extends VuexModule {
     this.color = props.type
     this.message = props.message ?? ''
   }
-  @Action
+  @Action({ rawError: true })
   public toggleAlert(props: {visible: boolean, type: 'success' | 'warning' | 'error'| 'info' , message?: string}) {
     this.context.commit('setVisible', props)
   }
