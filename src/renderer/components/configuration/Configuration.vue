@@ -18,9 +18,7 @@
           <v-list-item-group v-model="selectedVaultIndex" color="primary" mandatory>
             <v-list-item v-for="item in nodePathList" :key="item" color="primary" link :ripple="false">
               <v-list-item-icon>
-                <v-icon>
-                  <img :src="__static+'/icons/alarm_clock.svg'" alt="">
-                </v-icon>
+                <v-icon>fas fa-file</v-icon>
               </v-list-item-icon>
 
               <v-list-item-title>{{item}}</v-list-item-title>
@@ -34,7 +32,7 @@
         </v-list>
       </v-col>
       <v-col class="main-panel fill-parent-height">
-        <v-card color="FloralWhite" style="position: relative" width="100%">
+        <!-- <v-card color="FloralWhite" style="position: relative" width="100%">
           <v-form v-model="valid" ref="newVaultForm">
             <v-container>
               <h2>New KeyNode</h2>
@@ -73,7 +71,7 @@
               <v-btn color="success" @click="newSecret">Create</v-btn>
             </v-card-actions>
           </v-form>
-        </v-card>
+        </v-card> -->
       </v-col>
     </v-row>
   </v-container>
@@ -99,7 +97,7 @@ export default class Configuration extends Vue {
   public nodePathList!: string[];
 
   @configuration.Action
-  public loadNodePathList!: () => void;
+  public loadNodePathList!: () => Promise<void>;
 
   public valid: boolean = false;
   public secretName = '';
@@ -143,7 +141,10 @@ export default class Configuration extends Vue {
 
   constructor() {
     super()
-    this.loadNodePathList()
+    this.loadNodePathList().then(() => {
+      console.log(this.nodePathList);
+
+    })
   }
 }
 </script>

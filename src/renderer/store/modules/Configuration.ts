@@ -13,9 +13,7 @@ class Configuration extends VuexModule {
 
   @MutationAction({ rawError: true, mutate: ['nodePathList'] })
   public async loadNodePathList() {
-    const nodePathList = await polykeyClient.listNodes()
-    console.log(nodePathList);
-
+    const nodePathList = await polykeyClient.listNodes(false)
     return { nodePathList }
   }
 }

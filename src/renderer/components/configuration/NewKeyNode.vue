@@ -83,8 +83,8 @@ const fs = remote.require('fs');
 
 const alert = namespace('Alert');
 
-const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
+// const namingRule = name =>
+//   /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
 const emailRule = email =>
   /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
     email,
@@ -99,11 +99,12 @@ export default class NewSecret extends Vue {
 
   valid = false;
   fullName = '';
-  nameRules = [namingRule];
+  nameRules = [];
   email = '';
   emailRules = [emailRule];
   passphrase = '';
-  passphraseRules = [passphrase => !passphrase || 'Passphrase is required'];
+  // passphraseRules = [passphrase => passphrase || 'Passphrase is required'];
+  passphraseRules = [];
 
   nodePath: string = path.join(app.getPath('home'), '.polykey');
   nodePathRules = [
@@ -120,10 +121,14 @@ export default class NewSecret extends Vue {
     this.reset();
   }
   async newKeyNode() {
+    console.log(this.validate());
+
     if (this.validate()) {
       const successful = await polykeyClient.newNode(this.nodePath, this.fullName, this.email, this.passphrase);
       if (successful) {
         this.$router.back();
+      } else {
+
       }
     } else {
       this.toggleAlert({
