@@ -1,6 +1,6 @@
-declare module "*.vue" {
-  import Vue from "vue";
-  export default Vue;
-}
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue';
 
-declare module "vuetify/lib";
+  const component: DefineComponent;
+  export default component;
+}

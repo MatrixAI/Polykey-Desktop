@@ -91,8 +91,8 @@ stdenv.mkDerivation rec {
     rm -rf ./node_modules
     ln -s -t "." "$dev_node_modules"
     export PATH="$dev_node_modules/.bin:$PATH"
-    # Expansion of 'npm run build'.
-    electron-webpack
+
+    webpack-cli
   '';
 
   # doCheck = true;

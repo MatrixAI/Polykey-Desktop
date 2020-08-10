@@ -1,72 +1,44 @@
 <template>
-  <v-app id="app" style="background: LightGrey;">
-    <v-main style="height:100vh">
-      <!-- <Login /> -->
-      <Alert />
-      <Drawer />
-      <AppBar />
-
-      <router-view />
-
-      <Footer />
-    </v-main>
-  </v-app>
+  <div id="nav">
+    <router-link to="/">Home</router-link> |
+    <router-link to="/about">About</router-link>
+  </div>
+  <router-view />
 </template>
 
 <script lang="ts">
-import Alert from "./components/alerts/Alert.vue";
-import Login from "./components/navigation/Login.vue";
-import AppBar from "./components/navigation/AppBar.vue";
-import Drawer from "./components/navigation/Drawer.vue";
-import Footer from "./components/navigation/Footer.vue";
+import { defineComponent } from 'vue';
+// import Home from '@/views/Home.vue'; // @ is an alias to /src
+// import About from '@/views/About.vue'; // @ is an alias to /src
 
-import NewVault from "./components/vaults/NewVault.vue";
-import { Component, Vue } from "vue-property-decorator";
-import { namespace } from "vuex-class";
-import { polykeyClient } from "@/store";
-import { getConfiguration } from './store/modules/Configuration';
-
-const vaults = namespace("Vaults");
-
-@Component({
+export default defineComponent({
+  name: 'App',
   components: {
-    Alert,
-    Login,
-    AppBar,
-    Drawer,
-    NewVault,
-    Footer
-  }
-})
-export default class App extends Vue {
-  @vaults.Action
-  public loadVaultNames!: () => Promise<void>;
-
-  async asyncInit() {
-    while ((await polykeyClient.getAgentStatus()) != "online") {
-      await new Promise(resolve => setTimeout(() => resolve(), 2000));
-    }
-    // Load polykey
-    const successful = await polykeyClient.registerNode(
-      getConfiguration().activeNodePath,
-      "pass"
-    );
-    if (successful) {
-      console.log(`if was successful: ${successful}`);
-    }
-    await this.loadVaultNames();
-  }
-
-  constructor() {
-    super();
-
-    this.asyncInit()
-  }
-}
+    // Home,
+    // About,
+  },
+});
 </script>
 
-<style scoped>
-.v-list-item {
-  padding-left: 30px;
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+
+#nav {
+  padding: 30px;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
 }
 </style>
