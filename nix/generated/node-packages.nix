@@ -19840,6 +19840,15 @@ let
         sha512 = "o/mRQGk9Rcer/jEEw/yw4mwo3EU/NvYvp577/Btqrym9Qy5/MdWGBqipbALgd2lrdWTJ5/gqDusxfnQBxOxT2Q==";
       };
     };
+    "scrypt-js-3.0.1" = {
+      name = "scrypt-js";
+      packageName = "scrypt-js";
+      version = "3.0.1";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/scrypt-js/-/scrypt-js-3.0.1.tgz";
+        sha512 = "cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==";
+      };
+    };
     "scss-tokenizer-0.2.3" = {
       name = "scss-tokenizer";
       packageName = "scss-tokenizer";
@@ -28682,6 +28691,7 @@ let
       sources."scheduler-0.19.1"
       sources."schema-utils-2.7.0"
       sources."scmp-2.1.0"
+      sources."scrypt-js-3.0.1"
       (sources."scss-tokenizer-0.2.3" // {
         dependencies = [
           sources."source-map-0.4.4"
