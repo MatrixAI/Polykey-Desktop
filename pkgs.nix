@@ -1,4 +1,4 @@
-import ( builtins.fetchGit {
-  url = "https://github.com/nixos/nixpkgs-channels/";
-  rev = "dcb64ea42e64aaecd8e6fef65cc86245c9666818";
-}) {}
+import (
+  let rev = "dcb64ea42e64aaecd8e6fef65cc86245c9666818"; in
+  fetchTarball "https://github.com/NixOS/nixpkgs-channels/archive/${rev}.tar.gz"
+) {}

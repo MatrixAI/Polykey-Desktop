@@ -7618,13 +7618,13 @@ let
         sha512 = "hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==";
       };
     };
-    "dayjs-1.8.32" = {
+    "dayjs-1.8.33" = {
       name = "dayjs";
       packageName = "dayjs";
-      version = "1.8.32";
+      version = "1.8.33";
       src = fetchurl {
-        url = "https://registry.npmjs.org/dayjs/-/dayjs-1.8.32.tgz";
-        sha512 = "V91aTRu5btP+uzGHaaOfodckEfBWhmi9foRP7cauAO1PTB8+tZ9o0Jec7q6TIIRY1N4q1IfiKsZunkB/AEWqMQ==";
+        url = "https://registry.npmjs.org/dayjs/-/dayjs-1.8.33.tgz";
+        sha512 = "881TDLZCdpJFKbraWRHcUG8zfMLLX400ENf9rFZDuWc5zYMss6xifo2PhlDX0ftOmR2NRmaIY47bAa4gKQfXqw==";
       };
     };
     "de-indent-1.0.2" = {
@@ -26055,7 +26055,7 @@ let
         ];
       })
       sources."date-fns-1.30.1"
-      sources."dayjs-1.8.32"
+      sources."dayjs-1.8.33"
       sources."de-indent-1.0.2"
       sources."deasync-0.1.20"
       sources."debug-4.1.1"

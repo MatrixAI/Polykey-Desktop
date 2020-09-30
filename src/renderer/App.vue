@@ -49,7 +49,7 @@ export default class App extends Vue {
     // Load polykey
     const successful = await polykeyClient.registerNode(
       getConfiguration().activeNodePath,
-      "pass"
+      "passphrase"
     );
     if (successful) {
       console.log(`if was successful: ${successful}`);

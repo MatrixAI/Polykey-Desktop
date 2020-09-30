@@ -22,7 +22,6 @@
     "async-mutex": "^0.2.4",
     "buffer-json": "^2.0.0",
     "core-js": "^3.6.5",
-    "electron-webrtc": "^0.3.0",
     "google-auth-library": "^6.0.5",
     "js-polykey": "0.0.16",
     "protobufjs": "^6.10.1",
