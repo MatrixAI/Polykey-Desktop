@@ -16,7 +16,7 @@ class Vaults extends VuexModule {
   }
   @Action({ rawError: true })
   public async loadVaultNames(): Promise<void> {
-    const vaultNames = await polykeyClient.listVaults(getConfiguration().activeNodePath)
+    const vaultNames = await polykeyClient.listVaults()
     this.context.commit('setVaultNames', vaultNames)
   }
   @Action({ rawError: true })

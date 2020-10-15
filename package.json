@@ -19,11 +19,11 @@
   "main": "./dist/main/main.ts",
   "dependencies": {
     "@matrixai/pagination": "^0.1.0",
+    "@matrixai/polykey": "0.0.20",
     "async-mutex": "^0.2.4",
     "buffer-json": "^2.0.0",
     "core-js": "^3.6.5",
     "google-auth-library": "^6.0.5",
-    "js-polykey": "0.0.16",
     "protobufjs": "^6.10.1",
     "readable-stream": "^3.6.0",
     "redux": "^4.0.5",

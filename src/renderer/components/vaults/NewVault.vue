@@ -114,13 +114,12 @@ export default class NewVault extends Vue {
   }
   async newVault() {
     if (this.validate()) {
-      const successful = await polykeyClient.newVault(getConfiguration().activeNodePath, this.vaultName);
+      const successful = await polykeyClient.newVault(this.vaultName);
 
       this.loadVaultNames();
       // Add a new secret if one was provided
       if (this.initialSecretName) {
         const successful = await polykeyClient.createSecret(
-          getConfiguration().activeNodePath,
           this.vaultName,
           this.initialSecretName,
           Buffer.from(this.initialSecretContent),

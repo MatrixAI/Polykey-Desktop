@@ -1,9 +1,9 @@
-import store, { polykeyClient } from '@/store'
-import { VuexModule, Module, MutationAction, getModule } from 'vuex-module-decorators'
+import store from '@/store'
+import { getModule, Module, MutationAction, VuexModule } from 'vuex-module-decorators'
 
 @Module({ name: 'Configuration', namespaced: true })
 class Configuration extends VuexModule {
-  public activeNodePath: string = '/home/robbie/.polykey'
+  public activeNodePath: string = '~/.polykey'
   public nodePathList: string[] = []
 
   @MutationAction({ rawError: true, mutate: ['activeNodePath'] })
@@ -13,7 +13,7 @@ class Configuration extends VuexModule {
 
   @MutationAction({ rawError: true, mutate: ['nodePathList'] })
   public async loadNodePathList() {
-    const nodePathList = await polykeyClient.listNodes(false)
+    const nodePathList = [this.activeNodePath]
     return { nodePathList }
   }
 }
@@ -24,3 +24,4 @@ function getConfiguration() {
 
 export default Configuration
 export { getConfiguration }
+

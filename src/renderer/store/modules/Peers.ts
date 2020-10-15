@@ -11,8 +11,8 @@ class Peers extends VuexModule {
   }
   @Action({ rawError: true })
   public async loadPeerNames(): Promise<void> {
-    const vaultNames = await polykeyClient.listVaults(getConfiguration().activeNodePath)
-    this.context.commit('setVaultNames', vaultNames)
+    const peerNames = await polykeyClient.listPeers()
+    this.context.commit('setPeerNames', peerNames)
   }
 }
 export default Peers

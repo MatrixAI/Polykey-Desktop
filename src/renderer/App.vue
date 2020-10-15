@@ -47,8 +47,7 @@ export default class App extends Vue {
       await new Promise(resolve => setTimeout(() => resolve(), 2000));
     }
     // Load polykey
-    const successful = await polykeyClient.registerNode(
-      getConfiguration().activeNodePath,
+    const successful = await polykeyClient.unlockNode(
       "passphrase"
     );
     if (successful) {

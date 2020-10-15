@@ -24,7 +24,7 @@
               <v-list-item-title>{{item}}</v-list-item-title>
 
               <v-spacer></v-spacer>
-              <v-btn link icon x-small color="warning" @click="destroyVault(item)">
+              <v-btn link icon x-small color="warning" @click="deleteVault(item)">
                 <v-icon>fas fa-trash</v-icon>
               </v-btn>
             </v-list-item>
@@ -109,8 +109,8 @@ export default class Vaults extends Vue {
     this.$router.push('Vaults/NewSecret');
   }
 
-  async destroyVault(vaultName: string) {
-    await polykeyClient.destroyVault(getConfiguration().activeNodePath, vaultName);
+  async deleteVault(vaultName: string) {
+    await polykeyClient.deleteVault(vaultName);
     this.loadVaultNames();
   }
 

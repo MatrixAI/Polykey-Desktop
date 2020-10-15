@@ -13,14 +13,14 @@ class Keys extends VuexModule {
 
   @MutationAction({ rawError: true, mutate: ['keyNames'] })
   public async loadKeyNames() {
-    const keyNames = await polykeyClient.listKeys(getConfiguration().activeNodePath)
+    const keyNames = await polykeyClient.listKeys()
     return { keyNames }
   }
   @MutationAction({ rawError: true, mutate: ['keyNames'] })
   public async deleteKey(keyName: string) {
-    const successful = await polykeyClient.deleteKey(getConfiguration().activeNodePath, keyName)
+    const successful = await polykeyClient.deleteKey(keyName)
     if (successful) {
-      const keyNames = await polykeyClient.listKeys(getConfiguration().activeNodePath)
+      const keyNames = await polykeyClient.listKeys()
       return { keyNames }
     } else {
       return { keyNames: this.keyNames }
@@ -33,12 +33,12 @@ class Keys extends VuexModule {
   }
   @MutationAction({ rawError: true, mutate: ['publicKey', 'privateKey'] })
   public async loadKeyPair() {
-    const keyPair = await polykeyClient.getPrimaryKeyPair(getConfiguration().activeNodePath, true)
-    return { publicKey: keyPair.publicKey, privateKey: keyPair.privateKey }
+    const keyPair = await polykeyClient.getPrimaryKeyPair(true)
+    return { publicKey: keyPair.public, privateKey: keyPair.private }
   }
   @MutationAction({ rawError: true, mutate: ['selectedKeyName', 'selectedKeyContent'] })
   public async selectKey(keyName: string) {
-    const keyContent = await polykeyClient.getKey(getConfiguration().activeNodePath, keyName)
+    const keyContent = await polykeyClient.getKey(keyName)
     return { selectedKeyName: keyName, selectedKeyContent: keyContent }
   }
 }
