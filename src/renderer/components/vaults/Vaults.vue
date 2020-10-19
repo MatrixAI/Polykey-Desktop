@@ -70,7 +70,7 @@
               <v-btn link icon small color="info" @click="selectSecret(item)">
                 <v-icon>fas fa-edit</v-icon>
               </v-btn>
-              <v-btn link icon small color="warning" @click="destroySecret(item)">
+              <v-btn link icon small color="warning" @click="deleteSecret(item)">
                 <v-icon>fas fa-trash</v-icon>
               </v-btn>
             </v-list-item>
@@ -114,9 +114,9 @@ export default class Vaults extends Vue {
     this.loadVaultNames();
   }
 
-  async destroySecret(secretName: string) {
+  async deleteSecret(secretName: string) {
     console.log(this.secretNames);
-    await polykeyClient.destroySecret(getConfiguration().activeNodePath, this.selectedVaultName, secretName);
+    await polykeyClient.deleteSecret(this.selectedVaultName, secretName);
     this.loadSecretNames(this.selectedVaultName);
     console.log(this.secretNames);
   }

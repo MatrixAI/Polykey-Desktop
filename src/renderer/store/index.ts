@@ -57,7 +57,7 @@ const polykeyClient = {
   newVault: (vaultName: string, ) => {
     return true
   },
-  createSecret: (vaultName: string, secretName: string, secretContent: string) => {
+  createSecret: (vaultName: string, secretName: string, secretContent: Buffer) => {
     return true
   },
   getSecret: (vaultName: string, secretName: string) => {
@@ -73,6 +73,12 @@ const polykeyClient = {
     return true
   },
   deleteVault: (vaultName: string) => {
+    return true
+  },
+  deriveKey: (keyName: string, keyContent: string) => {
+    return true
+  },
+  deleteSecret: (vaultName: string, secretName: string) => {
     return true
   }
 }

@@ -121,21 +121,7 @@ export default class NewSecret extends Vue {
     this.reset();
   }
   async newKeyNode() {
-    console.log(this.validate());
-
-    if (this.validate()) {
-      const successful = await polykeyClient.newNode(this.nodePath, this.fullName, this.email, this.passphrase);
-      if (successful) {
-        this.$router.back();
-      } else {
-
-      }
-    } else {
-      this.toggleAlert({
-        visible: true,
-        message: 'Please check form errors',
-      });
-    }
+    // TODO: remove this as you no longer have to create a node
   }
 
   cancel() {

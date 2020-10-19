@@ -1471,13 +1471,13 @@ let
         sha512 = "io/1eGswt0UmxAAKM1mlLWvRkbvKaadOQPJAB6V0NaWhjQWgmcMfYQpWZ701hlOYzamR5+rKS/WdhIl86t8gyQ==";
       };
     };
-    "@matrixai/polykey-0.0.18" = {
+    "@matrixai/polykey-0.0.20" = {
       name = "_at_matrixai_slash_polykey";
       packageName = "@matrixai/polykey";
-      version = "0.0.18";
+      version = "0.0.20";
       src = fetchurl {
-        url = "https://registry.npmjs.org/@matrixai/polykey/-/polykey-0.0.18.tgz";
-        sha512 = "YuUrweAtKJyNT60c97VVEZe6ag4hMIKS8mNtOsJ0nBYO/s7yH0hkLoqM9kHCgH+OXnrjYhFPmfJ1Bxozf/QrVg==";
+        url = "https://registry.npmjs.org/@matrixai/polykey/-/polykey-0.0.20.tgz";
+        sha512 = "XQT7Jb0MK1tjhb1B6gwi7+6cQeFwitpsdcfPp+5XLpgQAALi2/6cuus7n2GlQ8df9sBhO3NWfWad0ddCQBv9IA==";
       };
     };
     "@mdx-js/loader-1.6.16" = {
@@ -24189,8 +24189,8 @@ let
     };
   };
   args = {
-    name = "polykey-ui";
-    packageName = "polykey-ui";
+    name = "polykey";
+    packageName = "polykey";
     version = "0.0.1";
     src = ../..;
     dependencies = [
@@ -24539,7 +24539,7 @@ let
       sources."@jest/types-24.9.0"
       sources."@jsdevtools/ono-7.1.3"
       sources."@matrixai/pagination-0.1.0"
-      (sources."@matrixai/polykey-0.0.18" // {
+      (sources."@matrixai/polykey-0.0.20" // {
         dependencies = [
           sources."uuid-8.3.1"
         ];

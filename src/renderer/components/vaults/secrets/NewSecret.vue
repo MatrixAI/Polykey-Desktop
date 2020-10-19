@@ -83,7 +83,6 @@ export default class NewSecret extends Vue {
   async newSecret() {
     if (this.validate()) {
       const successful = await polykeyClient.createSecret(
-        getConfiguration().activeNodePath,
         this.selectedVaultName,
         this.secretName,
         Buffer.from(this.secretContent),

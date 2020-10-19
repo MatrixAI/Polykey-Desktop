@@ -25,7 +25,7 @@
               <v-list-item-title>{{item}}</v-list-item-title>
 
               <v-spacer></v-spacer>
-              <v-btn link icon x-small color="warning" @click="destroyVault(item)">
+              <v-btn link icon x-small color="warning" @click="deleteVault(item)">
                 <v-icon>fas fa-trash</v-icon>
               </v-btn>
             </v-list-item>
@@ -75,7 +75,7 @@
               <v-btn link icon small color="info" @click="selectSecret(item)">
                 <v-icon>fas fa-edit</v-icon>
               </v-btn>
-              <v-btn link icon small color="warning" @click="destroySecret(item)">
+              <v-btn link icon small color="warning" @click="deleteSecret(item)">
                 <v-icon>fas fa-trash</v-icon>
               </v-btn>
             </v-list-item>
