@@ -9,6 +9,8 @@ async function startModel() {
   const pid = await PolykeyAgent.startAgent(path.join(os.homedir(), '.polykey'));
   console.log(`Agent started with pid: ${pid}`);
 
+  
+
   // ipcMain.on('polykey-agent', async (event, args) => {
 
   //   try {

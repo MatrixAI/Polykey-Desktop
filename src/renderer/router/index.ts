@@ -11,7 +11,6 @@ import Keys from '@/components/keys/Keys.vue';
 import NewKey from '@/components/keys/NewKey.vue';
 
 import Configuration from '@/components/configuration/Configuration.vue';
-import NewKeyNode from '@/components/configuration/NewKeyNode.vue';
 
 Vue.use(VueRouter);
 
@@ -52,10 +51,6 @@ const routes: Array<RouteConfig> = [
   {
     path: "/Configuration",
     component: Configuration,
-  },
-  {
-    path: "/Configuration/NewKeyNode",
-    component: NewKeyNode,
   },
 ];
 

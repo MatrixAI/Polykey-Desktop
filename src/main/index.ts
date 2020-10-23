@@ -53,6 +53,7 @@ function createWindow() {
   //     mainWindow.hide()
   // })
 
+  window.webContents.openDevTools()
   return window
 }
 
