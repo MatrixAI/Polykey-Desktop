@@ -24,7 +24,6 @@ function createWindow() {
     }
   });
 
-
   window.loadFile('dist/index.html');
 
   window.on('close', function (event) {
@@ -45,6 +44,7 @@ function createWindow() {
   //     mainWindow.hide()
   // })
 
+  window.webContents.openDevTools()
   return window
 }
 
@@ -72,7 +72,6 @@ function createWindow() {
 
 app.on("ready", () => {
   mainWindow = createWindow()
-  mainWindow.webContents.openDevTools();
 
   // createTray()
 });

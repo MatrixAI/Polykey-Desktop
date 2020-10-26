@@ -8,14 +8,16 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-// import Home from '@/views/Home.vue'; // @ is an alias to /src
-// import About from '@/views/About.vue'; // @ is an alias to /src
+import Home from './views/Home.vue'; // @ is an alias to /src
+import About from './views/About.vue'; // @ is an alias to /src
 
 export default defineComponent({
+  created () {
+  },
   name: 'App',
   components: {
-    // Home,
-    // About,
+    Home,
+    About,
   },
 });
 </script>
