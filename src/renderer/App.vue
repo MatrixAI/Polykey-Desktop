@@ -1,46 +1,36 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div style='background: LightGrey;'>
+    <div>
+      <!-- <Login /> -->
+        <Alert />
+        <Drawer />
+        <AppBar />
+        <router-view />
+        <!-- <Footer /> -->
+    </div>
   </div>
-  <router-view />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import Home from './views/Home.vue'; // @ is an alias to /src
-import About from './views/About.vue'; // @ is an alias to /src
+<script lang='ts'>
+/**
+ * Chore:
+ * 1. Login not used yet
+ */
+import { defineComponent } from 'vue'
+import Alert from './components/alerts/Alert.vue'
+import AppBar from './components/navigation/AppBar.vue'
+import Drawer from './components/navigation/Drawer.vue'
+// import Footer from './components/navigation/Footer.vue'
+// import NewVault from './components/vaults/NewVault.vue'
+// import Login from './components/navigation/Login.vue';
 
 export default defineComponent({
-  created () {
-  },
-  name: 'App',
   components: {
-    Home,
-    About,
-  },
-});
+    Alert,
+    AppBar,
+    Drawer
+    // Footer
+    // Login
+  }
+})
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>

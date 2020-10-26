@@ -30,13 +30,7 @@ const VueApp = {
       },
       {
         test: /\.css$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: { hmr: !env.production }
-          },
-          'css-loader'
-        ]
+        use: ['css-loader']
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -53,7 +47,7 @@ const VueApp = {
     ]
   },
   resolve: {
-    extensions: ['.ts', '.vue', '.json'],
+    extensions: ['.ts', '.js', '.vue', '.json'],
     plugins: [
       new TsconfigPathsPlugin({
         configFile: './tsconfig.json',
