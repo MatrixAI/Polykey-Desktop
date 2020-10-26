@@ -1,5 +1,5 @@
-import { polykeyClient } from '@/store'
-import { getConfiguration } from '@/store/modules/Configuration'
+import { polykeyClient } from 'renderer-vue2/store'
+import { getConfiguration } from 'renderer-vue2/store/modules/Configuration'
 import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 
 @Module({ namespaced: true })

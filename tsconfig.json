@@ -14,24 +14,12 @@
     "baseUrl": "./src",
     "types": [
       "webpack-env",
-      "jest",
-      "vuetify"
+      "jest"
     ],
     "paths": {
       "@/*": [ "renderer/*" ],
       "@server/*": [ "main/*" ]
-    },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/vuetify/types",
-      "./types"
-    ],
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+    }
   },
   "include": [
     "src/**/*.ts",
@@ -42,6 +30,7 @@
     "types/**/*.d.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/renderer-vue2/**/*"
   ]
 }

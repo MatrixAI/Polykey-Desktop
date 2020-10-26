@@ -2,9 +2,9 @@
 import url from 'url';
 import path from 'path';
 import { app, BrowserWindow, Menu, Tray, shell } from "electron";
-import startModel from './startModel'
+// import startModel from './startModel'
 
-startModel()
+// startModel()
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -24,16 +24,8 @@ function createWindow() {
     }
   });
 
-  if (isDevelopment) {
-    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
-  }
-  else {
-    window.loadURL(url.format({
-      pathname: path.join(__dirname, 'index.html'),
-      protocol: 'file',
-      slashes: true
-    }))
-  }
+
+  window.loadFile('dist/index.html');
 
   window.on('close', function (event) {
     event.preventDefault()

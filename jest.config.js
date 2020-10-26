@@ -1,3 +1,27 @@
+
+const { pathsToModuleNameMapper } = require('ts-jest/utils');
+const { compilerOptions } = require('./tsconfig');
+
 module.exports = {
-  preset: '@vue/cli-plugin-unit-jest/presets/typescript-and-babel'
-}
+  "verbose": true,
+  "roots": [
+    "<rootDir>/tests"
+  ],
+  "testMatch": [
+    "**/?(*.)+(spec|test|unit.test).+(ts|tsx|js)"
+  ],
+  "transform": {
+    "^.+\\.vue$": "vue-jest",
+    "^.+\\.tsx?$": "ts-jest"
+  },
+  moduleFileExtensions: ['vue', 'js', 'json', 'ts'],
+  setupFiles: [
+    "<rootDir>/tests/setup.ts"
+  ],
+  globalSetup: "<rootDir>/tests/globalSetup.ts",
+  globalTeardown: "<rootDir>/tests/globalTeardown.ts",
+  moduleNameMapper: pathsToModuleNameMapper(
+    compilerOptions.paths,
+    { prefix: "<rootDir>/src/" }
+  )
+};

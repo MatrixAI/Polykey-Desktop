@@ -10,7 +10,7 @@ const env = process.env;
 
 const VueApp = {
   mode: env.production ? "production" : "development",
-  entry: "./src/renderer/app.ts",
+  entry: "./src/renderer/main.ts",
 
   // This should be checked if dev mode
   devtool: "inline-source-map",
@@ -36,6 +36,18 @@ const VueApp = {
           "css-loader",
         ],
       },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          'file-loader'
+        ]
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        use: [
+          'file-loader'
+        ]
+      },
     ],
   },
   resolve: {
@@ -49,6 +61,9 @@ const VueApp = {
     alias: {
       vue: "vue/dist/vue.esm-bundler.js",
     },
+    fallback: {
+      path: require.resolve("path-browserify")
+    }
   },
   output: {
     filename: "renderer.js",
