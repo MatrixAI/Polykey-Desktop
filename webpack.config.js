@@ -1,29 +1,29 @@
-const path = require("path");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const WebpackBar = require("webpackbar");
-const webpack = require("webpack");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const { VueLoaderPlugin } = require("vue-loader");
+const path = require('path')
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const WebpackBar = require('webpackbar')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { VueLoaderPlugin } = require('vue-loader')
 
-const env = process.env;
+const env = process.env
 
 const VueApp = {
-  mode: env.production ? "production" : "development",
-  entry: "./src/renderer/main.ts",
+  mode: env.production ? 'production' : 'development',
+  entry: './src/renderer/main.ts',
 
   // This should be checked if dev mode
-  devtool: "inline-source-map",
+  devtool: 'inline-source-map',
 
   module: {
     rules: [
       {
         test: /\.vue$/,
-        use: "vue-loader",
+        use: 'vue-loader'
       },
       {
         test: /\.ts?$/,
-        loader: "ts-loader",
+        loader: 'ts-loader',
         options: {
           appendTsSuffixTo: [/\.vue$/]
         }
@@ -33,10 +33,10 @@ const VueApp = {
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
-            options: { hmr: !env.production },
+            options: { hmr: !env.production }
           },
-          "css-loader",
-        ],
+          'css-loader'
+        ]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -49,73 +49,73 @@ const VueApp = {
         use: [
           'file-loader'
         ]
-      },
-    ],
+      }
+    ]
   },
   resolve: {
-    extensions: [".ts", ".vue", ".json"],
+    extensions: ['.ts', '.vue', '.json'],
     plugins: [
       new TsconfigPathsPlugin({
-        configFile: "./tsconfig.json",
-        baseUrl: "./src/renderer/",
-      }),
+        configFile: './tsconfig.json',
+        baseUrl: './src/renderer/'
+      })
     ],
     alias: {
-      vue: "vue/dist/vue.esm-bundler.js",
+      vue: 'vue/dist/vue.esm-bundler.js'
     },
     fallback: {
-      path: require.resolve("path-browserify")
+      path: require.resolve('path-browserify')
     }
   },
   output: {
-    filename: "renderer.js",
-    path: path.resolve(__dirname, "dist"),
+    filename: 'renderer.js',
+    path: path.resolve(__dirname, 'dist')
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./src/renderer/index.html",
+      template: './src/renderer/index.html'
     }),
     new MiniCssExtractPlugin({
-      filename: "[name].css",
+      filename: '[name].css'
     }),
     new WebpackBar(),
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
-      __VUE_OPTIONS_API__: "true",
-      __VUE_PROD_DEVTOOLS__: "false",
-    }),
-  ],
-};
+      __VUE_OPTIONS_API__: 'true',
+      __VUE_PROD_DEVTOOLS__: 'false'
+    })
+  ]
+}
 
 const ElectronApp = {
-  target: "electron10.1-main",
-  mode: env.production ? "production" : "development",
-  entry: "./src/main/index.ts",
+  target: 'electron10.1-main',
+  mode: env.production ? 'production' : 'development',
+  entry: './src/main/index.ts',
   // This should be checked if dev mode
-  devtool: "inline-source-map",
+  devtool: 'inline-source-map',
 
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: "ts-loader",
-        exclude: /node_modules/,
-      },
-    ],
+        test: /\.ts?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
+      }
+    ]
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js", ".json"],
+    extensions: ['.ts', '.tsx', '.js', '.json'],
     plugins: [
       new TsconfigPathsPlugin({
-        configFile: "./tsconfig.json",
-        baseUrl: "./src/main/",
-      }),
-    ],
+        configFile: './tsconfig.json',
+        baseUrl: './src/main/'
+      })
+    ]
   },
   output: {
-    filename: "main.js",
-    path: path.resolve(__dirname, "dist"),
-  },
-};
+    filename: 'main.js',
+    path: path.resolve(__dirname, 'dist')
+  }
+}
 
-module.exports = [VueApp, ElectronApp];
+module.exports = [VueApp, ElectronApp]
