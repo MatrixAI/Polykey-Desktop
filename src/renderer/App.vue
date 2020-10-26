@@ -3,18 +3,18 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
   </div>
-  <router-view/>
+  <router-view />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
-import About from '@/components/About.vue'; // @ is an alias to /src
+import Home from '@/views/Home.vue'; // @ is an alias to /src
+import About from '@/views/About.vue'; // @ is an alias to /src
 
 export default defineComponent({
   name: 'App',
   components: {
-    HelloWorld,
+    Home,
     About,
   },
 });
