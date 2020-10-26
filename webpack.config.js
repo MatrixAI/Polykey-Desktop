@@ -22,9 +22,11 @@ const VueApp = {
         use: "vue-loader",
       },
       {
-        test: /\.tsx?$/,
-        use: "ts-loader",
-        exclude: /node_modules/,
+        test: /\.ts?$/,
+        loader: "ts-loader",
+        options: {
+          appendTsSuffixTo: [/\.vue$/]
+        }
       },
       {
         test: /\.css$/,

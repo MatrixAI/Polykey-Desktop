@@ -12,21 +12,14 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": "./src",
-    "types": [
-      "webpack-env",
-      "jest"
-    ],
     "paths": {
       "@/*": [ "renderer/*" ],
       "@server/*": [ "main/*" ]
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
+    "src/**/*",
     "tests/**/*.ts",
-    "tests/**/*.tsx",
     "types/**/*.d.ts"
   ],
   "exclude": [

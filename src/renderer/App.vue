@@ -6,7 +6,7 @@
   <router-view />
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import Home from './views/Home.vue'; // @ is an alias to /src
 import About from './views/About.vue'; // @ is an alias to /src
