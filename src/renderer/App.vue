@@ -1,25 +1,44 @@
 <template>
-  <div style='background: LightGrey;'>
-    <div>
-      <!-- <Login /> -->
-        <Alert />
-        <Drawer />
-        <AppBar />
-        <router-view />
-        <!-- <Footer /> -->
+  <div style="background: LightGrey;">
+    <div class="demo-container">
+      <!-- Drawer -->
+      <ui-drawer type="modal" nav-id="demo-menu">
+        <ui-drawer-header>
+          <ui-drawer-title>Title</ui-drawer-title>
+          <ui-drawer-subtitle>Subtitle</ui-drawer-subtitle>
+        </ui-drawer-header>
+        <ui-drawer-content>
+          <ui-nav>
+            <ui-nav-item href="javascript:void(0)" active>Item {{ 0 }}</ui-nav-item>
+            <ui-nav-item v-for="i in 12" :key="i" href="javascript:void(0)">Item {{ i }}</ui-nav-item>
+          </ui-nav>
+        </ui-drawer-content>
+      </ui-drawer>
+      <ui-drawer-backdrop></ui-drawer-backdrop>
+      <!-- Content -->
+      <div class="demo-content">
+        <!-- App bar -->
+        <ui-top-app-bar fixed class="demo-app-bar" content-selector=".demo-app-content" nav-id="demo-menu">
+          Title
+        </ui-top-app-bar>
+        <!-- App content -->
+        <div class="demo-app-content">
+          <p v-for="i in 24" :key="i">Main Content {{ i }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script lang='ts'>
+<script lang="ts">
 /**
  * Chore:
  * 1. Login not used yet
  */
-import { defineComponent } from 'vue'
-import Alert from './components/alerts/Alert.vue'
-import AppBar from './components/navigation/AppBar.vue'
-import Drawer from './components/navigation/Drawer.vue'
+import { defineComponent } from 'vue';
+import Alert from './components/alerts/Alert.vue';
+import AppBar from './components/navigation/AppBar.vue';
+import Drawer from './components/navigation/Drawer.vue';
 // import Footer from './components/navigation/Footer.vue'
 // import NewVault from './components/vaults/NewVault.vue'
 // import Login from './components/navigation/Login.vue';
@@ -28,9 +47,9 @@ export default defineComponent({
   components: {
     Alert,
     AppBar,
-    Drawer
+    Drawer,
     // Footer
     // Login
-  }
-})
+  },
+});
 </script>

@@ -30,7 +30,13 @@ const VueApp = {
       },
       {
         test: /\.css$/,
-        use: ['css-loader']
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: { hmr: !env.production }
+          },
+          'css-loader'
+        ]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -63,7 +69,8 @@ const VueApp = {
   },
   output: {
     filename: 'renderer.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: path.resolve(__dirname, 'dist')
   },
   plugins: [
     new HtmlWebpackPlugin({
