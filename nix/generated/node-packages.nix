@@ -2002,6 +2002,429 @@ let
         sha512 = "4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==";
       };
     };
+    "@material/animation-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_animation";
+      packageName = "@material/animation";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/animation/-/animation-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "bs2/VJLVKAq5/f5cVqw8IoabLR5W+ikYXqnlfMZR8MfTXPyTbmdQpMkU+CqMxq5tthJIUjN6Er6ozs8cw9zMTw==";
+      };
+    };
+    "@material/auto-init-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_auto-init";
+      packageName = "@material/auto-init";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/auto-init/-/auto-init-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "bm14pq1LNs6ngrSV5P9ImUHK8T6DQ1nIkgUHd5S6skHEFu6BRFCvnXiCA2gDjn7Rfya/wwzEeo3k7nXZCvoVdw==";
+      };
+    };
+    "@material/banner-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_banner";
+      packageName = "@material/banner";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/banner/-/banner-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "I4AKtSzAnu9xec9U7XzuywtBaIZdTsHvUXf4+4ZBHEtQ6kUfvzwY16vI7ZwHedAAVdnfy5ipRs3C/x+vhlqFlQ==";
+      };
+    };
+    "@material/base-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_base";
+      packageName = "@material/base";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/base/-/base-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "cVCC9RxoLL992UKa1fectgMEuteV6EFT4KmfZ5DswkY0rweJj3hEpzRJJgmzBf9syTGulr4ZKpaI42fwgtM2Dg==";
+      };
+    };
+    "@material/button-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_button";
+      packageName = "@material/button";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/button/-/button-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "6jr1YHuZkjUvjjffa6XDupYUSa/4Ro85RldJf7MUP1TVIOvNmuquT7S1bvYt6jWZfp8Z0El5OZfuqzooUT9/6w==";
+      };
+    };
+    "@material/card-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_card";
+      packageName = "@material/card";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/card/-/card-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "viPjn+prxhJKUITv0DMRtNaU0z8Fjoftov/cGM3vV9uo771Xc46JusI0q0VLYX8Va2waqF7d1eguCHlsA/j7Mw==";
+      };
+    };
+    "@material/checkbox-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_checkbox";
+      packageName = "@material/checkbox";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/checkbox/-/checkbox-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "mlmpTeg/RncZ/85HE/FwxZcw2+qNqR1dl3iN6w2MRA5q7Fvvjmva3XEO4O8Kl4myB+4dS9JCvldWRC+CxZlIdw==";
+      };
+    };
+    "@material/chips-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_chips";
+      packageName = "@material/chips";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/chips/-/chips-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "XSGKkwYHc0mvqXYO6azcUyqKii7NsEs/do9fkYHNOD4WZKq3nR8IKZWft7oXmDbcLor+Gso4shvLL+g85FIzbw==";
+      };
+    };
+    "@material/circular-progress-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_circular-progress";
+      packageName = "@material/circular-progress";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/circular-progress/-/circular-progress-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "7vbd1YJw9L+LYGnnO9rOTLP7CHHJrg3+sRhlvgYEJuZnzOnWvFmEFL2yyyZRd6bZA7XesxPht1Avz2oBrHO7eA==";
+      };
+    };
+    "@material/data-table-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_data-table";
+      packageName = "@material/data-table";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/data-table/-/data-table-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "KMaunuL1Vw92elTvK5Qzb2whZR0dW4A7ITWq9UVioRF/UGSz2Fo/o2yaBU89ZSjfqpa91QYk9lZJ8YSAFX6Q5A==";
+      };
+    };
+    "@material/density-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_density";
+      packageName = "@material/density";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/density/-/density-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "DvGE5cNBUrzfC36ahwIVxlX73oC1N1te25J5X0wZGP09lTvYKKlNspYEcXgkWgU8CXZk51RiEpme0LTHlJ6dog==";
+      };
+    };
+    "@material/dialog-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_dialog";
+      packageName = "@material/dialog";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/dialog/-/dialog-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "oT1Kpa5NWYn5RRxQ/zqQngCHGkNMkB+gRTdUG2lvfp6t8JRUrFCLvPQ+6cljal4ndRiNLkHiyvKKng4Eg1jYRQ==";
+      };
+    };
+    "@material/dom-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_dom";
+      packageName = "@material/dom";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/dom/-/dom-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "+gJG9LUu3jEBQ2c+g4nJDkFwBH5UimIY00nN92L3rJSPgyvWeAW84B4kfrpgb3EUvjAedyJ/Ul37r9UkyFxetQ==";
+      };
+    };
+    "@material/drawer-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_drawer";
+      packageName = "@material/drawer";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/drawer/-/drawer-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "LUjf3iydyqbP4NnGFgb8R453jgu8Y7czJAMCW/bqXgTw1Qbj5hhC3WImTBr869CY7SSIeNEVeZfgBzUA3caVhw==";
+      };
+    };
+    "@material/elevation-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_elevation";
+      packageName = "@material/elevation";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/elevation/-/elevation-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "0tGYnnrRJHqNjjsUxZXLoRgnNA6kdwbDo/h9gUN6kVjubOpRpjW+ufx+BBhfKC3OxreQzqE6vsx3CG0eNar52w==";
+      };
+    };
+    "@material/fab-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_fab";
+      packageName = "@material/fab";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/fab/-/fab-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "8WghD45lAnFLdISRTyw+xqPL+sA+M2JKvQE/5LD+WyLO6XKrOxEB7eOftZoskOH9ADa+kTnwkzAAxE3++N5aDw==";
+      };
+    };
+    "@material/feature-targeting-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_feature-targeting";
+      packageName = "@material/feature-targeting";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/feature-targeting/-/feature-targeting-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "9Sy76F0vg+e6DP9VGF/9QaJh6FPp/Dn7LXiz61ArOMJAgyWL5b2xacZwbXJz8a35EP7Tpy39yVqsLHQplEyaew==";
+      };
+    };
+    "@material/floating-label-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_floating-label";
+      packageName = "@material/floating-label";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/floating-label/-/floating-label-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "s0z6pZJC6mSjjj7W/R3m7uRLUXisWl86GWk2GlbyPaYlTB62GFCpw+DNDYWwYslwbN6336ZUy2ynOOxgjEGsCg==";
+      };
+    };
+    "@material/form-field-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_form-field";
+      packageName = "@material/form-field";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/form-field/-/form-field-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "T2vaYYme7CVC1kKYmEurgb4Ek9oFiVBY87GypHJJNt0HzZ8QhmeEOe+4l5mqQFwbnzqkzf7xrxgCNMRBLEgJ8Q==";
+      };
+    };
+    "@material/icon-button-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_icon-button";
+      packageName = "@material/icon-button";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/icon-button/-/icon-button-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "+/KJ2gaKHuuOeUGtnq97hHDzklbbp+L99GOhI0A9P35i+wX39KgYAAg3ngwZF6s2+qjT9RYPUdub1OpBTfRGGQ==";
+      };
+    };
+    "@material/image-list-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_image-list";
+      packageName = "@material/image-list";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/image-list/-/image-list-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "NE8GA8D+bulu/pvdJuz9vaAPAG9c4+S5IFzzsI7aljniDhdZQNvqiHSxaGGvRJnZ6/0w2bZwEQcNce59AkA67w==";
+      };
+    };
+    "@material/layout-grid-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_layout-grid";
+      packageName = "@material/layout-grid";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/layout-grid/-/layout-grid-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "ggtOyR5C3Uz0aLGt8kLUYnp5JOJfZt6qL1fek2GbI3oSFnZV+5rI/SCOrRU1nrfHvJduuoLQjpHPG7/AsoiMEg==";
+      };
+    };
+    "@material/line-ripple-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_line-ripple";
+      packageName = "@material/line-ripple";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/line-ripple/-/line-ripple-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "rM2KbTm95DIBeOOMgQ04uIOpAn1wkimJeu6z88r/SDSY4WY0uYfRFK5F70H3N/3rtBhlcwyw6DFJBYGoToWM9g==";
+      };
+    };
+    "@material/linear-progress-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_linear-progress";
+      packageName = "@material/linear-progress";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/linear-progress/-/linear-progress-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "ObHTuaQc7OblK4rftbc265icpuihHUEABXleNHXK4cq84OHn066ITLQINMW147UbX3LGoxGmW3sDITR3IcE6/g==";
+      };
+    };
+    "@material/list-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_list";
+      packageName = "@material/list";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/list/-/list-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "AckXWPyMAWTJ9L+A5yT+dDx6ragTXmzEvC5DrsLZmMastGP+1b24XG/Ji9/bJ9bUh267GDGhCyjzOeJfJNAnJw==";
+      };
+    };
+    "@material/menu-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_menu";
+      packageName = "@material/menu";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/menu/-/menu-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "YX98AOln06mWKdScvbIgujwT0Tnbm/rJ4EUCNrKRQH6pgAIP+gmmpNhA65snX/zB9e3mO06TXJEnNY5HDXPYTw==";
+      };
+    };
+    "@material/menu-surface-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_menu-surface";
+      packageName = "@material/menu-surface";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/menu-surface/-/menu-surface-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "9LGgNOORlPmEE+AF+6QheYW6jkPLsD4rWhu4bWkYuhUFhcEtUD0Ytz/Ct+fZqZqpCQ20osG8cCGvrDSs03hg8w==";
+      };
+    };
+    "@material/notched-outline-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_notched-outline";
+      packageName = "@material/notched-outline";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/notched-outline/-/notched-outline-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "yWG//S0NFS6QO5A3bFR6VFzkLNUzLpeR8x33pj40PJrAwtOODVQgkuDIYbjADylJMIA8iK68aFCs1gFcfl4pnw==";
+      };
+    };
+    "@material/progress-indicator-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_progress-indicator";
+      packageName = "@material/progress-indicator";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/progress-indicator/-/progress-indicator-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "+NdsPcATErf4+lb0NvawGBTMulti1ZTwwBVVXIpW/BP5kSMFZzovq1OzGNrrdHB6/pLZPAPzu8fwbHzA6nDbNA==";
+      };
+    };
+    "@material/radio-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_radio";
+      packageName = "@material/radio";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/radio/-/radio-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "53skJJn2M9OS/LvCfrarUerTvhM9+hqATSEbVR91//sgEGFTSecjmoPKr+nu18afTyp/11ApQCVXqm6UHhyZxA==";
+      };
+    };
+    "@material/ripple-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_ripple";
+      packageName = "@material/ripple";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/ripple/-/ripple-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "8iSTmL22qOR6yzVBe4wXUzPUvAbST39uZQXb6g2He4lOPK0dMS+aDTV7RVuylTRlZXmgzBiDQ2r79i4l59KTdw==";
+      };
+    };
+    "@material/rtl-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_rtl";
+      packageName = "@material/rtl";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/rtl/-/rtl-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "SFMEteaj6pWtJSn+/sXWmYJsGWCDFtMa7Th0mCSiwMRwHOlX/smzFYHWCH75k5llufuz4ZzERMtd7J0AVy7ZtQ==";
+      };
+    };
+    "@material/select-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_select";
+      packageName = "@material/select";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/select/-/select-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "9w3KCsYBs7U1CVYb6YnQDErEFPaq/Cfs/h/pqdlQHAoeJM7TvFRdIZNJTpekpzieLVEGuVwcXwDSLfQvIVeRDQ==";
+      };
+    };
+    "@material/shape-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_shape";
+      packageName = "@material/shape";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/shape/-/shape-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "8fQtbYiND/sEM8HP5Z8YjAotPFC7+A+SHuTkm/PftmExgQyrsBw9BJ5PkEW8OuGODHsg1WREmc8jDaBxqCwt7Q==";
+      };
+    };
+    "@material/slider-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_slider";
+      packageName = "@material/slider";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/slider/-/slider-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "SC7dzW63ieuAlMvMN/I/X8/wIHOrZR1sqL4fJPNMZNtp1ONiWocE/2JLaZbZeWF9tD6/TwZ1Kyoo8nlC6GRpYQ==";
+      };
+    };
+    "@material/snackbar-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_snackbar";
+      packageName = "@material/snackbar";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/snackbar/-/snackbar-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "CdK5fmPx7PRNdlznlbQmETM+sf233KCA8589/83ST41YWqVfMImHnjpC9abQiTo550+KZgaTYc3SIBwpH0lgrQ==";
+      };
+    };
+    "@material/switch-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_switch";
+      packageName = "@material/switch";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/switch/-/switch-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "tX2ZG6FyXDY47oPtWd/ZFvRZjQDiqJoy5oO2Chm4CBWYVGvnqeEa59yCUtgzKbqKQwVCmIGNJO6FSpNU2S7hzw==";
+      };
+    };
+    "@material/tab-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_tab";
+      packageName = "@material/tab";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/tab/-/tab-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "FFT+PE6Xm6ATFfUYohk8F8hVlKYFYcEHfaBw+zLQjLzqCK8glcQmeKTdhW8B50EqKRIRUSbJ21TIl2/U7xxplw==";
+      };
+    };
+    "@material/tab-bar-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_tab-bar";
+      packageName = "@material/tab-bar";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/tab-bar/-/tab-bar-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "9D6sM/vZ6kEmWU1d4mAe789UnHHlW12Q7TtxIPgQTLBjAIfJXpj/8YgDPsf3edzFVFHHExP1UJrwRjVbk+ok+g==";
+      };
+    };
+    "@material/tab-indicator-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_tab-indicator";
+      packageName = "@material/tab-indicator";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/tab-indicator/-/tab-indicator-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "dN1ENlf12DdZujnQMnv3/hoGWPcq69ws5aAthSjdOD+AB5cV0JrNqWpbj8OPovLPXGxkTi+woe23gmqTPmTEvQ==";
+      };
+    };
+    "@material/tab-scroller-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_tab-scroller";
+      packageName = "@material/tab-scroller";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/tab-scroller/-/tab-scroller-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "rLBHpXdposIVdJvV2c57g5HZYKT80UpwvqCcnz8Sy8eOHilKYwSDkm8ALpMR57w7T+6P4thhyZwDfhIZtaJUaQ==";
+      };
+    };
+    "@material/textfield-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_textfield";
+      packageName = "@material/textfield";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/textfield/-/textfield-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "FPwoQM8LpVwFBrDpaeNbsxRnh6lEHdz/1utcVSbHD/XujbClPtQpEEv417ig/KWYkQWnKR2YwcFxqsSBAeXxbw==";
+      };
+    };
+    "@material/theme-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_theme";
+      packageName = "@material/theme";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/theme/-/theme-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "EPHZei0dA/2HF7h45F+V7TZ0z/W5Y4w/ymIa8k8uX7DX70YxaLSqUW3J+IXTyDm90Hitlo5ZH0/40J1khB3zRA==";
+      };
+    };
+    "@material/tooltip-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_tooltip";
+      packageName = "@material/tooltip";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/tooltip/-/tooltip-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "PW4C5eBVsIA0Qswc/zbipMosDc3c7bUIdo7MrnxNl9r0b/jCJN+TZDF8MopNWW4v8Wh5TCj/t4xLdVFGxOZcHQ==";
+      };
+    };
+    "@material/top-app-bar-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_top-app-bar";
+      packageName = "@material/top-app-bar";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/top-app-bar/-/top-app-bar-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "jK29ICgGRrKQKNs7A2Ipq17PbNY9HuSwsvZ280Q4ZSyUcapqM59qGCJ0jqPKFCEUrt9PkgaC5ZZD/2yGumwHQA==";
+      };
+    };
+    "@material/touch-target-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_touch-target";
+      packageName = "@material/touch-target";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/touch-target/-/touch-target-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "bNFRp6iCm8DSWbrRCpJ/wq/vXUqyB2kjs8p9gpgeKmUAWSnzamvSi5aUz8cjjd96zFifVkwdzrIy2PXsAWDktg==";
+      };
+    };
+    "@material/typography-8.0.0-canary.2ab716cbd.0" = {
+      name = "_at_material_slash_typography";
+      packageName = "@material/typography";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@material/typography/-/typography-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "S0eKZy58ewfLM09owHNHnPWK5aOwqdy7jYTRRSTf7zM43RrZEA55BZrQgK/6a+P8Ng0F59UFJTNtJHWiluV/oQ==";
+      };
+    };
     "@matrixai/pagination-0.1.0" = {
       name = "_at_matrixai_slash_pagination";
       packageName = "@matrixai/pagination";
@@ -2801,6 +3224,15 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/@types/node/-/node-12.12.67.tgz";
         sha512 = "R48tgL2izApf+9rYNH+3RBMbRpPeW3N8f0I9HMhggeq4UXwBDqumJ14SDs4ctTMhG11pIOduZ4z3QWGOiMc9Vg==";
+      };
+    };
+    "@types/node-12.19.1" = {
+      name = "_at_types_slash_node";
+      packageName = "@types/node";
+      version = "12.19.1";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@types/node/-/node-12.19.1.tgz";
+        sha512 = "/xaVmBBjOGh55WCqumLAHXU9VhjGtmyTGqJzFBXRWZzByOXI5JAJNx9xPVGEsNizrNwcec92fQMj458MWfjN1A==";
       };
     };
     "@types/node-13.13.15" = {
@@ -5069,6 +5501,15 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.0.tgz";
         sha1 = "89b4d199ab2bee49de164ea02b89ce462d71b767";
+      };
+    };
+    "balm-ui-9.0.0-rc.4" = {
+      name = "balm-ui";
+      packageName = "balm-ui";
+      version = "9.0.0-rc.4";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/balm-ui/-/balm-ui-9.0.0-rc.4.tgz";
+        sha512 = "XPpRLuXMlOeVNxvPTjkie2vI11Lc64xV8vTmK0yDgEGTZ35xNiExOgvyh29ZanRtU6I4bnHRGQLlEHTtq1HevA==";
       };
     };
     "base-0.11.2" = {
@@ -7744,6 +8185,15 @@ let
         sha512 = "dldq3ZfFtgVTJMLjOe+/3sROTzALlL9E34V4/sDtUd/KlBSS0s6U1/+WPE1B4sj9CXHJpL1M6rhNJnc9Wbal9w==";
       };
     };
+    "electron-10.1.5" = {
+      name = "electron";
+      packageName = "electron";
+      version = "10.1.5";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/electron/-/electron-10.1.5.tgz";
+        sha512 = "fys/KnEfJq05TtMij+lFvLuKkuVH030CHYx03iZrW5DNNLwjE6cW3pysJ420lB0FRSfPjTHBMu2eVCf5TG71zQ==";
+      };
+    };
     "electron-builder-22.9.1" = {
       name = "electron-builder";
       packageName = "electron-builder";
@@ -8410,6 +8860,15 @@ let
         sha512 = "i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==";
       };
     };
+    "eventemitter3-2.0.3" = {
+      name = "eventemitter3";
+      packageName = "eventemitter3";
+      version = "2.0.3";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/eventemitter3/-/eventemitter3-2.0.3.tgz";
+        sha1 = "b5e1079b59fb5e1ba2771c0a993be060a58c99ba";
+      };
+    };
     "eventemitter3-3.1.2" = {
       name = "eventemitter3";
       packageName = "eventemitter3";
@@ -8698,6 +9157,15 @@ let
         sha512 = "AEo4zm+TenK7zQorGK1f9mJ8L14hnTDi2ZQPR+Mub1NX8zimka1mXpV5LpH8x9HoUmFSHZCfLHqWvp0Y4FxxzQ==";
       };
     };
+    "extract-zip-1.7.0" = {
+      name = "extract-zip";
+      packageName = "extract-zip";
+      version = "1.7.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/extract-zip/-/extract-zip-1.7.0.tgz";
+        sha512 = "xoh5G1W/PB0/27lXgMQyIhP5DSY/LhoCsOyZgb+6iMmRtCwVBo55uKaMoEYrDCKQhWvqEip5ZPKAc6eFNyf/MA==";
+      };
+    };
     "extract-zip-2.0.1" = {
       name = "extract-zip";
       packageName = "extract-zip";
@@ -8732,6 +9200,15 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz";
         sha512 = "f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==";
+      };
+    };
+    "fast-diff-1.1.2" = {
+      name = "fast-diff";
+      packageName = "fast-diff";
+      version = "1.1.2";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/fast-diff/-/fast-diff-1.1.2.tgz";
+        sha512 = "KaJUt+M9t1qaIteSvjc6P3RbMdXsNhK61GRftR6SNxqmhthcd9MGIi4T+o0jD8LUSpSnSKXE20nLtJ3fOHxQig==";
       };
     };
     "fast-diff-1.2.0" = {
@@ -9101,6 +9578,15 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/flat-cache/-/flat-cache-2.0.1.tgz";
         sha512 = "LoQe6yDuUMDzQAEH8sgmh4Md6oZnc/7PjtwjNFSzveXqSHt6ka9fPBuso7IGf9Rz4uqnSnWiFH2B/zj24a5ReA==";
+      };
+    };
+    "flatpickr-4.6.6" = {
+      name = "flatpickr";
+      packageName = "flatpickr";
+      version = "4.6.6";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/flatpickr/-/flatpickr-4.6.6.tgz";
+        sha512 = "EZ48CJMttMg3maMhJoX+GvTuuEhX/RbA1YeuI19attP3pwBdbYy6+yqAEVm0o0hSBFYBiLbVxscLW6gJXq6H3A==";
       };
     };
     "flatted-2.0.2" = {
@@ -13504,6 +13990,15 @@ let
         sha512 = "OkeDaAZ/bQCxeFAozM55PKcKU0yJMPGifLwV4Qgjitu+5MoAfSQN4lsLJeXZ1b8w0x+/Emda6MZgXS1jvsapng==";
       };
     };
+    "material-components-web-8.0.0-canary.2ab716cbd.0" = {
+      name = "material-components-web";
+      packageName = "material-components-web";
+      version = "8.0.0-canary.2ab716cbd.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/material-components-web/-/material-components-web-8.0.0-canary.2ab716cbd.0.tgz";
+        sha512 = "PXXuI3CO8kdGmE2H2xwV43AvjdU7jblIg79v/x5H+8/HBrfawXUDOVbPUVWaFTQg3E4MhEUJwuVbAGQfzrVt7w==";
+      };
+    };
     "md5.js-1.3.5" = {
       name = "md5.js";
       packageName = "md5.js";
@@ -15079,6 +15574,15 @@ let
         sha512 = "VWBVyimc1+QrzappRs7waeN2YmoZFCGXWASRYX1/rGHtXqEcrGEIDm+jqIwFa2fRXNgQEwrxaYuIrX0WcAguTA==";
       };
     };
+    "parchment-1.1.4" = {
+      name = "parchment";
+      packageName = "parchment";
+      version = "1.1.4";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/parchment/-/parchment-1.1.4.tgz";
+        sha512 = "J5FBQt/pM2inLzg4hEWmzQx/8h8D0CiDxaG3vyp9rKrQRSDgBlhjdP5jQGgosEajXPSQouXGHOmVdgo7QmJuOg==";
+      };
+    };
     "parent-module-1.0.1" = {
       name = "parent-module";
       packageName = "parent-module";
@@ -16193,6 +16697,24 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/querystring-es3/-/querystring-es3-0.2.1.tgz";
         sha1 = "9ec61f79049875707d69414596fd907a4d711e73";
+      };
+    };
+    "quill-1.3.7" = {
+      name = "quill";
+      packageName = "quill";
+      version = "1.3.7";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/quill/-/quill-1.3.7.tgz";
+        sha512 = "hG/DVzh/TiknWtE6QmWAF/pxoZKYxfe3J/d/+ShUWkDvvkZQVTPeVmUJVu1uE6DDooC4fWTiCLh84ul89oNz5g==";
+      };
+    };
+    "quill-delta-3.6.3" = {
+      name = "quill-delta";
+      packageName = "quill-delta";
+      version = "3.6.3";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/quill-delta/-/quill-delta-3.6.3.tgz";
+        sha512 = "wdIGBlcX13tCHOXGMVnnTVFtGRLoP0imqxM696fIPwIf5ODIYUHIvHbZcyvGlZFiFhK5XzDC2lpjbxRhnM05Tg==";
       };
     };
     "random-bytes-1.0.0" = {
@@ -21328,6 +21850,189 @@ let
       })
       sources."@jest/types-24.9.0"
       sources."@jsdevtools/ono-7.1.3"
+      (sources."@material/animation-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/auto-init-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/banner-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/base-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/button-8.0.0-canary.2ab716cbd.0"
+      sources."@material/card-8.0.0-canary.2ab716cbd.0"
+      (sources."@material/checkbox-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/chips-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/circular-progress-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/data-table-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/density-8.0.0-canary.2ab716cbd.0"
+      (sources."@material/dialog-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/dom-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/drawer-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/elevation-8.0.0-canary.2ab716cbd.0"
+      sources."@material/fab-8.0.0-canary.2ab716cbd.0"
+      sources."@material/feature-targeting-8.0.0-canary.2ab716cbd.0"
+      (sources."@material/floating-label-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/form-field-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/icon-button-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/image-list-8.0.0-canary.2ab716cbd.0"
+      sources."@material/layout-grid-8.0.0-canary.2ab716cbd.0"
+      (sources."@material/line-ripple-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/linear-progress-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/list-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/menu-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/menu-surface-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/notched-outline-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/progress-indicator-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/radio-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/ripple-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/rtl-8.0.0-canary.2ab716cbd.0"
+      (sources."@material/select-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/shape-8.0.0-canary.2ab716cbd.0"
+      (sources."@material/slider-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/snackbar-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/switch-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/tab-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/tab-bar-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/tab-indicator-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/tab-scroller-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/textfield-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/theme-8.0.0-canary.2ab716cbd.0"
+      (sources."@material/tooltip-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      (sources."@material/top-app-bar-8.0.0-canary.2ab716cbd.0" // {
+        dependencies = [
+          sources."tslib-1.14.1"
+        ];
+      })
+      sources."@material/touch-target-8.0.0-canary.2ab716cbd.0"
+      sources."@material/typography-8.0.0-canary.2ab716cbd.0"
       sources."@matrixai/pagination-0.1.0"
       (sources."@matrixai/polykey-0.0.20" // {
         dependencies = [
@@ -22440,6 +23145,7 @@ let
       sources."backo2-1.0.2"
       sources."bail-1.0.5"
       sources."balanced-match-1.0.0"
+      sources."balm-ui-9.0.0-rc.4"
       (sources."base-0.11.2" // {
         dependencies = [
           sources."define-property-1.0.0"
@@ -23006,6 +23712,14 @@ let
       })
       sources."ee-first-1.1.1"
       sources."ejs-2.7.4"
+      (sources."electron-10.1.5" // {
+        dependencies = [
+          sources."@types/node-12.19.1"
+          sources."debug-2.6.9"
+          sources."extract-zip-1.7.0"
+          sources."ms-2.0.0"
+        ];
+      })
       (sources."electron-builder-22.9.1" // {
         dependencies = [
           sources."@sindresorhus/is-0.14.0"
@@ -23378,6 +24092,7 @@ let
           sources."rimraf-2.6.3"
         ];
       })
+      sources."flatpickr-4.6.6"
       sources."flatted-2.0.2"
       sources."flora-colossus-1.0.1"
       sources."flow-parser-0.130.0"
@@ -24497,6 +25212,7 @@ let
           sources."escape-string-regexp-4.0.0"
         ];
       })
+      sources."material-components-web-8.0.0-canary.2ab716cbd.0"
       sources."md5.js-1.3.5"
       sources."mdast-squeeze-paragraphs-4.0.0"
       sources."mdast-util-definitions-3.0.1"
@@ -24880,6 +25596,7 @@ let
           sources."tslib-1.13.0"
         ];
       })
+      sources."parchment-1.1.4"
       sources."parent-module-1.0.1"
       sources."parse-asn1-5.1.6"
       sources."parse-author-2.0.0"
@@ -25069,6 +25786,17 @@ let
       sources."query-string-5.1.1"
       sources."querystring-0.2.0"
       sources."querystring-es3-0.2.1"
+      (sources."quill-1.3.7" // {
+        dependencies = [
+          sources."clone-2.1.2"
+          sources."eventemitter3-2.0.3"
+        ];
+      })
+      (sources."quill-delta-3.6.3" // {
+        dependencies = [
+          sources."fast-diff-1.1.2"
+        ];
+      })
       sources."random-bytes-1.0.0"
       sources."randombytes-2.1.0"
       sources."randomfill-1.0.4"
