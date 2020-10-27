@@ -5,14 +5,14 @@
         <v-row>
           <v-col>
             <v-list outlined>
-              <v-textarea
+              <ui-textfield
                 v-model="publicKey"
                 label="Public Key"
                 readonly
                 outlined
                 style="padding-left: 10px; padding-right: 10px"
               />
-              <v-textarea
+              <ui-textfield
                 v-model="privateKey"
                 label="Private Key"
                 readonly
@@ -28,32 +28,35 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
+import { defineComponent } from 'vue'
 
-const keys = namespace('Keys');
+export default defineComponent({})
+// import { Component, Vue, Prop } from 'vue-property-decorator';
+// import { namespace } from 'vuex-class';
+// import { polykeyClient } from '@/store';
 
-@Component({})
-export default class KeyInformation extends Vue {
-  @keys.State
-  public publicKey!: string;
+// const keys = namespace('Keys');
 
-  @keys.State
-  public privateKey!: string;
+// @Component({})
+// export default class KeyInformation extends Vue {
+//   @keys.State
+//   public publicKey!: string;
 
-  edit = false;
+//   @keys.State
+//   public privateKey!: string;
 
-  editSecret() {
-    this.edit = true;
-  }
+//   edit = false;
 
-  saveSecret() {
-    this.edit = false;
-  }
+//   editSecret() {
+//     this.edit = true;
+//   }
 
-  cancel() {
-    this.edit = false;
-  }
-}
+//   saveSecret() {
+//     this.edit = false;
+//   }
+
+//   cancel() {
+//     this.edit = false;
+//   }
+// }
 </script>

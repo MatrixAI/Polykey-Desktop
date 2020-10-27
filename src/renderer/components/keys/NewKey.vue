@@ -6,7 +6,7 @@
         <v-row>
           <v-col>
             <v-list outlined>
-              <v-text-field
+              <ui-textfield
                 v-model="keyName"
                 :rules="keyNameRules"
                 label="Key Name"
@@ -15,9 +15,9 @@
                 outlined
                 style="padding-left: 10px; padding-right: 10px"
                 placeholder="Enter a new key name"
-              ></v-text-field>
+              ></ui-textfield>
 
-              <v-text-field
+              <ui-textfield
                 v-model="keyPassphrase"
                 label="Key Passphrase"
                 counter="100"
@@ -26,7 +26,7 @@
                 type="password"
                 style="padding-left: 10px; padding-right: 10px"
                 placeholder="Enter a passphrase to protect the key"
-              ></v-text-field>
+              ></ui-textfield>
             </v-list>
           </v-col>
         </v-row>
@@ -43,56 +43,66 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
-import { getConfiguration } from '@/store/modules/Configuration';
+import { defineComponent } from 'vue'
 
-const alert = namespace('Alert');
-
-const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
-
-@Component({
-  name: 'NewSecret',
-})
-export default class NewSecret extends Vue {
-  @alert.Action
-  public toggleAlert!: (props: { visible: boolean; message?: string }) => void;
-
-  public valid: boolean = false;
-  public keyName = '';
-  public keyNameRules = [namingRule];
-  public keyPassphrase = '';
-
-  validate(): boolean {
-    return (<any>this.$refs.newKeyForm).validate();
-  }
-  reset() {
-    (<any>this.$refs.newKeyForm).reset();
-  }
-  resetValidation() {
-    this.reset();
-  }
-  async newKey() {
-    if (this.validate()) {
-      const successful = await polykeyClient.deriveKey(
-        this.keyName,
-        this.keyPassphrase,
-      );
-      if (successful) {
-        this.$router.back();
-      }
-    } else {
-      this.toggleAlert({
-        visible: true,
-        message: 'Please check form errors',
-      });
+export default defineComponent({
+  setup () {
+    return {
+      resetValidation: () => {},
+      newKey: () => {}
     }
   }
+})
+// import { Component, Vue, Prop } from 'vue-property-decorator';
+// import { namespace } from 'vuex-class';
+// import { polykeyClient } from '@/store';
+// import { getConfiguration } from '@/store/modules/Configuration';
 
-  cancel() {
-    this.$router.back();
-  }
-}
+// const alert = namespace('Alert');
+
+// const namingRule = name =>
+//   /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
+
+// @Component({
+//   name: 'NewSecret',
+// })
+// export default class NewSecret extends Vue {
+//   @alert.Action
+//   public toggleAlert!: (props: { visible: boolean; message?: string }) => void;
+
+//   public valid: boolean = false;
+//   public keyName = '';
+//   public keyNameRules = [namingRule];
+//   public keyPassphrase = '';
+
+//   validate(): boolean {
+//     return (<any>this.$refs.newKeyForm).validate();
+//   }
+//   reset() {
+//     (<any>this.$refs.newKeyForm).reset();
+//   }
+//   resetValidation() {
+//     this.reset();
+//   }
+//   async newKey() {
+//     if (this.validate()) {
+//       const successful = await polykeyClient.deriveKey(
+//         this.keyName,
+//         this.keyPassphrase,
+//       );
+//       if (successful) {
+//         this.$router.back();
+//       }
+//     } else {
+//       this.toggleAlert({
+//         visible: true,
+//         message: 'Please check form errors',
+//       });
+//     }
+//   }
+
+//   cancel() {
+//     this.$router.back();
+//   }
+// }
 </script>
