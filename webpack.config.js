@@ -39,13 +39,7 @@ const VueApp = {
         ]
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
-        use: [
-          'file-loader'
-        ]
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         use: [
           'file-loader'
         ]
@@ -70,7 +64,7 @@ const VueApp = {
   output: {
     filename: 'renderer.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: path.resolve(__dirname, 'dist')
+    publicPath: path.resolve(__dirname, 'dist') + '/'
   },
   plugins: [
     new HtmlWebpackPlugin({
