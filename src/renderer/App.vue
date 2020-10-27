@@ -2,28 +2,14 @@
   <div style="background: LightGrey;">
     <div class="demo-container">
       <!-- Drawer -->
-      <ui-drawer type="modal" nav-id="demo-menu">
-        <ui-drawer-header>
-          <ui-drawer-title>Title</ui-drawer-title>
-          <ui-drawer-subtitle>Subtitle</ui-drawer-subtitle>
-        </ui-drawer-header>
-        <ui-drawer-content>
-          <ui-nav>
-            <ui-nav-item href="javascript:void(0)" active>Item {{ 0 }}</ui-nav-item>
-            <ui-nav-item v-for="i in 12" :key="i" href="javascript:void(0)"><ui-icon :size="18">face</ui-icon> Item {{ i }}</ui-nav-item>
-          </ui-nav>
-        </ui-drawer-content>
-      </ui-drawer>
-      <ui-drawer-backdrop></ui-drawer-backdrop>
+      <Drawer />
       <!-- Content -->
-      <div class="demo-content">
+      <div class="content">
         <!-- App bar -->
-        <ui-top-app-bar fixed class="demo-app-bar" content-selector=".demo-app-content" nav-id="demo-menu">
-          Title
-        </ui-top-app-bar>
+        <AppBar />
         <!-- App content -->
-        <div class="demo-app-content">
-          <p v-for="i in 24" :key="i">Main Content {{ i }}</p>
+        <div class="app-content">
+          <router-view />
         </div>
       </div>
     </div>
@@ -35,7 +21,7 @@
  * Chore:
  * 1. Login not used yet
  */
-import { defineComponent } from 'vue';
+import { defineComponent } from 'vue'
 import Alert from './components/alerts/Alert.vue';
 import AppBar from './components/navigation/AppBar.vue';
 import Drawer from './components/navigation/Drawer.vue';
@@ -47,9 +33,9 @@ export default defineComponent({
   components: {
     Alert,
     AppBar,
-    Drawer,
+    Drawer
     // Footer
     // Login
-  },
-});
+  }
+})
 </script>

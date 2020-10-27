@@ -1,31 +1,27 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-btn class="mx-2" fab dark small :color="color" @click="goToRoute()">
-        <v-icon dark>{{faIcon}}</v-icon>
-      </v-btn>
-    </v-row>
-  </v-container>
+  <ui-nav-item href="javascript:void(0)" active @click="goToRoute(route)"><router-link to="/">{{route}}</router-link></ui-nav-item>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-
+import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
 export default defineComponent({
   props: {
     faIcon: String,
-    route: String,
+    route: String
   },
-  setup() {
-    const goToRoute = () => {
-      console.log('hello');
-    };
+  setup ({ faIcon, route }) {
+    const router = useRouter()
     return {
-      color: 'secondary',
-      goToRoute,
-    };
-  },
-});
+      goToRoute: route => {
+        console.log(route)
+        router.push(route)
+      },
+      faIcon,
+      route
+    }
+  }
+})
 
 // export default class NavigationButton extends Vue {
 //   @Prop(String) faIcon!: string;
@@ -48,5 +44,4 @@ export default defineComponent({
 // }
 </script>
 
-<style>
-</style>
+<style></style>

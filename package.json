@@ -79,8 +79,6 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.2",
-    "sass": "^1.26.10",
-    "sass-loader": "^8.0.2",
     "serve": "^11.3.2",
     "storybook": "^5.3.19",
     "ts-loader": "^8.0.7",

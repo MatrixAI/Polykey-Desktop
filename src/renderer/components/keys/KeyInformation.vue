@@ -6,7 +6,7 @@
             <v-row>
               <v-col>
                 <v-list outlined>
-                  <v-textarea
+                  <ui-textfield
                     v-model="selectedKeyContent"
                     label="Secret Content"
                     required
@@ -14,7 +14,7 @@
                     outlined
                     style="padding-left: 10px; padding-right: 10px"
                     placeholder="Enter the content of the secret"
-                  ></v-textarea>
+                  ></ui-textfield>
                 </v-list>
               </v-col>
             </v-row>
@@ -25,51 +25,54 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { namespace } from "vuex-class";
-import { polykeyClient } from "@/store";
+import { defineComponent } from 'vue'
 
-const keys = namespace('Keys');
+export default defineComponent({})
+// import { Component, Vue, Prop } from "vue-property-decorator";
+// import { namespace } from "vuex-class";
+// import { polykeyClient } from "@/store";
 
-const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) ||
-  !name ||
-  "Name must only contain letters, numbers and hyphens";
+// const keys = namespace('Keys');
 
-@Component({
-})
-export default class KeyInformation extends Vue {
-  @keys.State
-  public selectedKeyName!: string;
+// const namingRule = name =>
+//   /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) ||
+//   !name ||
+//   "Name must only contain letters, numbers and hyphens";
 
-  @keys.State
-  public selectedKeyContent!: string;
+// @Component({
+// })
+// export default class KeyInformation extends Vue {
+//   @keys.State
+//   public selectedKeyName!: string;
 
-  edit: boolean = false
-  editSecret() {
-    this.edit = true
-  }
-  saveSecret() {
-    this.edit = false
-  }
-  cancel() {
-    this.edit = false
-  }
+//   @keys.State
+//   public selectedKeyContent!: string;
 
-  valid: boolean = false;
-  secretNameRules = [namingRule];
+//   edit: boolean = false
+//   editSecret() {
+//     this.edit = true
+//   }
+//   saveSecret() {
+//     this.edit = false
+//   }
+//   cancel() {
+//     this.edit = false
+//   }
 
-  validate(): boolean {
-    return (<any>this.$refs.newVaultForm).validate();
-  }
-  reset() {
-    (<any>this.$refs.newVaultForm).reset();
-  }
-  resetValidation() {
-    this.reset();
-  }
+//   valid: boolean = false;
+//   secretNameRules = [namingRule];
 
-  back() {
-  }
-}
+//   validate(): boolean {
+//     return (<any>this.$refs.newVaultForm).validate();
+//   }
+//   reset() {
+//     (<any>this.$refs.newVaultForm).reset();
+//   }
+//   resetValidation() {
+//     this.reset();
+//   }
+
+//   back() {
+//   }
+// }
 </script>

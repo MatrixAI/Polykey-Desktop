@@ -58,7 +58,7 @@
               </v-flex>
               <v-spacer></v-spacer>
               <v-btn icon small color="success" @click="newSecret">
-                <v-icon small>fas fa-plus</v-icon>
+                <v-icon small>fas fa-plus</v-icon>Add Secret
               </v-btn>
             </v-layout>
           </v-banner>
@@ -91,34 +91,34 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { defineComponent, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
-  setup() {
-    const router = useRouter();
-    const vaultNames = reactive([]);
+  setup () {
+    const router = useRouter()
+    const vaultNames = reactive([])
     const newVault = () => {
-      router.push('Vaults/NewVault');
-    };
+      router.push('/Vaults/NewVault')
+    }
     const newSecret = () => {
-      router.push('Vaults/NewSecret');
-    };
+      router.push('/Vaults/NewSecret')
+    }
     const deleteVault = (vaultName: string) => {
-      console.log(vaultName);
-    };
+      console.log(vaultName)
+    }
     const deleteSecret = (secretName: string) => {
-      console.log(secretName);
-    };
+      console.log(secretName)
+    }
     return {
       newVault,
       newSecret,
       deleteVault,
       deleteSecret,
-      vaultNames,
-    };
-  },
-});
+      vaultNames
+    }
+  }
+})
 // import { namespace } from 'vuex-class';
 // import { polykeyClient } from '@/store';
 // import { Component, Vue, Prop } from 'vue-property-decorator';

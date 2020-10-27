@@ -50,8 +50,7 @@ const VueApp = {
     extensions: ['.ts', '.js', '.vue', '.json'],
     plugins: [
       new TsconfigPathsPlugin({
-        configFile: './tsconfig.json',
-        baseUrl: './src/renderer/'
+        configFile: './tsconfig.json'
       })
     ],
     alias: {
@@ -102,8 +101,7 @@ const ElectronApp = {
     extensions: ['.ts', '.tsx', '.js', '.json'],
     plugins: [
       new TsconfigPathsPlugin({
-        configFile: './tsconfig.json',
-        baseUrl: './src/main/'
+        configFile: './tsconfig.json'
       })
     ]
   },

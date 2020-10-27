@@ -57,71 +57,92 @@
 </template>
 
 <script lang="ts">
-import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import KeyInformation from '@/components/keys/KeyInformation.vue';
-import KeyPairInformation from '@/components/keys/KeyPairInformation.vue';
+import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
+import KeyInformation from '@/components/keys/KeyInformation.vue'
+import KeyPairInformation from '@/components/keys/KeyPairInformation.vue'
 
-const keys = namespace('Keys');
-
-@Component({
+export default defineComponent({
   components: {
     KeyInformation,
-    KeyPairInformation,
+    KeyPairInformation
   },
-})
-export default class Vaults extends Vue {
-  newKey() {
-    this.$router.push('Keys/NewKey');
-  }
-
-  deleteKey() {}
-
-  @keys.Action
-  public loadKeyNames!: () => void;
-
-  @keys.Action
-  public loadKeyPair!: () => void;
-
-  @keys.Action
-  public selectKey!: (keyName: string) => void;
-
-  @keys.State
-  public keyNames!: string[];
-
-  @keys.State
-  public selectedKeyName!: string;
-
-  private selectedKeyIndexStore = 0;
-
-  public get selectedKeyIndex() {
-    console.log(this.selectedKeyIndexStore);
-
-    if (this.selectedKeyIndexStore == 0) {
-      return 0;
+  setup () {
+    const router = useRouter()
+    return {
+      newKey: () => {
+        router.push('/Keys/NewKey')
+      },
+      deleteVault: () => {}
     }
-    return this.keyNames.indexOf(this.selectedKeyName);
   }
+})
 
-  public set selectedKeyIndex(value: number) {
-    this.selectedKeyIndexStore = value;
-    const keyName = this.keyNames[value];
-    this.selectKey(keyName);
-  }
+// import { namespace } from 'vuex-class';
+// import { polykeyClient } from '@/store';
+// import { Component, Vue, Prop } from 'vue-property-decorator';
+// import KeyInformation from '@/components/keys/KeyInformation.vue';
+// import KeyPairInformation from '@/components/keys/KeyPairInformation.vue';
 
-  @keys.State
-  public publicKey!: string;
+// const keys = namespace('Keys');
 
-  @keys.State
-  public privateKey!: string;
+// @Component({
+//   components: {
+//     KeyInformation,
+//     KeyPairInformation,
+//   },
+// })
+// export default class Vaults extends Vue {
+//   newKey() {
+//     this.$router.push('Keys/NewKey');
+//   }
 
-  constructor() {
-    super();
-    this.loadKeyNames();
-    this.loadKeyPair();
-  }
-}
+//   deleteKey() {}
+
+//   @keys.Action
+//   public loadKeyNames!: () => void;
+
+//   @keys.Action
+//   public loadKeyPair!: () => void;
+
+//   @keys.Action
+//   public selectKey!: (keyName: string) => void;
+
+//   @keys.State
+//   public keyNames!: string[];
+
+//   @keys.State
+//   public selectedKeyName!: string;
+
+//   private selectedKeyIndexStore = 0;
+
+//   public get selectedKeyIndex() {
+//     console.log(this.selectedKeyIndexStore);
+
+//     if (this.selectedKeyIndexStore == 0) {
+//       return 0;
+//     }
+//     return this.keyNames.indexOf(this.selectedKeyName);
+//   }
+
+//   public set selectedKeyIndex(value: number) {
+//     this.selectedKeyIndexStore = value;
+//     const keyName = this.keyNames[value];
+//     this.selectKey(keyName);
+//   }
+
+//   @keys.State
+//   public publicKey!: string;
+
+//   @keys.State
+//   public privateKey!: string;
+
+//   constructor() {
+//     super();
+//     this.loadKeyNames();
+//     this.loadKeyPair();
+//   }
+// }
 </script>
 
 <style scoped>

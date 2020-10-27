@@ -1,37 +1,29 @@
 <template>
-  <div
-    mobile-breakpoint="0"
-    app
-    clipped
-    mini-variant
-    color="primary"
-  >
-    <NavigationButton faIcon="fas fa-lock" route="Vaults" />
-    <NavigationButton faIcon="fas fa-users" route="Social" />
-    <NavigationButton faIcon="fas fa-key" route="Keys" />
-    <NavigationButton faIcon="fas fa-share-alt-square" route="Sharing" />
-    <!-- <template v-slot:append>
-      <NavigationButton faIcon="fas fa-cogs" route="Configuration" />
-    </template> -->
+  <div>
+  <ui-drawer type="modal" nav-id="menu">
+    <ui-drawer-header>
+      <ui-drawer-title>PolyKey</ui-drawer-title>
+      <ui-drawer-subtitle>A peer-to-peer secret sharing and management application</ui-drawer-subtitle>
+    </ui-drawer-header>
+    <ui-drawer-content>
+      <ui-nav>
+        <NavigationButton faIcon="lock" route="/Vaults" />
+        <NavigationButton faIcon="users" route="/Social" />
+        <NavigationButton faIcon="key" route="/Keys" />
+        <NavigationButton faIcon="share-alt-square" route="/Sharing" />
+      </ui-nav>
+    </ui-drawer-content>
+  </ui-drawer>
+  <ui-drawer-backdrop></ui-drawer-backdrop>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import NavigationButton from './NavigationButton.vue'
 
 export default defineComponent({
   components: {
     NavigationButton
-  },
-  setup () {
-    const isOpen = ref(false)
-    const toggleDrawer = () => {
-      isOpen.value = !isOpen.value
-    }
-    return {
-      isOpen,
-      toggleDrawer
-    }
   }
 })
 
@@ -64,5 +56,4 @@ export default defineComponent({
 // }
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-</style>
+<style scoped></style>

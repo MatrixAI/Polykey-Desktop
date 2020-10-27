@@ -13,8 +13,8 @@ in
       nodePackages.node2nix
       electron_9
       unzip
-      wine
-      p7zip # Insecure package but needed for electron-builder
+      #wine
+      #p7zip # Insecure package but needed for electron-builder
     ] ++ (lib.attrByPath [ "nativeBuildInputs" ] [] attrs);
     shellHook = ''
       echo 'Entering ${attrs.name}'
