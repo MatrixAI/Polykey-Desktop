@@ -8,7 +8,7 @@ import NewVault from '@/components/vaults/NewVault.vue'
 import NewSecret from '@/components/vaults/secrets/NewSecret.vue'
 import VaultInformation from '@/components/vaults/VaultInformation.vue'
 
-// import Social from '@/components/social/Social.vue'
+import Social from '@/components/social/Social.vue'
 
 import Keys from '@/components/keys/Keys.vue'
 import NewKey from '@/components/keys/NewKey.vue'
@@ -36,10 +36,10 @@ const routes: Array<RouteRecordRaw> = [
     component: NewVault
   },
   // // Social
-  // {
-  //   path: '/Social',
-  //   component: Social
-  // },
+  {
+    path: '/Social',
+    component: Social
+  },
   // // Keys
   {
     path: '/Keys',

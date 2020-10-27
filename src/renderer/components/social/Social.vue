@@ -28,7 +28,7 @@
         </ui-list>
       </ui-grid-cell>
 
-      <!-- <ui-grid-cell>
+      <ui-grid-cell>
         <v-card>
           <v-banner single-line>
             <v-layout>
@@ -71,7 +71,6 @@
           <h4 style="text-align: center;" v-else>No secrets found</h4>
         </v-card>
       </ui-grid-cell>
-       -->
     </ui-grid-cell>
   </ui-grid>
 </template>
@@ -82,8 +81,14 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   setup () {
     return {
+      pathList: [{
+        type: 'secret'
+      }],
       newVault: () => {},
-      deleteVault: () => {}
+      deleteVault: () => {},
+      changeView: () => {},
+      selectSecret: () => {},
+      deleteSecret: () => {}
     }
   }
 })

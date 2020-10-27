@@ -6,7 +6,7 @@
         <v-row>
           <v-col>
             <v-list outlined>
-              <v-text-field
+              <ui-textfield
                 v-model="secretName"
                 :rules="secretNameRules"
                 label="Secret Name"
@@ -15,16 +15,16 @@
                 outlined
                 style="padding-left: 10px; padding-right: 10px"
                 placeholder="Enter a new secret name"
-              ></v-text-field>
+              />
 
-              <v-textarea
+              <ui-textfield
                 v-model="secretContent"
                 label="Secret Content"
                 required
                 outlined
                 style="padding-left: 10px; padding-right: 10px"
                 placeholder="Enter the content of the secret"
-              ></v-textarea>
+              />
             </v-list>
           </v-col>
         </v-row>
