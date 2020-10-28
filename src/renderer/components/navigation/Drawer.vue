@@ -10,7 +10,7 @@
         <NavigationButton faIcon="lock" route="/Vaults" />
         <NavigationButton faIcon="users" route="/Social" />
         <NavigationButton faIcon="key" route="/Keys" />
-        <NavigationButton faIcon="share-alt-square" route="/Sharing" />
+        <NavigationButton faIcon="key" route="/Configuration" />
       </ui-nav>
     </ui-drawer-content>
   </ui-drawer>

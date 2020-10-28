@@ -78,75 +78,85 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
-import { getConfiguration } from '@/store/modules/Configuration';
+import { defineComponent } from 'vue'
 
-const configuration = namespace('Configuration');
-
-const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
-
-@Component({})
-export default class Configuration extends Vue {
-  @configuration.State
-  public activeNodePath!: string;
-
-  @configuration.State
-  public nodePathList!: string[];
-
-  @configuration.Action
-  public loadNodePathList!: () => Promise<void>;
-
-  public valid: boolean = false;
-  public secretName = '';
-  public secretNameRules = [namingRule];
-  public secretContent = '';
-  selectedVaultIndex = 0
-
-  newKeyNode() {
-    this.$router.push('Configuration/NewKeyNode')
-  }
-
-  validate(): boolean {
-    return (<any>this.$refs.newVaultForm).validate();
-  }
-  reset() {
-    (<any>this.$refs.newVaultForm).reset();
-  }
-  resetValidation() {
-    this.reset();
-  }
-  async newSecret() {
-    if (this.validate()) {
-      // const successful = await polykeyClient.createSecret(
-      //   getConfiguration().activeNodePath,
-      //   this.selectedVaultName,
-      //   this.secretName,
-      //   Buffer.from(this.secretContent),
-      // );
-      // console.log(successful);
-      // if (successful) {
-      //   this.$router.back();
-      // }
-    } else {
-      alert('Please address errors');
+export default defineComponent({
+  setup () {
+    return {
+      newKeyNode: () => {},
+      deleteVault: () => {}
     }
   }
+})
+// import { Component, Vue, Prop } from 'vue-property-decorator';
+// import { namespace } from 'vuex-class';
+// import { polykeyClient } from '@/store';
+// import { getConfiguration } from '@/store/modules/Configuration';
 
-  cancel() {
-    this.$router.back();
-  }
+// const configuration = namespace('Configuration');
 
-  constructor() {
-    super()
-    this.loadNodePathList().then(() => {
-      console.log(this.nodePathList);
+// const namingRule = name =>
+//   /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
 
-    })
-  }
-}
+// @Component({})
+// export default class Configuration extends Vue {
+//   @configuration.State
+//   public activeNodePath!: string;
+
+//   @configuration.State
+//   public nodePathList!: string[];
+
+//   @configuration.Action
+//   public loadNodePathList!: () => Promise<void>;
+
+//   public valid: boolean = false;
+//   public secretName = '';
+//   public secretNameRules = [namingRule];
+//   public secretContent = '';
+//   selectedVaultIndex = 0
+
+//   newKeyNode() {
+//     this.$router.push('Configuration/NewKeyNode')
+//   }
+
+//   validate(): boolean {
+//     return (<any>this.$refs.newVaultForm).validate();
+//   }
+//   reset() {
+//     (<any>this.$refs.newVaultForm).reset();
+//   }
+//   resetValidation() {
+//     this.reset();
+//   }
+//   async newSecret() {
+//     if (this.validate()) {
+//       // const successful = await polykeyClient.createSecret(
+//       //   getConfiguration().activeNodePath,
+//       //   this.selectedVaultName,
+//       //   this.secretName,
+//       //   Buffer.from(this.secretContent),
+//       // );
+//       // console.log(successful);
+//       // if (successful) {
+//       //   this.$router.back();
+//       // }
+//     } else {
+//       alert('Please address errors');
+//     }
+//   }
+
+//   cancel() {
+//     this.$router.back();
+//   }
+
+//   constructor() {
+//     super()
+//     this.loadNodePathList().then(() => {
+//       console.log(this.nodePathList);
+
+//     })
+//   }
+// }
 </script>
 
 <style scoped>
