@@ -1,5 +1,5 @@
 <template>
-  <ui-nav-item href="javascript:void(0)" active @click="goToRoute(route)"><router-link to="/">{{route}}</router-link></ui-nav-item>
+  <ui-nav-item href="javascript:void(0)" active @click="goToRoute(route)">{{route}}</ui-nav-item>
 </template>
 
 <script lang="ts">
@@ -14,7 +14,6 @@ export default defineComponent({
     const router = useRouter()
     return {
       goToRoute: route => {
-        console.log(route)
         router.push(route)
       },
       faIcon,

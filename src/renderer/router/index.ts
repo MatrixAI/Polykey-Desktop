@@ -1,6 +1,6 @@
 import {
   createRouter,
-  createWebHistory,
+  createWebHashHistory,
   RouteRecordRaw
 } from 'vue-router'
 import Vaults from '@/components/vaults/Vaults.vue'
@@ -13,8 +13,8 @@ import Social from '@/components/social/Social.vue'
 import Keys from '@/components/keys/Keys.vue'
 import NewKey from '@/components/keys/NewKey.vue'
 
-// import Configuration from '@/components/configuration/Configuration.vue'
-// import NewKeyNode from '@/components/configuration/NewKeyNode.vue'
+import Configuration from '@/components/configuration/Configuration.vue'
+import NewKeyNode from '@/components/configuration/NewKeyNode.vue'
 
 const routes: Array<RouteRecordRaw> = [
   // Vaults
@@ -49,19 +49,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/Keys/NewKey',
     component: NewKey
   },
-  // // Configuration
-  // {
-  //   path: '/Configuration',
-  //   component: Configuration
-  // },
-  // {
-  //   path: '/Configuration/NewKeyNode',
-  //   component: NewKeyNode
-  // },
-];
+  // Configuration
+  {
+    path: '/Configuration',
+    component: Configuration
+  },
+  {
+    path: '/Configuration/NewKeyNode',
+    component: NewKeyNode
+  }
+]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 
