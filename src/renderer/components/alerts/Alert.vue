@@ -10,21 +10,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
-  setup() {
-    const visible = ref(false);
+  setup () {
+    const visible = ref(false)
     const snackbar = () => {
-      visible.value = !visible.value;
-    };
+      visible.value = !visible.value
+    }
 
     return {
       visible,
-      snackbar,
-    };
-  },
-});
+      snackbar
+    }
+  }
+})
 </script>
 
 <style scoped>

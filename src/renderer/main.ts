@@ -4,8 +4,8 @@ import router from '@/router'
 import store from '@/store'
 import BalmUI from 'balm-ui'
 import BalmUIPlus from 'balm-ui/dist/balm-ui-plus'
-import '../index.css'
 import 'balm-ui/dist/balm-ui.css'
+import '../index.css'
 
 const app = createApp(App)
 
