@@ -22,12 +22,14 @@
  * 1. Login not used yet
  */
 import { defineComponent } from 'vue'
-import Alert from './components/alerts/Alert.vue';
-import AppBar from './components/navigation/AppBar.vue';
-import Drawer from './components/navigation/Drawer.vue';
+import Alert from './components/alerts/Alert.vue'
+import AppBar from './components/navigation/AppBar.vue'
+import Drawer from './components/navigation/Drawer.vue'
 // import Footer from './components/navigation/Footer.vue'
 // import NewVault from './components/vaults/NewVault.vue'
 // import Login from './components/navigation/Login.vue';
+
+import useModule from '@/store/useModule'
 
 export default defineComponent({
   components: {
@@ -36,6 +38,11 @@ export default defineComponent({
     Drawer
     // Footer
     // Login
+  },
+  setup () {
+    const alertModule = useModule('Alert')
+    console.log(alertModule.state)
+    alertModule.dispatch('toggle')
   }
 })
 </script>
