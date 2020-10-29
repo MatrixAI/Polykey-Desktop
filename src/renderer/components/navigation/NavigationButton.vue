@@ -1,5 +1,5 @@
 <template>
-  <ui-nav-item href="javascript:void(0)" active @click="goToRoute(route)">{{route}}</ui-nav-item>
+  <ui-nav-item href="javascript:void(0)" active @click="goToRoute(route)">{{name}}</ui-nav-item>
 </template>
 
 <script lang="ts">
@@ -8,16 +8,18 @@ import { useRouter } from 'vue-router'
 export default defineComponent({
   props: {
     faIcon: String,
-    route: String
+    route: String,
+    name: String
   },
-  setup ({ faIcon, route }) {
+  setup ({ faIcon, route, name }) {
     const router = useRouter()
     return {
       goToRoute: route => {
         router.push(route)
       },
       faIcon,
-      route
+      route,
+      name
     }
   }
 })

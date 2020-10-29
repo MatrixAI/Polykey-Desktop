@@ -1,22 +1,23 @@
 <template>
-  <v-card color="FloralWhite" style="margin: 10px;">
+  <div color="FloralWhite" style="margin: 10px;">
     <v-form width="100%" v-model="valid" ref="newVaultForm">
-      <v-container fluid width="100%">
-        <h2>New Vault - Vault Information</h2>
-        <v-row>
-          <v-col cols="12" md="12">
-            <ui-textfield
-              v-model="vaultName"
-              :rules="vaultNameRules"
-              label="Vault Name"
-              counter="100"
-              required
-              outlined
-              placeholder="Enter a unique vault Name"
-            ></ui-textfield>
-          </v-col>
-        </v-row>
-        <v-row>
+      <ui-grid fluid width="100%">
+        <ui-grid-cell columns="12">
+          <h2>New Vault - Vault Information</h2>
+        </ui-grid-cell>
+        <ui-grid-cell columns="12">
+          <ui-textfield
+            v-model="vaultName"
+            :rules="vaultNameRules"
+            label="Vault Name"
+            counter="100"
+            required
+            outlined
+            style="padding-left: 10px; padding-right: 10px; width: 100%"
+            placeholder="Enter a unique vault Name"
+          ></ui-textfield>
+        </ui-grid-cell>
+        <ui-grid-cell columns="12">
           <v-col cols="12" md="12">
             <v-list subheader two-line flat outlined>
               <v-subheader>Share with Peers (optional)</v-subheader>
@@ -29,58 +30,62 @@
               </v-container>
             </v-list>
           </v-col>
-        </v-row>
-        <v-row>
+        </ui-grid-cell>
+        <ui-grid-cell columns="12">
           <v-col>
             <v-list outlined>
-              <v-subheader>Initial Secret (optional)</v-subheader>
-
-              <ui-textfield
-                v-model="initialSecretName"
-                :rules="initialSecretNameRules"
-                label="Secret Name"
-                counter="100"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter a new secret name"
-              ></ui-textfield>
-
-              <ui-textfield
-                v-model="initialSecretContent"
-                label="Secret Content"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter the content of the secret"
-              ></ui-textfield>
+              <ui-grid-cell columns="12">
+                <v-subheader>Initial Secret (optional)</v-subheader>
+              </ui-grid-cell>
+              <ui-grid-cell columns="12">
+                <ui-textfield
+                  v-model="initialSecretName"
+                  :rules="initialSecretNameRules"
+                  label="Secret Name"
+                  counter="100"
+                  required
+                  outlined
+                  style="padding-left: 10px; padding-right: 10px; width: 100%"
+                  placeholder="Enter a new secret name"
+                ></ui-textfield>
+              </ui-grid-cell>
+              <ui-grid-cell columns="12">
+                <ui-textfield
+                  v-model="initialSecretContent"
+                  label="Secret Content"
+                  required
+                  outlined
+                  style="padding-left: 10px; padding-right: 10px; width: 100%"
+                  placeholder="Enter the content of the secret"
+                ></ui-textfield>
+              </ui-grid-cell>
             </v-list>
           </v-col>
-        </v-row>
-      </v-container>
+        </ui-grid-cell>
+      </ui-grid>
 
+      <br />
       <v-card-actions>
-        <v-btn @click="cancel">Cancel</v-btn>
-        <v-btn color="warning" @click="resetValidation">Clear</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn color="success" @click="newVault">Create</v-btn>
+        <ui-button raised @click="cancel">Cancel</ui-button>
+        <ui-button raised @click="resetValidation">Clear</ui-button>
+        <ui-button raised @click="newVault">Create</ui-button>
       </v-card-actions>
     </v-form>
-  </v-card>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  setup () {
+  setup() {
     return {
       cancel: () => {},
       resetValidation: () => {},
-      newVault: () => {}
-    }
-  }
-})
+      newVault: () => {},
+    };
+  },
+});
 
 // import { Component, Vue, Prop } from 'vue-property-decorator';
 // import { namespace } from 'vuex-class';

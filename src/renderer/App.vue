@@ -39,7 +39,7 @@ export default defineComponent({
     // Footer
     // Login
   },
-  setup () {
+  setup() {
     const alertModule = useModule('Alert')
     console.log(alertModule.state)
     alertModule.dispatch('toggle')

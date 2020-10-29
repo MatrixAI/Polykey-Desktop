@@ -7,10 +7,10 @@
     </ui-drawer-header>
     <ui-drawer-content>
       <ui-nav>
-        <NavigationButton faIcon="lock" route="/Vaults" />
-        <NavigationButton faIcon="users" route="/Social" />
-        <NavigationButton faIcon="key" route="/Keys" />
-        <NavigationButton faIcon="key" route="/Configuration" />
+        <NavigationButton faIcon="lock" route="/Vaults" name="Vault" />
+        <NavigationButton faIcon="users" route="/Social" name="Social"/>
+        <NavigationButton faIcon="key" route="/Keys" name="Keys"/>
+        <NavigationButton faIcon="key" route="/Configuration" name="Configuration"/>
       </ui-nav>
     </ui-drawer-content>
   </ui-drawer>
