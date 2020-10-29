@@ -93,6 +93,7 @@ const ElectronApp = {
       {
         test: /\.ts?$/,
         use: 'ts-loader',
+        exclude: /node_modules/
       }
     ]
   },
