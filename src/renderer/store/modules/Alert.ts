@@ -1,19 +1,27 @@
 export default {
   namespaced: true,
   state: {
-    visible: false
+    visible: false,
+    color: 'success'
   },
   actions: {
-    toggle: (context) => {
-      context.commit('toggle')
+    toggleAlert: function(
+      context,
+      props: { visible: boolean; type: 'success' | 'warning' | 'error' | 'info'; message?: string }
+    ) {
+      context.commit('setVisible', props)
     }
   },
   mutations: {
-    toggle: (state) => {
-      state.visible = !state.visible
+    setVisible: function(
+      state,
+      { visible, type, message }: { visible: boolean; type: 'success' | 'warning' | 'error' | 'info'; message?: string }
+    ): void {
+      state.visible = visible
+      state.color = type
+      state.message = message ?? ''
     }
-  },
-  getters: {}
+  }
 }
 // import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 

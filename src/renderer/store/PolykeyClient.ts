@@ -238,9 +238,9 @@ class PolykeyClient {
     );
     return res.getB();
   }
-  static async RegisterNode(polykeyPath: string): Promise<boolean> {
+  static async RegisterNode(passphrase: string): Promise<boolean> {
     const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(polykeyPath);
+    encodedRequest.setS(passphrase);
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('RegisterNode', encodedRequest.serializeBinary()),
     );

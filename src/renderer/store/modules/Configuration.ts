@@ -1,9 +1,25 @@
 export default {
   namespaced: true,
-  state: {},
-  actions: {},
-  mutations: {},
-  getters: {}
+  state: {
+    activeNodePath: '~/.polykey',
+    nodePathList: []
+  },
+  actions: {
+    selectNodePath: function(context, activeNodePath) {
+      context.commit('selectNodePath', activeNodePath)
+    },
+    loadNodePathList: function(context) {
+      context.commit('loadNodePathList')
+    }
+  },
+  mutations: {
+    selectNodePath: function(state, activeNodePath) {
+      state.activeNodePath = activeNodePath
+    },
+    loadNodePathList: function(state) {
+      state.nodePathList = [state.activeNodePath]
+    }
+  }
 }
 // import store from '@/store'
 // import { getModule, Module, MutationAction, VuexModule } from 'vuex-module-decorators'
@@ -31,4 +47,3 @@ export default {
 
 // export default Configuration
 // export { getConfiguration }
-
