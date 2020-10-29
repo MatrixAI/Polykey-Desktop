@@ -3226,15 +3226,6 @@ let
         sha512 = "R48tgL2izApf+9rYNH+3RBMbRpPeW3N8f0I9HMhggeq4UXwBDqumJ14SDs4ctTMhG11pIOduZ4z3QWGOiMc9Vg==";
       };
     };
-    "@types/node-12.19.1" = {
-      name = "_at_types_slash_node";
-      packageName = "@types/node";
-      version = "12.19.1";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/@types/node/-/node-12.19.1.tgz";
-        sha512 = "/xaVmBBjOGh55WCqumLAHXU9VhjGtmyTGqJzFBXRWZzByOXI5JAJNx9xPVGEsNizrNwcec92fQMj458MWfjN1A==";
-      };
-    };
     "@types/node-13.13.15" = {
       name = "_at_types_slash_node";
       packageName = "@types/node";
@@ -3278,6 +3269,15 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/@types/npmlog/-/npmlog-4.1.2.tgz";
         sha512 = "4QQmOF5KlwfxJ5IGXFIudkeLCdMABz03RcUXu+LCb24zmln8QW6aDjuGl4d4XPVLf2j+FnjelHTP7dvceAFbhA==";
+      };
+    };
+    "@types/oauth2orize-1.8.8" = {
+      name = "_at_types_slash_oauth2orize";
+      packageName = "@types/oauth2orize";
+      version = "1.8.8";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/@types/oauth2orize/-/oauth2orize-1.8.8.tgz";
+        sha512 = "Tn5xxwdjmEjJL+bO7ZqbG8Gnh5ntFZCBr7cNpMEGPc8KjxIfvT2ExSu23mEiOH/dxWfw8iF55VtqKLsm6apgbQ==";
       };
     };
     "@types/parse-json-4.0.0" = {
@@ -6700,15 +6700,6 @@ let
         sha1 = "1b7f4b9f591f1e8f83670401600345a02887435f";
       };
     };
-    "clone-deep-4.0.1" = {
-      name = "clone-deep";
-      packageName = "clone-deep";
-      version = "4.0.1";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/clone-deep/-/clone-deep-4.0.1.tgz";
-        sha512 = "neHB9xuzh/wk0dIHweyAXv2aPGZIVk3pLMe+/RNzINf17fe0OG96QroktYAUm7SM1PBnzTabaLboqqxDyMU+SQ==";
-      };
-    };
     "clone-response-1.0.2" = {
       name = "clone-response";
       packageName = "clone-response";
@@ -8185,15 +8176,6 @@ let
         sha512 = "dldq3ZfFtgVTJMLjOe+/3sROTzALlL9E34V4/sDtUd/KlBSS0s6U1/+WPE1B4sj9CXHJpL1M6rhNJnc9Wbal9w==";
       };
     };
-    "electron-10.1.5" = {
-      name = "electron";
-      packageName = "electron";
-      version = "10.1.5";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/electron/-/electron-10.1.5.tgz";
-        sha512 = "fys/KnEfJq05TtMij+lFvLuKkuVH030CHYx03iZrW5DNNLwjE6cW3pysJ420lB0FRSfPjTHBMu2eVCf5TG71zQ==";
-      };
-    };
     "electron-builder-22.9.1" = {
       name = "electron-builder";
       packageName = "electron-builder";
@@ -9155,15 +9137,6 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/extract-stack/-/extract-stack-2.0.0.tgz";
         sha512 = "AEo4zm+TenK7zQorGK1f9mJ8L14hnTDi2ZQPR+Mub1NX8zimka1mXpV5LpH8x9HoUmFSHZCfLHqWvp0Y4FxxzQ==";
-      };
-    };
-    "extract-zip-1.7.0" = {
-      name = "extract-zip";
-      packageName = "extract-zip";
-      version = "1.7.0";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/extract-zip/-/extract-zip-1.7.0.tgz";
-        sha512 = "xoh5G1W/PB0/27lXgMQyIhP5DSY/LhoCsOyZgb+6iMmRtCwVBo55uKaMoEYrDCKQhWvqEip5ZPKAc6eFNyf/MA==";
       };
     };
     "extract-zip-2.0.1" = {
@@ -17689,15 +17662,6 @@ let
         sha512 = "y/52Mcy7aw3gRm7IrcGDFx/bCk4AhRh2eI9luHOQM86nZsqwiRkkq2GekHXBBD+SmPidc8i2PqtYZl+pWJ8Oeg==";
       };
     };
-    "sass-1.26.10" = {
-      name = "sass";
-      packageName = "sass";
-      version = "1.26.10";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/sass/-/sass-1.26.10.tgz";
-        sha512 = "bzN0uvmzfsTvjz0qwccN1sPm2HxxpNI/Xa+7PlUEMS+nQvbyuEK7Y0qFqxlPHhiNHb1Ze8WQJtU31olMObkAMw==";
-      };
-    };
     "sass-graph-2.2.5" = {
       name = "sass-graph";
       packageName = "sass-graph";
@@ -17705,15 +17669,6 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/sass-graph/-/sass-graph-2.2.5.tgz";
         sha512 = "VFWDAHOe6mRuT4mZRd4eKE+d8Uedrk6Xnh7Sh9b4NGufQLQjOrvf/MQoOdx+0s92L89FeyUUNfU597j/3uNpag==";
-      };
-    };
-    "sass-loader-8.0.2" = {
-      name = "sass-loader";
-      packageName = "sass-loader";
-      version = "8.0.2";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/sass-loader/-/sass-loader-8.0.2.tgz";
-        sha512 = "7o4dbSK8/Ol2KflEmSco4jTjQoV988bM82P9CZdmo9hR3RLnvNc0ufMNdMrB0caq38JQ/FgF4/7RcbcfKzxoFQ==";
       };
     };
     "sax-1.2.4" = {
@@ -18029,15 +17984,6 @@ let
       src = fetchurl {
         url = "https://registry.npmjs.org/sha.js/-/sha.js-2.4.11.tgz";
         sha512 = "QMEp5B7cftE7APOjk5Y6xgrbWu+WkLVQwk8JNjZ8nKRciZaByEW6MubieAiToS7+dwvrjGhH8jRXz3MVd0AYqQ==";
-      };
-    };
-    "shallow-clone-3.0.1" = {
-      name = "shallow-clone";
-      packageName = "shallow-clone";
-      version = "3.0.1";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/shallow-clone/-/shallow-clone-3.0.1.tgz";
-        sha512 = "/6KqX+GVUdqPuPPd2LxDDxzX6CAbjJehAAOKlNpqqUpAqPM6HeL8f+o3a+JsyGjn2lv0WY8UsTgUJjU9Ok55NA==";
       };
     };
     "shebang-command-1.2.0" = {
@@ -22347,6 +22293,7 @@ let
       })
       sources."@types/normalize-package-data-2.4.0"
       sources."@types/npmlog-4.1.2"
+      sources."@types/oauth2orize-1.8.8"
       sources."@types/parse-json-4.0.0"
       sources."@types/parse5-5.0.3"
       sources."@types/prettier-1.19.1"
@@ -23414,7 +23361,6 @@ let
         ];
       })
       sources."clone-1.0.4"
-      sources."clone-deep-4.0.1"
       (sources."clone-response-1.0.2" // {
         dependencies = [
           sources."mimic-response-1.0.1"
@@ -23712,14 +23658,6 @@ let
       })
       sources."ee-first-1.1.1"
       sources."ejs-2.7.4"
-      (sources."electron-10.1.5" // {
-        dependencies = [
-          sources."@types/node-12.19.1"
-          sources."debug-2.6.9"
-          sources."extract-zip-1.7.0"
-          sources."ms-2.0.0"
-        ];
-      })
       (sources."electron-builder-22.9.1" // {
         dependencies = [
           sources."@sindresorhus/is-0.14.0"
@@ -25929,9 +25867,7 @@ let
         ];
       })
       sources."sanitize-filename-1.6.3"
-      sources."sass-1.26.10"
       sources."sass-graph-2.2.5"
-      sources."sass-loader-8.0.2"
       sources."sax-1.2.4"
       sources."saxes-3.1.11"
       sources."schema-utils-2.7.0"
@@ -26026,7 +25962,6 @@ let
       sources."setimmediate-1.0.5"
       sources."setprototypeof-1.1.1"
       sources."sha.js-2.4.11"
-      sources."shallow-clone-3.0.1"
       sources."shebang-command-2.0.0"
       sources."shebang-regex-3.0.0"
       sources."shell-quote-1.7.2"

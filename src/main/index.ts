@@ -2,9 +2,9 @@
 import url from 'url';
 import path from 'path';
 import { app, BrowserWindow, Menu, Tray, shell } from "electron";
-// import startModel from './startModel'
+import setHandlers from './setHandlers'
 
-// startModel()
+setHandlers()
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
