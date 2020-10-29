@@ -1,4 +1,3 @@
-import path from 'path';
 import os from 'os';
 import { ipcMain } from 'electron';
 import { PolykeyAgent } from '@matrixai/polykey';

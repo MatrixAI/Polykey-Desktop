@@ -87,7 +87,10 @@ const ElectronApp = {
   entry: './src/main/index.ts',
   // This should be checked if dev mode
   devtool: 'inline-source-map',
-
+  node: {
+    __dirname: true,
+    __filename: true,
+  },
   module: {
     rules: [
       {
