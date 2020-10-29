@@ -376,6 +376,16 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
+  ipcMain.handle('RegisterNode', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.registerNode.bind(client))(
+      pb.StringMessage.deserializeBinary(request),
+    )) as pb.BooleanMessage;
+    return res.serializeBinary();
+  });
+
   ipcMain.handle('RevokeOAuthToken', async (event, request) => {
     if (!client) {
       await getAgentClient();
