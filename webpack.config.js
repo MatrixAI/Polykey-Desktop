@@ -63,7 +63,7 @@ const VueApp = {
   output: {
     filename: 'renderer.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: path.resolve(__dirname, 'dist') + '/'
+    publicPath: './'
   },
   plugins: [
     new HtmlWebpackPlugin({
