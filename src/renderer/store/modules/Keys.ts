@@ -1,8 +1,50 @@
+import { polykeyClient } from '@/store/PolyKeyClientMock'
+
 export default {
   namespaced: true,
-  state: {},
-  actions: {},
-  mutations: {},
+  state: {
+    publicKey: '',
+    privateKey: '',
+    keyNames: [],
+    selectedKeyName: '',
+    selectedKeyContent: ''
+  },
+  actions: {
+    loadKeyNames: async function({ commit }) {
+      const keyNames = await polykeyClient.listKeys()
+      commit('loadKeyNames', keyNames)
+    },
+    deleteKey: async function({ commit, state }, keyName) {
+      const successful = await polykeyClient.deleteKey(keyName)
+      if (successful) {
+        const keyNames = await polykeyClient.listKeys()
+        return commit('loadKeyNames', keyNames)
+      } else {
+        return commit('loadKeyNames', state.keyNames)
+      }
+    },
+    loadKeyPair: async function({ commit }) {
+      const keyPair = await polykeyClient.getPrimaryKeyPair(true)
+      commit('loadKeyPair', { publicKey: keyPair.public, privateKey: keyPair.private })
+    },
+    selectKey: async function({ commit }, keyName: string) {
+      const keyContent = await polykeyClient.getKey(keyName)
+      commit('selectKey', { selectedKeyName: keyName, selectedKeyContent: keyContent })
+    }
+  },
+  mutations: {
+    loadKeyNames: function(state, keyNames) {
+      state.keyNames = keyNames
+    },
+    loadKeyPair: function(state, { publicKey, privateKey }: { publicKey: string; privateKey: string }) {
+      state.publicKey = publicKey
+      state.privateKey = privateKey
+    },
+    selectKey: function(state, { selectedKeyName, selectedKeyContent }) {
+      state.selectedKeyName = selectedKeyName
+      state.selectedKeyContent = selectedKeyContent
+    }
+  },
   getters: {}
 }
 // import { polykeyClient } from '@/store'

@@ -1,10 +1,24 @@
+import { polykeyClient } from '@/store/PolyKeyClientMock'
+
 export default {
   namespaced: true,
-  state: {},
-  actions: {},
-  mutations: {},
+  state: {
+    vaultNames: []
+  },
+  actions: {
+    loadPeerNames: async function({ commit }) {
+      const peerNames = await polykeyClient.listPeers()
+      commit('setPeerNames', peerNames)
+    }
+  },
+  mutations: {
+    setPeerNames: function(state, vaultNames) {
+      state.vaultNames = vaultNames
+    }
+  },
   getters: {}
 }
+
 // import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 // import { polykeyClient } from '..'
 // import { getConfiguration } from './Configuration'

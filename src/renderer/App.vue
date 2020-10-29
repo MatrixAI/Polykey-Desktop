@@ -1,6 +1,7 @@
 <template>
   <div style="background: LightGrey;">
     <div class="demo-container">
+      <Alert />
       <!-- Drawer -->
       <Drawer />
       <!-- Content -->

@@ -1,8 +1,28 @@
+import { polykeyClient } from '@/store/PolyKeyClientMock'
+
 export default {
   namespaced: true,
-  state: {},
-  actions: {},
-  mutations: {},
+  state: {
+    vaultNames: [],
+    selectedVaultName: ''
+  },
+  actions: {
+    loadVaultNames: async function({ commit }) {
+      const vaultNames = await polykeyClient.listVaults()
+      commit('setVaultNames', vaultNames)
+    },
+    selectVault: async function({ commit }, vaultName) {
+      commit('setSelectedVault', vaultName)
+    }
+  },
+  mutations: {
+    setVaultNames: function(state, vaultNames) {
+      state.vaultNames = vaultNames
+    },
+    setSelectedVault: function(state, vaultName) {
+      state.selectedVaultName = vaultName
+    }
+  },
   getters: {}
 }
 // import { polykeyClient } from '@/store'

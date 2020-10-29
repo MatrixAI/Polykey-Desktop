@@ -1,8 +1,50 @@
+import { polykeyClient } from '@/store/PolyKeyClientMock'
+
 export default {
   namespaced: true,
-  state: {},
-  actions: {},
-  mutations: {},
+  state: {
+    selectedVaultName: '',
+    selectedSecretName: '',
+    selectedSecretContent: '',
+    secretNames: []
+  },
+  actions: {
+    loadSecretNames: async function({ commit }, vaultName: string) {
+      const secretNames = await polykeyClient.listSecrets(vaultName)
+      commit('setSecretNames', { vaultName, secretNames })
+    },
+    selectSecret: async function({ commit, state }, secretName?: string) {
+      if (secretName) {
+        const secretContent = await polykeyClient.getSecret(state.selectedVaultName, secretName)
+        commit('setSelectedSecret', { secretName, secretContent })
+      } else {
+        commit('setSelectedSecret', { secretName: '', secretContent: '' })
+      }
+    },
+    updateSecret: async function(
+      { commit, state },
+      { secretName, secretContent }: { secretName: string; secretContent: string }
+    ) {
+      const successful = await polykeyClient.updateSecret(
+        state.selectedVaultName,
+        secretName,
+        Buffer.from(secretContent)
+      )
+      if (successful) {
+        commit('setSelectedSecret', { secretName: secretName, secretContent: secretContent })
+      }
+    }
+  },
+  mutations: {
+    setSecretNames: function(state, { vaultName, secretNames }: { vaultName: string; secretNames: string[] }) {
+      state.selectedVaultName = vaultName
+      state.secretNames = secretNames
+    },
+    setSelectedSecret: function(state, { secretName, secretContent }: { secretName: string; secretContent: string }) {
+      state.selectedSecretName = secretName
+      state.selectedSecretContent = secretContent
+    }
+  },
   getters: {}
 }
 // import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
