@@ -417,7 +417,7 @@ async function setHandlers() {
     const res = (await promisifyGrpc(client.unlockNode.bind(client))(
       pb.UnlockNodeMessage.deserializeBinary(request)
     )) as pb.BooleanMessage;
-    return res.getB()
+    return res.serializeBinary()
   })
 
   ipcMain.handle('UpdateLocalPeerInfo', async (event, request) => {
