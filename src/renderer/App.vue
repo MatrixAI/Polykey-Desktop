@@ -22,28 +22,50 @@
  * Chore:
  * 1. Login not used yet
  */
-import { defineComponent } from 'vue'
+import { defineComponent, watchEffect } from 'vue'
+import { useRouter } from 'vue-router'
 import Alert from './components/alerts/Alert.vue'
 import AppBar from './components/navigation/AppBar.vue'
 import Drawer from './components/navigation/Drawer.vue'
-// import Footer from './components/navigation/Footer.vue'
-// import NewVault from './components/vaults/NewVault.vue'
-// import Login from './components/navigation/Login.vue';
 
 import useModule from '@/store/useModule'
+
+const noop = () => {}
 
 export default defineComponent({
   components: {
     Alert,
     AppBar,
     Drawer
-    // Footer
-    // Login
   },
   setup() {
-    const alertModule = useModule('Alert')
-    console.log(alertModule.state)
-    alertModule.dispatch('toggle')
+    const router = useRouter()
+    const userStore = useModule('User')
+    watchEffect(() => {
+      /** Watch the status here for redirection */
+      const userStatus = userStore.state.userStatus
+      const isUnlocked = userStore.state.isUnlocked
+      if (isUnlocked) {
+        return noop()
+      }
+      switch (userStatus) {
+        case 'RegisterNode':
+          router.replace('/Configuration/RegisterNode')
+          break
+        case 'NewNode':
+          router.replace('/Configuration/NewKeyNode')
+          break
+        case 'UnlockNode':
+          router.replace('/Configuration/UnlockKeyNode')
+          break
+        default:
+          break
+      }
+    })
+    /**
+     * Check user if isUnclocked if not need to run the polykeyclient
+     */
+    userStore.dispatch('checkUserStatus')
   }
 })
 </script>

@@ -21,7 +21,7 @@
                 <v-icon>fas fa-file</v-icon>
               </v-list-item-icon>
 
-              <v-list-item-title>{{item}}</v-list-item-title>
+              <v-list-item-title>{{ item }}</v-list-item-title>
 
               <v-spacer></v-spacer>
               <v-btn link icon x-small color="warning" @click="deleteVault(item)">
@@ -31,57 +31,51 @@
           </v-list-item-group>
         </v-list>
       </v-col>
-      <v-col class="main-panel fill-parent-height">
-        <!-- <v-card color="FloralWhite" style="position: relative" width="100%">
-          <v-form v-model="valid" ref="newVaultForm">
-            <v-container>
-              <h2>New KeyNode</h2>
-              <span>Use this form to initialize a new keynode state</span>
-              <v-row>
-                <v-col>
-                  <v-list outlined>
-                    <v-text-field
-                      v-model="secretName"
-                      :rules="secretNameRules"
-                      label="Full Name"
-                      counter="100"
-                      required
-                      outlined
-                      style="padding-left: 10px; padding-right: 10px"
-                      placeholder="Enter your full name"
-                    />
-
-                    <v-textarea
-                      v-model="secretContent"
-                      label="Secret Content"
-                      required
-                      outlined
-                      style="padding-left: 10px; padding-right: 10px"
-                      placeholder="Enter the content of the secret"
-                    ></v-textarea>
-                  </v-list>
-                </v-col>
-              </v-row>
-            </v-container>
-
-            <v-card-actions>
-              <v-btn @click="cancel">Cancel</v-btn>
-              <v-btn color="warning" @click="resetValidation">Clear</v-btn>
-              <v-spacer></v-spacer>
-              <v-btn color="success" @click="newSecret">Create</v-btn>
-            </v-card-actions>
-          </v-form>
-        </v-card> -->
-      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import PolykeyClient from '@/store/PolykeyClient'
 
 export default defineComponent({
-  setup () {
+  setup() {
+    // // try to start polykey
+    // try {
+    //   const pid: number = PolykeyClient.StartAgent()
+    //   console.log(`Agent has been started with a pid of: ${pid}`)
+    //   // prompt user to unlock polykey node
+
+    //   /** Ask for passphrase or popup*/
+    //   const { passphrase } = user.prompt()
+
+    //   await PolykeyClient.RegisterNode(passphrase)
+
+    //   console.log('new node is unlocked and ready to go')
+    //   /** Then just close it and user can freely navigate */
+
+    // } catch (error) {
+
+    //   if (error.message.includes('not been initialized')) {
+    //     // need to prompt user for new node details
+    //     const { userId, passphrase, nbits } = user.prompt()
+    //     /** By default 1024 nbits */
+    //     /** So only ask for the userId and passphrase */
+    //     await PolykeyClient.NewNode({ userId, passphrase, nbits })
+    //     console.log('new node is unlocked and ready to go')
+
+    //   } else if (error.message.includes('already running')) {
+    //     // polykey agent is already running, prompt for passphrase to unlock
+    //     const { passphrase } = user.prompt()
+    //     /** popup also */
+    //     await PolykeyClient.UnlockNode({ passphrase })
+    //     console.log('new node is unlocked and ready to go')
+    //   } else {
+    //     // some other error
+    //     throw Error(`something else went wrong: ${error.message}`)
+    //   }
+    // }
     return {
       newKeyNode: () => {},
       deleteVault: () => {}

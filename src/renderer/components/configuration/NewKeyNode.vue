@@ -1,83 +1,48 @@
 <template>
-  <v-card color="FloralWhite" style="margin: 10px;">
-    <v-form width="100%" v-model="valid" ref="newKeyNodeForm">
-      <v-container fluid width="100%">
-        <h2>New KeyNode</h2>
-        <span>Use this form to initialize a new keynode state</span>
-        <v-row>
-          <v-col>
-            <v-list outlined>
-              <v-text-field
-                v-model="fullName"
-                :rules="nameRules"
-                label="Full Name"
-                counter="100"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter your full name"
-              />
-
-              <v-text-field
-                v-model="email"
-                :rules="emailRules"
-                label="Email"
-                counter="100"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter your email"
-              />
-
-              <v-text-field
-                v-model="passphrase"
-                :rules="passphraseRules"
-                label="Passphrase"
-                counter="100"
-                required
-                type="password"
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter a passphrase to secure your private key"
-              />
-
-              <v-text-field
-                v-model="nodePath"
-                :rules="nodePathRules"
-                label="New Key Node Path"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Provide the path to the new key node directory"
-              >
-                <template v-slot:append>
-                  <v-btn icon small @click.native="openFileDialog()">
-                    <v-icon>fas fa-folder-open</v-icon>
-                  </v-btn>
-                </template>
-              </v-text-field>
-            </v-list>
-          </v-col>
-        </v-row>
-      </v-container>
-
-      <v-card-actions>
-        <v-btn @click="cancel">Cancel</v-btn>
-        <v-btn color="warning" @click="resetValidation">Clear</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn color="success" @click="newKeyNode">Create</v-btn>
-      </v-card-actions>
-    </v-form>
-  </v-card>
+  <ui-form nowrap>
+    <h2>New Keynode</h2>
+    <ui-form-field>
+      <ui-textfield v-model="userId" placeholder="UserId">UserId</ui-textfield>
+    </ui-form-field>
+    <ui-form-field>
+      <ui-textfield v-model="passphrase" placeholder="Passphrase">Passphrase</ui-textfield>
+    </ui-form-field>
+    <ui-form-field>
+      <ui-textfield v-model="nbits" placeholder="Nbits">nbits</ui-textfield>
+    </ui-form-field>
+    <br />
+    <ui-form-field>
+      <ui-button @click="createKeyNode" raised>Create</ui-button>
+    </ui-form-field>
+  </ui-form>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
+import PolykeyClient from '@/store/PolykeyClient'
+import useModule from '@/store/useModule'
 
 export default defineComponent({
-  setup () {
+  setup() {
+    const userStore = useModule('User')
+    const userId = ref('')
+    const passphrase = ref('')
+    const nbits = ref(1024)
+    const createKeyNode = async () => {
+      const result = await PolykeyClient.NewNode({
+        userid: userId.value,
+        passphrase: passphrase.value,
+        nbits: nbits.value
+      })
+      if (result) {
+        userStore.dispatch('userIsUnlocked')
+      }
+    }
     return {
-      openFileDialog: () => {}
+      userId,
+      passphrase,
+      nbits,
+      createKeyNode
     }
   }
 })
@@ -154,5 +119,4 @@ export default defineComponent({
 // }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

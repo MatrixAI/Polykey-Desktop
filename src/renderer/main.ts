@@ -7,9 +7,7 @@ import BalmUIPlus from 'balm-ui/dist/balm-ui-plus'
 import 'balm-ui/dist/balm-ui.css'
 import '../index.css'
 
-const app = createApp(App)
-
-app
+createApp(App)
   .use(BalmUI)
   .use(BalmUIPlus)
   .use(store)
