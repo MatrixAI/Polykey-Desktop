@@ -7,9 +7,6 @@
     <ui-form-field>
       <ui-textfield v-model="passphrase" placeholder="Passphrase">Passphrase</ui-textfield>
     </ui-form-field>
-    <ui-form-field>
-      <ui-textfield v-model="nbits" placeholder="Nbits">nbits</ui-textfield>
-    </ui-form-field>
     <br />
     <ui-form-field>
       <ui-button @click="createKeyNode" raised>Create</ui-button>
@@ -27,12 +24,10 @@ export default defineComponent({
     const userStore = useModule('User')
     const userId = ref('')
     const passphrase = ref('')
-    const nbits = ref(1024)
     const createKeyNode = async () => {
       const result = await PolykeyClient.NewNode({
         userid: userId.value,
-        passphrase: passphrase.value,
-        nbits: nbits.value
+        passphrase: passphrase.value
       })
       if (result) {
         userStore.dispatch('userIsUnlocked')
@@ -41,7 +36,6 @@ export default defineComponent({
     return {
       userId,
       passphrase,
-      nbits,
       createKeyNode
     }
   }
