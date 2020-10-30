@@ -1,9 +1,9 @@
 import os from 'os';
 import { ipcMain } from 'electron';
+import { promisifyGrpc } from './utils';
 import { PolykeyAgent } from '@matrixai/polykey';
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
 import { AgentClient } from '@matrixai/polykey/proto/compiled/Agent_grpc_pb';
-import { promisifyGrpc } from './utils';
 
 let polykeyPath: string = resolveTilde('~/.polykey')
 let client: AgentClient;
@@ -60,6 +60,7 @@ async function setHandlers() {
   });
 
   ipcMain.handle('agent-restart', async (event, request) => {
+    const client = PolykeyAgent.connectToAgent(polykeyPath);
     await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
     const pid = <number>await PolykeyAgent.startAgent(polykeyPath);
     await getAgentClient();
@@ -462,3 +463,4 @@ async function setHandlers() {
 }
 
 export default setHandlers;
+export { polykeyPath }

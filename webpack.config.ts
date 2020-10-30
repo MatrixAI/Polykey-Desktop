@@ -1,10 +1,10 @@
-const path = require('path')
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-const WebpackBar = require('webpackbar')
-const webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { VueLoaderPlugin } = require('vue-loader')
+import path from 'path';
+import webpack from 'webpack';
+import WebpackBar from 'webpackbar';
+import { VueLoaderPlugin } from 'vue-loader';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 
 const env = process.env
 
@@ -108,6 +108,11 @@ const ElectronApp = {
       })
     ]
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      __static: `"${path.resolve(__dirname, 'static')}"`
+    })
+  ],
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist')
