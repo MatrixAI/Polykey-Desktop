@@ -26,7 +26,7 @@ export default defineComponent({
     const keyName = ref('')
     const keyPassphrase = ref('')
     const createKey = async () => {
-      const success = await PolykeyClient.DeriveKey({ keyName: keyName.value, passphrase: keyPassphrase.value })
+      const success = await PolykeyClient.DeriveKey({ vaultName: '', keyName: keyName.value, passphrase: keyPassphrase.value })
       console.log(success)
       router.back()
     }

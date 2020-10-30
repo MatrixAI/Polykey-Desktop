@@ -25,7 +25,7 @@ export default defineComponent({
     const registerNode = async () => {
       try {
         /** this seems to be funky how will I know that this user has already registered a node */
-        await PolykeyClient.RegisterNode(passphrase.value)
+        await PolykeyClient.UnlockNode({ passphrase: passphrase.value, timeout: 0 })
         userStore.dispatch('userIsUnlocked')
         /** Reroute on vaults by default */
         router.push('/Vaults')
