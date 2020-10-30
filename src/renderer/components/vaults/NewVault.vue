@@ -13,17 +13,20 @@
     <br />
     <ui-form-field>
       <ui-button @click="createVault" raised>Create</ui-button>
+      <ui-button @click="cancel">Cancel</ui-button>
     </ui-form-field>
   </ui-form>
 </template>
 
 <script lang="ts">
 import { defineComponent, toRefs, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import PolykeyClient from '@/store/PolykeyClient'
 import useModule from '@/store/useModule'
 
 export default defineComponent({
   setup() {
+    const router = useRouter()
     const vaultsStore = useModule('Vaults')
     const data = reactive({
       vaultName: '',
@@ -42,10 +45,15 @@ export default defineComponent({
       // }
 
       console.log(successful)
+      router.back()
+    }
+    const cancel = () => {
+      router.back()
     }
     return {
       ...toRefs(data),
-      createVault
+      createVault,
+      cancel
     }
   }
 })

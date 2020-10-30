@@ -1,55 +1,43 @@
 <template>
-  <v-card color="FloralWhite" style="margin: 10px;">
-    <v-form width="100%" v-model="valid" ref="newKeyForm">
-      <v-container fluid width="100%">
-        <h2>New Key</h2>
-        <v-row>
-          <v-col>
-            <v-list outlined>
-              <ui-textfield
-                v-model="keyName"
-                :rules="keyNameRules"
-                label="Key Name"
-                counter="100"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter a new key name"
-              ></ui-textfield>
-
-              <ui-textfield
-                v-model="keyPassphrase"
-                label="Key Passphrase"
-                counter="100"
-                required
-                outlined
-                type="password"
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter a passphrase to protect the key"
-              ></ui-textfield>
-            </v-list>
-          </v-col>
-        </v-row>
-      </v-container>
-
-      <v-card-actions>
-        <v-btn @click="cancel">Cancel</v-btn>
-        <v-btn color="warning" @click="resetValidation">Clear</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn color="success" @click="newKey">Create</v-btn>
-      </v-card-actions>
-    </v-form>
-  </v-card>
+  <ui-form nowrap>
+    <h2>New Keynode</h2>
+    <ui-form-field>
+      <ui-textfield v-model="keyName" placeholder="Enter a new key name"></ui-textfield>
+    </ui-form-field>
+    <ui-form-field>
+      <ui-textfield v-model="keyPassphrase" placeholder="Enter a passphrase to protect the key"></ui-textfield>
+    </ui-form-field>
+    <br />
+    <ui-form-field>
+      <ui-button @click="createKey" raised>Create</ui-button>
+      <ui-button @click="cancel">Cancel</ui-button>
+    </ui-form-field>
+  </ui-form>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import PolykeyClient from '@/store/PolykeyClient'
 
 export default defineComponent({
-  setup () {
+  setup() {
+    const router = useRouter()
+    const keyName = ref('')
+    const keyPassphrase = ref('')
+    const createKey = async () => {
+      const success = await PolykeyClient.DeriveKey({ keyName: keyName.value, passphrase: keyPassphrase.value })
+      console.log(success)
+      router.back()
+    }
+    const cancel = () => {
+      router.back()
+    }
     return {
-      resetValidation: () => {},
-      newKey: () => {}
+      keyName,
+      keyPassphrase,
+      createKey,
+      cancel
     }
   }
 })
