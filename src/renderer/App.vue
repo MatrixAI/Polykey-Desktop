@@ -43,27 +43,23 @@ export default defineComponent({
     const userStore = useModule('User')
     watchEffect(() => {
       /** Watch the status here for redirection */
-      const userStatus = userStore.state.userStatus
       const isUnlocked = userStore.state.isUnlocked
-      if (isUnlocked) {
+      const isInitialized = userStore.state.isInitialized
+      if (isUnlocked && isInitialized) {
+        /** Reroute on vaults by default */
+        const path = router.currentRoute.value.path
+        if (path.includes('NewKeyNode') || path.includes('RegisterNode')) {
+          router.replace('/Vaults')
+        }
         return noop()
-      }
-      switch (userStatus) {
-        case 'RegisterNode':
-          router.replace('/Configuration/RegisterNode')
-          break
-        case 'NewNode':
-          router.replace('/Configuration/NewKeyNode')
-          break
-        case 'UnlockNode':
-          router.replace('/Configuration/UnlockKeyNode')
-          break
-        default:
-          break
+      } else if (!isInitialized) {
+        router.replace('/Configuration/NewKeyNode')
+      } else {
+        router.replace('/Configuration/RegisterNode')
       }
     })
     /**
-     * Check user if isUnclocked if not need to run the polykeyclient
+     * Check user if isUnlocked if not need to run the polykeyclient
      */
     userStore.dispatch('checkUserStatus')
   }

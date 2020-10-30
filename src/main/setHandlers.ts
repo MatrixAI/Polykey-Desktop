@@ -1,9 +1,9 @@
 import os from 'os';
-import { ipcMain } from 'electron';
-import { PolykeyAgent } from '@matrixai/polykey';
+import { ipcMain, clipboard } from 'electron';
+import { promisifyGrpc } from './utils';
+import { PolykeyAgent, PeerInfo } from '@matrixai/polykey';
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
 import { AgentClient } from '@matrixai/polykey/proto/compiled/Agent_grpc_pb';
-import { promisifyGrpc } from './utils';
 
 let polykeyPath: string = resolveTilde('~/.polykey')
 let client: AgentClient;
@@ -12,7 +12,7 @@ async function getAgentClient(failOnNotInitialized: boolean = true) {
   // make sure agent is running
   console.log(polykeyPath);
 
-  const x = await PolykeyAgent.startAgent(polykeyPath, false, failOnNotInitialized);
+  await PolykeyAgent.startAgent(polykeyPath, false, failOnNotInitialized);
 
   client = PolykeyAgent.connectToAgent(polykeyPath);
 
@@ -32,6 +32,19 @@ function resolveTilde(filePath: string) {
 }
 
 async function setHandlers() {
+  ///////////////////////
+  // Clipboard control //
+  ///////////////////////
+  ipcMain.handle('ClipboardCopy', async (event, secretContent: string) => {
+    clipboard.writeText(secretContent)
+    setTimeout(() => {
+      if (clipboard.readText() == secretContent) {
+        clipboard.clear()
+        clipboard.writeText('')
+      }
+    }, 30000)
+  });
+
   ///////////////////
   // agent control //
   ///////////////////
@@ -60,6 +73,7 @@ async function setHandlers() {
   });
 
   ipcMain.handle('agent-restart', async (event, request) => {
+    const client = PolykeyAgent.connectToAgent(polykeyPath);
     await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
     const pid = <number>await PolykeyAgent.startAgent(polykeyPath);
     await getAgentClient();
@@ -76,6 +90,29 @@ async function setHandlers() {
     const res = (await promisifyGrpc(client.addPeer.bind(client))(
       pb.PeerInfoMessage.deserializeBinary(request),
     )) as pb.BooleanMessage;
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('AddPeerB64', async (event, b64String) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const {
+      publicKey,
+      rootCertificate,
+      peerAddress,
+      apiAddress
+    } = PeerInfo.parseB64(b64String)
+    const request = new pb.PeerInfoMessage
+    request.setPublicKey(publicKey)
+    request.setRootCertificate(rootCertificate)
+    if (peerAddress) {
+      request.setPeerAddress(peerAddress.toString())
+    }
+    if (apiAddress) {
+      request.setApiAddress(apiAddress.toString())
+    }
+    const res = (await promisifyGrpc(client.addPeer.bind(client))(request)) as pb.BooleanMessage;
     return res.serializeBinary();
   });
 
@@ -300,15 +337,10 @@ async function setHandlers() {
   });
 
   ipcMain.handle('NewNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient(false);
-    }
-    console.log('heyyyyy2');
+    await getAgentClient(false);
     const res = (await promisifyGrpc(client.newNode.bind(client))(
       pb.NewNodeMessage.deserializeBinary(request),
     )) as pb.BooleanMessage;
-    console.log('heyyyyy3');
-    console.log(res);
     return res.serializeBinary();
   });
 
@@ -376,7 +408,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.revokeOAuthToken.bind(client))(
+    const res = (await promisifyGrpc(client.scanVaultNames.bind(client))(
       pb.StringMessage.deserializeBinary(request),
     )) as pb.BooleanMessage;
     return res.serializeBinary();
@@ -462,3 +494,4 @@ async function setHandlers() {
 }
 
 export default setHandlers;
+export { polykeyPath }

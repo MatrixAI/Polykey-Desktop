@@ -1,18 +1,19 @@
-
-import url from 'url';
 import path from 'path';
+import { promisifyGrpc } from './utils';
+import setHandlers, { polykeyPath } from './setHandlers'
+import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
 import { app, BrowserWindow, Menu, Tray, shell } from "electron";
-import setHandlers from './setHandlers'
+import { PolykeyAgent } from '@matrixai/polykey';
 
 setHandlers()
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-let mainWindow
+let mainWindow: BrowserWindow | null
 
 // Make tray
-let tray
+let tray: Tray
 
 function createWindow() {
   // Create the browser window.
@@ -39,46 +40,71 @@ function createWindow() {
     shell.openExternal(url);
   });
 
-  // window.on('minimize', function (event) {
-  //     event.preventDefault()
-  //     mainWindow.hide()
-  // })
+  window.on('minimize', function (event) {
+    event.preventDefault()
+    mainWindow?.hide()
+  })
 
-  window.webContents.openDevTools()
+  if (isDevelopment) {
+    window.webContents.openDevTools()
+  }
   return window
 }
 
-// function createTray() {
-//   const logoPath = path.join(__static, 'logo.png')
+function createTray() {
+  const logoPath = path.join(__static, 'logo.png')
 
-//   tray = new Tray(logoPath)
+  tray = new Tray(logoPath)
 
-//   const contextMenu = Menu.buildFromTemplate([
-//     {
-//       label: 'Show App', click: function () {
-//         mainWindow = createWindow()
-//         mainWindow.show()
-//       }
-//     },
-//     {
-//       label: 'Quit', click: function () {
-//         app.quit()
-//       }
-//     }
-//   ])
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show App', click: () => {
+        if (mainWindow === null) {
+          mainWindow = createWindow()
+          mainWindow.show()
+        } else {
+          mainWindow.show()
+          mainWindow.focus()
+        }
+      }
+    },
+    {
+      label: 'Kill Agent', click: async () => {
+        // kill polykey-agent process
+        try {
+          const client = PolykeyAgent.connectToAgent(polykeyPath);
+          const successful = await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage)
+          if (successful) {
+            console.log('agent has been stopped');
+          } else {
+            console.log('agent could not be stopped');
+          }
+        } catch (error) {
+          console.log('agent could not be stopped');
+        }
+        app.quit()
+        tray.destroy()
+      }
+    },
+    {
+      label: 'Quit App', click: () => {
+        app.quit()
+        tray.destroy()
+      }
+    }
+  ])
 
-//   tray.setContextMenu(contextMenu)
-// }
+  tray.setContextMenu(contextMenu)
+}
 
-app.on("ready", () => {
+app.on('ready', () => {
   mainWindow = createWindow()
 
-  // createTray()
+  createTray()
 });
 
-
 //quit the app once closed
-app.on("window-all-closed", function () {
+app.on("window-all-closed", async () => {
   if (process.platform != "darwin") {
     app.quit();
   }

@@ -1,111 +1,82 @@
 <template>
-  <v-layout style="padding: 10px;">
-    <v-flex>
-      <v-form v-model="valid" ref="newVaultForm">
-        <v-container>
-          <v-row>
-            <v-col>
-              <h4>{{selectedSecretName}}</h4>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-textarea
-                v-model="secretContent"
-                label="Secret Content"
-                required
-                :disabled="!edit"
-                outlined
-                placeholder="Enter the content of the secret"
-              ></v-textarea>
-            </v-col>
-          </v-row>
-        </v-container>
-
-        <v-card-actions>
-          <v-btn @click="back" v-if="!edit">Back</v-btn>
-          <v-btn @click="cancel" v-else>Cancel</v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="warning" @click="editSecret" v-if="!edit">Edit</v-btn>
-          <v-btn color="success" @click="saveSecret" v-else>Save</v-btn>
-        </v-card-actions>
-      </v-form>
-    </v-flex>
-  </v-layout>
+  <h2>Secret Information - {{ selectedSecretName }}</h2>
+  <ui-textfield
+    input-type="textarea"
+    outlined
+    rows="8"
+    cols="40"
+    class="white-background"
+    :disabled="!isEditing"
+    v-model="selectedSecretContent"
+  ></ui-textfield>
+  <br />
+  <ui-form-field>
+    <ui-button @click="navigateBack" raised>Back</ui-button>
+    <ui-button @click="toggleIsEdting" :disabled="isEditing" raised>Edit</ui-button>
+    <ui-button @click="updateSecret" :disabled="!isEditing" raised>Save</ui-button>
+    <ui-icon-button @click="copySecret" icon="file_copy"></ui-icon-button>
+  </ui-form-field>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
+import { defineComponent, watchEffect, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import useModule from '@/store/useModule'
+import PolykeyClient from '@/store/PolykeyClient'
 
-const secrets = namespace('Secrets');
+export default defineComponent({
+  setup() {
+    const vaultsStore = useModule('Vaults')
+    const secretsStore = useModule('Secrets')
+    const router = useRouter()
+    const selectedSecretName = ref('')
+    const selectedSecretContent = ref('')
+    const isEditing = ref(false)
 
-const namingRule = name =>
-  /^\b[\w]+(?:['-]?[\w]+)*\b$/.test(name) || !name || 'Name must only contain letters, numbers and hyphens';
+    watchEffect(() => {
+      selectedSecretName.value = secretsStore.state.selectedSecretName
+      selectedSecretContent.value = secretsStore.state.selectedSecretContent
+    })
 
-@Component({
-  name: 'SecretInformation',
-})
-export default class SecretInformation extends Vue {
-  @secrets.State
-  public selectedVaultName!: string;
+    const toggleIsEdting = () => {
+      isEditing.value = !isEditing.value
+    }
 
-  @secrets.State
-  public selectedSecretName!: string;
+    const updateSecret = async () => {
+      const successful = await PolykeyClient.UpdateSecret({
+        secretPath: {
+          vaultName: vaultsStore.state.selectedVaultName,
+          secretName: selectedSecretName.value
+        },
+        secretContent: selectedSecretContent.value,
+        secretFilePath: ''
+      })
+      router.back()
+    }
 
-  @secrets.Action
-  public selectSecret!: (secretName: string) => void;
+    const navigateBack = () => {
+      router.back()
+    }
 
-  @secrets.Action
-  public updateSecret!: (props: { secretName: string; secretContent: string }) => void;
+    const copySecret = () => {
+      PolykeyClient.ClipboardCopy(selectedSecretContent.value)
+    }
 
-  @secrets.State
-  public selectedSecretContent!: string;
-  updatedSecretContent: string = '';
-  get secretContent() {
-    if (this.edit) {
-      return this.updatedSecretContent;
-    } else {
-      return this.selectedSecretContent;
+    return {
+      selectedSecretName,
+      selectedSecretContent,
+      isEditing,
+      toggleIsEdting,
+      updateSecret,
+      copySecret,
+      navigateBack
     }
   }
-  set secretContent(value: string) {
-    this.updatedSecretContent = value;
-  }
-
-  edit: boolean = false;
-  editSecret() {
-    this.updatedSecretContent = this.selectedSecretContent;
-    this.edit = true;
-  }
-  saveSecret() {
-    const x = this.updatedSecretContent;
-    console.log(x);
-
-    this.updateSecret({ secretName: this.selectedSecretName, secretContent: this.updatedSecretContent });
-    this.edit = false;
-  }
-  cancel() {
-    this.selectSecret(this.selectedSecretName);
-    this.edit = false;
-  }
-
-  valid: boolean = false;
-  secretNameRules = [namingRule];
-
-  validate(): boolean {
-    return (<any>this.$refs.newVaultForm).validate();
-  }
-  reset() {
-    (<any>this.$refs.newVaultForm).reset();
-  }
-  resetValidation() {
-    this.reset();
-  }
-
-  back() {
-    this.selectSecret('');
-  }
-}
+})
 </script>
+
+<style scoped>
+.white-background {
+  background: white;
+}
+</style>

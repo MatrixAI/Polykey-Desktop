@@ -64,7 +64,7 @@ let
 in
 
 stdenv.mkDerivation rec {
-  pname = "polykey";
+  pname = "polykey-gui";
   version = "0.0.1";
   name = "${pname}-${version}";
 
@@ -136,7 +136,7 @@ stdenv.mkDerivation rec {
     mv "$PWD/node_modules" "$out/lib/"
     declare target="$(readlink -f "$out/lib/node_modules")"
     ln -s -T "$target/js-polykey/bin/polykey" "$out/bin/pk"
-    ln -s -T "$target/js-polykey/bin/polykey" "$out/bin/polykey-cli"
+    ln -s -T "$target/js-polykey/bin/polykey" "$out/bin/polykey"
     rm -r "$out/lib/node_modules"
 
     ln -s -t "$out/bin" "$out_elec_exe"

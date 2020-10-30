@@ -4,39 +4,61 @@ export default {
   namespaced: true,
   state: {
     isUnlocked: false,
-    userStatus: 'init'
+    isInitialized: false
   },
   actions: {
-    checkUserStatus: async function({ commit }) {
+    checkUserStatus: async function ({ commit }) {
+      // first set both initialized and unlocked to false, they will be changed in the process
+      commit('setIsUnlocked', false)
+      commit('setIsInitialized', false)
       try {
         const pid: number = await PolykeyClient.StartAgent()
         console.log(`Agent has been started with a pid of: ${pid}`)
-
-        commit('setUserStatus', 'RegisterNode')
+        // try to list some vaults as a proxy for an unlocked node
+        const vaultsList = await PolykeyClient.ListVaults()
+        console.log(vaultsList)
+        commit('setIsUnlocked', true)
+        commit('setIsInitialized', true)
       } catch (error) {
+        console.log(error)
         if (error.message.includes('not been initialized')) {
-          commit('setUserStatus', 'NewNode')
+          commit('setIsUnlocked', false)
+          commit('setIsInitialized', false)
         } else if (error.message.includes('already running')) {
-          commit('setUserStatus', 'UnlockNode')
+          // try to list some vaults as a proxy for an unlocked node
+          try {
+            const vaultsList = await PolykeyClient.ListVaults()
+            console.log(vaultsList)
+            commit('setIsUnlocked', true)
+            commit('setIsInitialized', true)
+          } catch (error) {
+            commit('setIsUnlocked', false)
+            commit('setIsInitialized', false)
+          }
+        } else if (error.message.includes('locked')) {
+          commit('setIsUnlocked', false)
+          commit('setIsInitialized', true)
         } else {
           // some other error
+          commit('setIsUnlocked', false)
+          commit('setIsInitialized', false)
           throw Error(`something else went wrong: ${error.message}`)
         }
       }
     },
-    setUserStatus: async function({ commit }, status) {
-      commit('setUserStatus', status)
+    setIsUnlocked: async function ({ commit }, isUnlocked: boolean) {
+      commit('setIsUnlocked', isUnlocked)
     },
-    userIsUnlocked: async function({ commit }) {
-      commit('setIsUnlocked', true)
+    setIsInitialized: async function ({ commit }, isInitialized: boolean) {
+      commit('setIsInitialized', isInitialized)
     }
   },
   mutations: {
-    setIsUnlocked: function(state, isUnlocked) {
+    setIsUnlocked: function (state, isUnlocked) {
       state.isUnlocked = isUnlocked
     },
-    setUserStatus: function(state, userStatus) {
-      state.userStatus = userStatus
+    setIsInitialized: function (state, isInitialized) {
+      state.isInitialized = isInitialized
     }
   },
   getters: {}

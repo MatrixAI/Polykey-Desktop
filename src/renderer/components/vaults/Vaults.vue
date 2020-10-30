@@ -21,7 +21,24 @@
       </ui-list>
     </div>
     <div class="main-panel">
-
+      <h2>{{ selectedVault ?? 'Select Vault' }}</h2>
+      <ui-button raised @click="newSecret()">New Secret</ui-button>
+      <template v-for="item in secretNames">
+        <ui-item>
+          <ui-item-text-content>
+            <ui-item-text1>{{ item }}</ui-item-text1>
+            <ui-item-text2>Secret</ui-item-text2>
+          </ui-item-text-content>
+          <ui-item-last-content>
+            <ui-button raised @click="selectSecret(item)">
+              <ui-icon>open_in_new</ui-icon>
+            </ui-button>
+            <ui-button raised @click="deleteSecret(item)">
+              <ui-icon>delete</ui-icon>
+            </ui-button>
+          </ui-item-last-content>
+        </ui-item>
+      </template>
     </div>
   </div>
 </template>
@@ -34,128 +51,59 @@ import useModule from '@/store/useModule'
 export default defineComponent({
   setup() {
     const vaultsStore = useModule('Vaults')
+    const secretsStore = useModule('Secrets')
     const router = useRouter()
     const vaultNames = ref([])
+    const secretNames = ref([])
+    const selectedVault = ref('')
 
     watchEffect(() => {
       vaultNames.value = vaultsStore.state.vaultNames
-      console.log('vaults', vaultsStore.state.vaultNames)
+      secretNames.value = secretsStore.state.secretNames
     })
 
     const newVault = () => {
       router.push('/Vaults/NewVault')
     }
     const newSecret = () => {
-      router.push('/Vaults/NewSecret')
+      if (selectedVault.value) {
+        router.push('/Vaults/NewSecret')
+      }
     }
     const deleteVault = (vaultName: string) => {
       vaultsStore.dispatch('deleteVault', vaultName)
     }
     const deleteSecret = (secretName: string) => {
-      console.log(secretName)
+      secretsStore.dispatch('deleteSecret', secretName)
+      secretsStore.dispatch('loadSecretNames', selectedVault.value)
     }
-    const selectVault = (vault) => {
-      console.log(vault)
+    const selectVault = vault => {
+      selectedVault.value = vault
+      vaultsStore.dispatch('selectVault', vault)
+      secretsStore.dispatch('loadSecretNames', vault)
+    }
+    const selectSecret = secret => {
+      console.log(secret)
+      secretsStore.dispatch('selectSecret', secret)
+      router.push('/Vaults/SecretInformation')
     }
 
-    /** Load vaults */
-    vaultsStore.dispatch('loadVaultNames')
+    // Load vaults
+    vaultsStore.dispatch('loadVaultNames', true)
 
     return {
       newVault,
       newSecret,
       selectVault,
+      selectSecret,
       deleteVault,
       deleteSecret,
-      vaultNames
+      vaultNames,
+      secretNames,
+      selectedVault
     }
   }
 })
-// import { namespace } from 'vuex-class';
-// import { polykeyClient } from '@/store';
-// import { Component, Vue, Prop } from 'vue-property-decorator';
-// import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue';
-// import { getConfiguration } from '@/store/modules/Configuration';
-
-// const vaults = namespace('Vaults');
-// const secrets = namespace('Secrets');
-
-// @Component({
-//   components: {
-//     SecretInformation,
-//   },
-// })
-// export default class Vaults extends Vue {
-//   newVault() {
-//     this.$router.push('Vaults/NewVault');
-//   }
-
-//   newSecret() {
-//     this.$router.push('Vaults/NewSecret');
-//   }
-
-//   async deleteVault(vaultName: string) {
-//     await polykeyClient.deleteVault(vaultName);
-//     this.loadVaultNames();
-//   }
-
-//   async deleteSecret(secretName: string) {
-//     console.log(this.secretNames);
-//     await polykeyClient.deleteSecret(this.selectedVaultName, secretName);
-//     this.loadSecretNames(this.selectedVaultName);
-//     console.log(this.secretNames);
-//   }
-
-//   public get pathList() {
-//     const list = [{ type: 'vault', name: this.selectedVaultName }];
-//     if (this.selectedSecretName) {
-//       list.push({
-//         type: 'secret',
-//         name: this.selectedSecretName,
-//       });
-//     }
-//     return list;
-//   }
-
-//   @vaults.Action
-//   public loadVaultNames!: () => void;
-
-//   @vaults.Action
-//   public selectVault!: (vaultName: string) => void;
-
-//   @vaults.State
-//   public vaultNames!: string[];
-
-//   @vaults.State
-//   public selectedVaultName!: string;
-
-//   public get selectedVaultIndex() {
-//     return this.vaultNames.indexOf(this.selectedVaultName);
-//   }
-
-//   public set selectedVaultIndex(value: number) {
-//     const vaultName = this.vaultNames[value];
-//     this.selectVault(vaultName);
-//     this.loadSecretNames(vaultName);
-//   }
-
-//   @secrets.State
-//   public secretNames!: string[];
-
-//   @secrets.Action
-//   public loadSecretNames!: (vaultName: string) => void;
-
-//   @secrets.State
-//   public selectedSecretName!: string;
-
-//   @secrets.Action
-//   public selectSecret!: (secretName: string) => void;
-
-//   constructor() {
-//     super();
-//     this.loadVaultNames();
-//   }
-// }
 </script>
 
 <style scoped>
