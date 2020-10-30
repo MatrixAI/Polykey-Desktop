@@ -1,4 +1,4 @@
-import { polykeyClient } from '@/store/PolyKeyClientMock'
+import PolykeyClient from '@/store/PolykeyClient'
 
 export default {
   namespaced: true,
@@ -10,7 +10,7 @@ export default {
   },
   actions: {
     loadSecretNames: async function({ commit }, vaultName: string) {
-      const secretNames = await polykeyClient.listSecrets(vaultName)
+      const secretNames = await PolykeyClient.ListSecrets(vaultName)
       commit('setSecretNames', { vaultName, secretNames })
     },
     selectSecret: async function({ commit, state }, secretName?: string) {

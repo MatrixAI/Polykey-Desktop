@@ -1,59 +1,55 @@
 <template>
-  <v-card color="FloralWhite" style="margin: 10px;">
-    <v-form width="100%" v-model="valid" ref="newVaultForm">
-      <v-container fluid width="100%">
-          <h2>New Secret - {{selectedVaultName}}</h2>
-        <v-row>
-          <v-col>
-            <v-list outlined>
-              <ui-textfield
-                v-model="secretName"
-                :rules="secretNameRules"
-                label="Secret Name"
-                counter="100"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter a new secret name"
-              />
-
-              <ui-textfield
-                v-model="secretContent"
-                label="Secret Content"
-                required
-                outlined
-                style="padding-left: 10px; padding-right: 10px"
-                placeholder="Enter the content of the secret"
-              />
-            </v-list>
-          </v-col>
-        </v-row>
-      </v-container>
-
-      <v-card-actions>
-        <v-btn @click="cancel">Cancel</v-btn>
-        <v-btn color="warning" @click="resetValidation">Clear</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn color="success" @click="newSecret">Create</v-btn>
-      </v-card-actions>
-    </v-form>
-  </v-card>
+  <ui-form nowrap>
+    <h2>Create Secret</h2>
+    <ui-form-field>
+      <ui-textfield v-model="secretName" placeholder="Enter a new secret name"></ui-textfield>
+    </ui-form-field>
+    <ui-form-field>
+      <ui-textfield v-model="secretContent" placeholder="Enter the content of the secret"></ui-textfield>
+    </ui-form-field>
+    <br />
+    <ui-form-field>
+      <ui-button @click="saveSecret" raised>Save</ui-button>
+      <ui-button @click="cancel">Cancel</ui-button>
+    </ui-form-field>
+  </ui-form>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import PolykeyClient from '@/store/PolykeyClient'
+import useModule from '@/store/useModule'
 
 export default defineComponent({
-  setup () {
+  setup() {
     const router = useRouter()
+    const vaultsStore = useModule('Vaults')
+    const secretName = ref('')
+    const secretContent = ref('')
+
+    const saveSecret = async () => {
+      const successful = await PolykeyClient.NewSecret({
+        secretPath: {
+          vaultName: vaultsStore.state.selectedVaultName,
+          secretName: secretName.value
+        },
+        secretContent: secretContent.value,
+        secretFilePath: ''
+      })
+
+      if (successful) {
+        return router.back()
+      }
+    }
+    const cancel = () => {
+      router.back()
+    }
     return {
-      selectedVaultName: 'test',
-      cancel: () => {
-        router.back()
-      },
-      resetValidation: () => {},
-      newVault: () => {}
+      secretName,
+      secretContent,
+      saveSecret,
+      cancel
     }
   }
 })
