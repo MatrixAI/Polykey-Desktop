@@ -1,5 +1,3 @@
-
-import url from 'url';
 import path from 'path';
 import { promisifyGrpc } from './utils';
 import setHandlers, { polykeyPath } from './setHandlers'
@@ -61,24 +59,34 @@ function createTray() {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App', click: () => {
-        mainWindow = createWindow()
-        mainWindow.show()
+        if (mainWindow === null) {
+          mainWindow = createWindow()
+          mainWindow.show()
+        } else {
+          mainWindow.focus()
+        }
       }
     },
     {
-      label: 'Quit and Kill Agent', click: () => {
+      label: 'Kill Agent', click: async () => {
         // kill polykey-agent process
         try {
           const client = PolykeyAgent.connectToAgent(polykeyPath);
-          promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage)
-            .then(() => { }).catch((err) => { })
-        } catch (error) { }
+          const successful = await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage)
+          if (successful) {
+            console.log('agent has been stopped');
+          } else {
+            console.log('agent could not be stopped');
+          }
+        } catch (error) {
+          console.log('agent could not be stopped');
+        }
         app.quit()
         tray.destroy()
       }
     },
     {
-      label: 'Quit', click: () => {
+      label: 'Quit App', click: () => {
         app.quit()
         tray.destroy()
       }

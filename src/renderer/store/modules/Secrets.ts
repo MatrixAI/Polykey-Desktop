@@ -15,7 +15,7 @@ export default {
     },
     selectSecret: async function({ commit, state }, secretName?: string) {
       if (secretName) {
-        const secretContent = await polykeyClient.getSecret(state.selectedVaultName, secretName)
+        const secretContent = await PolykeyClient.GetSecret({vaultName: state.selectedVaultName, secretName})
         commit('setSelectedSecret', { secretName, secretContent })
       } else {
         commit('setSelectedSecret', { secretName: '', secretContent: '' })
@@ -25,11 +25,14 @@ export default {
       { commit, state },
       { secretName, secretContent }: { secretName: string; secretContent: string }
     ) {
-      const successful = await polykeyClient.updateSecret(
-        state.selectedVaultName,
-        secretName,
-        Buffer.from(secretContent)
-      )
+      const successful = await PolykeyClient.UpdateSecret({
+        secretPath: {
+          vaultName: state.selectedVaultName,
+          secretName,
+        },
+        secretContent: secretContent,
+        secretFilePath: ''
+      })
       if (successful) {
         commit('setSelectedSecret', { secretName: secretName, secretContent: secretContent })
       }

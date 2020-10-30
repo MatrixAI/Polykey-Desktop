@@ -20,8 +20,12 @@ class PolykeyClient {
     const encodedRequest = new pb.PeerInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
     encodedRequest.setRootCertificate(request.rootCertificate);
-    encodedRequest.setPeerAddress(request.peerAddress);
-    encodedRequest.setApiAddress(request.apiAddress);
+    if (request.peerAddress != '') {
+      encodedRequest.setPeerAddress(request.peerAddress);
+    }
+    if (request.apiAddress != '') {
+      encodedRequest.setApiAddress(request.apiAddress);
+    }
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('AddPeer', encodedRequest.serializeBinary()),
     );
@@ -110,7 +114,10 @@ class PolykeyClient {
     return res.getS();
   }
   static async GetLocalPeerInfo(): Promise<pb.PeerInfoMessage.AsObject> {
-    return await ipcRenderer.invoke('GetLocalPeerInfo');
+    const res = pb.PeerInfoMessage.deserializeBinary(
+      await ipcRenderer.invoke('GetLocalPeerInfo'),
+    );
+    return res.toObject();
   }
   static async GetPeerInfo(publicKey: string): Promise<pb.PeerInfoMessage.AsObject> {
     const encodedRequest = new pb.StringMessage();
@@ -198,8 +205,11 @@ class PolykeyClient {
     secretPathMessage.setVaultName(request.secretPath!.vaultName);
     secretPathMessage.setSecretName(request.secretPath!.secretName);
     encodedRequest.setSecretPath(secretPathMessage);
-    encodedRequest.setSecretFilePath(request.secretFilePath);
-    encodedRequest.setSecretContent(request.secretContent);
+    if (request.secretFilePath != '') {
+      encodedRequest.setSecretFilePath(request.secretFilePath);
+    } else {
+      encodedRequest.setSecretContent(request.secretContent);
+    }
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('NewSecret', encodedRequest.serializeBinary()),
     );
@@ -290,8 +300,12 @@ class PolykeyClient {
     const encodedRequest = new pb.PeerInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
     encodedRequest.setRootCertificate(request.rootCertificate);
-    encodedRequest.setPeerAddress(request.peerAddress);
-    encodedRequest.setApiAddress(request.apiAddress);
+    if (request.peerAddress != '') {
+      encodedRequest.setPeerAddress(request.peerAddress);
+    }
+    if (request.apiAddress != '') {
+      encodedRequest.setApiAddress(request.apiAddress);
+    }
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('UpdateLocalPeerInfo', encodedRequest.serializeBinary()),
     );
@@ -301,8 +315,12 @@ class PolykeyClient {
     const encodedRequest = new pb.PeerInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
     encodedRequest.setRootCertificate(request.rootCertificate);
-    encodedRequest.setPeerAddress(request.peerAddress);
-    encodedRequest.setApiAddress(request.apiAddress);
+    if (request.peerAddress != '') {
+      encodedRequest.setPeerAddress(request.peerAddress);
+    }
+    if (request.apiAddress != '') {
+      encodedRequest.setApiAddress(request.apiAddress);
+    }
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('UpdatePeerInfo', encodedRequest.serializeBinary()),
     );
@@ -314,8 +332,11 @@ class PolykeyClient {
     secretPathMessage.setVaultName(request.secretPath!.vaultName);
     secretPathMessage.setSecretName(request.secretPath!.secretName);
     encodedRequest.setSecretPath(secretPathMessage);
-    encodedRequest.setSecretFilePath(request.secretFilePath);
-    encodedRequest.setSecretContent(request.secretContent);
+    if (request.secretFilePath != '') {
+      encodedRequest.setSecretFilePath(request.secretFilePath);
+    } else {
+      encodedRequest.setSecretContent(request.secretContent);
+    }
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('UpdateSecret', encodedRequest.serializeBinary()),
     );
