@@ -14,9 +14,6 @@ async function getAgentClient(failOnNotInitialized: boolean = true) {
 
   const x = await PolykeyAgent.startAgent(polykeyPath, false, failOnNotInitialized);
 
-  console.log('dfgedgfr');
-  console.log(x);
-
   client = PolykeyAgent.connectToAgent(polykeyPath);
 
   const res = (await promisifyGrpc(client.getStatus.bind(client))(new pb.EmptyMessage())) as pb.AgentStatusMessage;
@@ -35,7 +32,6 @@ function resolveTilde(filePath: string) {
 }
 
 async function setHandlers() {
-  console.log('setting handlers');
   ///////////////////
   // agent control //
   ///////////////////
@@ -49,16 +45,8 @@ async function setHandlers() {
       }
     } catch (error) {
       try {
-        console.log(error);
-        console.log('wewerwerwer');
-        console.log(PolykeyAgent.DAEMON_SCRIPT_PATH);
-
-
         const pid = await PolykeyAgent.startAgent(polykeyPath, true);
-        console.log('dfkjndkfjng');
-
         client = PolykeyAgent.connectToAgent(polykeyPath);
-        console.log('ggggggg');
         const res = (await promisifyGrpc(client.getStatus.bind(client))(new pb.EmptyMessage())) as pb.AgentStatusMessage;
         if (res.getStatus() != pb.AgentStatusType.ONLINE) {
           throw Error('agent could not be started');
@@ -289,17 +277,17 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.listVaults.bind(client))(new pb.EmptyMessage())) as pb.StringListMessage;
+    const res = (await promisifyGrpc(client.listVaults.bind(client))(new pb.EmptyMessage)) as pb.StringListMessage;
     return res.serializeBinary();
   });
 
-  // ipcMain.handle('LockNode', async (event, request) => {
-  //   if (!client) {
-  //     await getAgentClient();
-  //   }
-  //   const res = (await promisifyGrpc(client.lockNode.bind(client))(new pb.EmptyMessage)) as pb.EmptyMessage;
-  //   return
-  // })
+  ipcMain.handle('LockNode', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.lockNode.bind(client))(new pb.EmptyMessage)) as pb.EmptyMessage;
+    return
+  })
 
   ipcMain.handle('NewClientCertificate', async (event, request) => {
     if (!client) {
@@ -312,8 +300,6 @@ async function setHandlers() {
   });
 
   ipcMain.handle('NewNode', async (event, request) => {
-    console.log('heyyyyy');
-
     if (!client) {
       await getAgentClient(false);
     }
@@ -376,16 +362,6 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('RegisterNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.registerNode.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
-  });
-
   ipcMain.handle('RevokeOAuthToken', async (event, request) => {
     if (!client) {
       await getAgentClient();
@@ -434,17 +410,15 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  // ipcMain.handle('UnlockNode', async (event, request) => {
-  //   if (!client) {
-  //     await getAgentClient();
-  //   }
-  //   const request = new pb.UnlockNodeMessage
-  //   request.setPassphrase(request.passphrase)
-  //   request.setTimeout(request.timeout)
-
-  //   const res = (await promisifyGrpc(client.unlockNode.bind(client))(request)) as pb.BooleanMessage;
-  //   return res.getB()
-  // })
+  ipcMain.handle('UnlockNode', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.unlockNode.bind(client))(
+      pb.UnlockNodeMessage.deserializeBinary(request)
+    )) as pb.BooleanMessage;
+    return res.getB()
+  })
 
   ipcMain.handle('UpdateLocalPeerInfo', async (event, request) => {
     if (!client) {
@@ -485,7 +459,6 @@ async function setHandlers() {
     )) as pb.BooleanMessage;
     return res.serializeBinary();
   });
-  console.log('finished setting handlers');
 }
 
 export default setHandlers;

@@ -19,7 +19,7 @@ class PolykeyClient {
   static async AddPeer(request: pb.PeerInfoMessage.AsObject): Promise<boolean> {
     const encodedRequest = new pb.PeerInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
-    encodedRequest.setRelayPublicKey(request.relayPublicKey);
+    encodedRequest.setRootCertificate(request.rootCertificate);
     encodedRequest.setPeerAddress(request.peerAddress);
     encodedRequest.setApiAddress(request.apiAddress);
     const res = pb.BooleanMessage.deserializeBinary(
@@ -168,6 +168,9 @@ class PolykeyClient {
     const res = pb.StringListMessage.deserializeBinary(await ipcRenderer.invoke('ListVaults'));
     return res.getSList();
   }
+  static async LockNode(): Promise<void> {
+    return await ipcRenderer.invoke('LockNode');
+  }
   static async NewClientCertificate(
     request: pb.NewClientCertificateMessage.AsObject,
   ): Promise<pb.NewClientCertificateMessage.AsObject> {
@@ -184,7 +187,6 @@ class PolykeyClient {
     const encodedRequest = new pb.NewNodeMessage();
     encodedRequest.setUserid(request.userid);
     encodedRequest.setPassphrase(request.passphrase);
-    encodedRequest.setNbits(request.nbits);
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('NewNode', encodedRequest.serializeBinary()),
     );
@@ -238,35 +240,11 @@ class PolykeyClient {
     );
     return res.getB();
   }
-  static async RegisterNode(passphrase: string): Promise<boolean> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(passphrase);
-    const res = pb.BooleanMessage.deserializeBinary(
-      await ipcRenderer.invoke('RegisterNode', encodedRequest.serializeBinary()),
-    );
-    return res.getB();
-  }
   static async RevokeOAuthToken(token: string): Promise<boolean> {
     const encodedRequest = new pb.StringMessage();
     encodedRequest.setS(token);
     const res = pb.BooleanMessage.deserializeBinary(
       await ipcRenderer.invoke('RevokeOAuthToken', encodedRequest.serializeBinary()),
-    );
-    return res.getB();
-  }
-  static async RequestHolePunch(publicKey: string): Promise<boolean> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(publicKey);
-    const res = pb.BooleanMessage.deserializeBinary(
-      await ipcRenderer.invoke('RequestHolePunch', encodedRequest.serializeBinary()),
-    );
-    return res.getB();
-  }
-  static async RequestRelay(publicKey: string): Promise<boolean> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(publicKey);
-    const res = pb.BooleanMessage.deserializeBinary(
-      await ipcRenderer.invoke('RequestRelay', encodedRequest.serializeBinary()),
     );
     return res.getB();
   }
@@ -280,6 +258,9 @@ class PolykeyClient {
   }
   static async SignFile(request: pb.SignFileMessage.AsObject): Promise<string> {
     const encodedRequest = new pb.SignFileMessage();
+    encodedRequest.setFilePath(request.filePath)
+    encodedRequest.setPrivateKeyPath(request.privateKeyPath)
+    encodedRequest.setPassphrase(request.passphrase)
     const response = pb.StringMessage.deserializeBinary(
       await ipcRenderer.invoke('SignFile', encodedRequest.serializeBinary()),
     );
@@ -296,10 +277,19 @@ class PolykeyClient {
     );
     return res.getB();
   }
+  static async UnlockNode(request: pb.UnlockNodeMessage.AsObject): Promise<boolean> {
+    const encodedRequest = new pb.UnlockNodeMessage;
+    encodedRequest.setPassphrase(request.passphrase)
+    encodedRequest.setTimeout(request.timeout)
+    const res = pb.BooleanMessage.deserializeBinary(
+      await ipcRenderer.invoke('UnlockNode', encodedRequest.serializeBinary()),
+    );
+    return res.getB();
+  }
   static async UpdateLocalPeerInfo(request: pb.PeerInfoMessage.AsObject): Promise<boolean> {
     const encodedRequest = new pb.PeerInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
-    encodedRequest.setRelayPublicKey(request.relayPublicKey);
+    encodedRequest.setRootCertificate(request.rootCertificate);
     encodedRequest.setPeerAddress(request.peerAddress);
     encodedRequest.setApiAddress(request.apiAddress);
     const res = pb.BooleanMessage.deserializeBinary(
@@ -310,7 +300,7 @@ class PolykeyClient {
   static async UpdatePeerInfo(request: pb.PeerInfoMessage.AsObject): Promise<boolean> {
     const encodedRequest = new pb.PeerInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
-    encodedRequest.setRelayPublicKey(request.relayPublicKey);
+    encodedRequest.setRootCertificate(request.rootCertificate);
     encodedRequest.setPeerAddress(request.peerAddress);
     encodedRequest.setApiAddress(request.apiAddress);
     const res = pb.BooleanMessage.deserializeBinary(
