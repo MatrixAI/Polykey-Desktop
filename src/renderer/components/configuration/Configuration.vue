@@ -1,38 +1,29 @@
 <template>
-  <v-container fluid pa-0 class="d-flex flex-column flex-grow-1 fill-parent-height">
-    <v-row no-gutters class="top-row flex-grow-1 flex-shrink-1">
-      <v-col class="side-panel fill-parent-height">
-        <h2 style="text-align: center;">Configuration</h2>
+  <div>
+    <div class="side-panel">
+      <h2 style="text-align: center;">Configuration</h2>
+      <ui-button raised @click="newNode()">New Node</ui-button>
+      <ui-list :type="2" avatar>
+        <template v-for="item in nodes">
+          <ui-item @click="selectNode(item)">
+            <ui-icon :class="iconClass">folder</ui-icon>
+            <ui-item-text-content>
+              <ui-item-text1>{{ item }}</ui-item-text1>
+              <ui-item-text2>Node</ui-item-text2>
+            </ui-item-text-content>
+            <ui-item-last-content>
+              <ui-button raised @click="deleteNode(item)">
+                <ui-icon>delete</ui-icon>
+              </ui-button>
+            </ui-item-last-content>
+          </ui-item>
+        </template>
+      </ui-list>
+    </div>
+    <div class="main-panel">
 
-        <v-subheader>Active Key Node</v-subheader>
-        <v-select value="~/.polykey" :items="nodePathList" label="Active Key Node" solo style="margin: 10px;" />
-
-        <v-subheader>Key Node List</v-subheader>
-        <v-list-item>
-          <v-list-item-content>
-            <v-btn color="success" rounded small @click="newKeyNode()">New KeyNode</v-btn>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list :item-height="50" color="transparent">
-          <v-list-item-group v-model="selectedVaultIndex" color="primary" mandatory>
-            <v-list-item v-for="item in nodePathList" :key="item" color="primary" link :ripple="false">
-              <v-list-item-icon>
-                <v-icon>fas fa-file</v-icon>
-              </v-list-item-icon>
-
-              <v-list-item-title>{{ item }}</v-list-item-title>
-
-              <v-spacer></v-spacer>
-              <v-btn link icon x-small color="warning" @click="deleteVault(item)">
-                <v-icon>fas fa-trash</v-icon>
-              </v-btn>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
-      </v-col>
-    </v-row>
-  </v-container>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

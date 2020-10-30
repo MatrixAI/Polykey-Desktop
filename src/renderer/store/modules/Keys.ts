@@ -1,4 +1,4 @@
-import { polykeyClient } from '@/store/PolyKeyClientMock'
+import PolykeyClient from '@/store/PolykeyClient'
 
 export default {
   namespaced: true,
@@ -11,24 +11,25 @@ export default {
   },
   actions: {
     loadKeyNames: async function({ commit }) {
-      const keyNames = await polykeyClient.listKeys()
+      const keyNames = await PolykeyClient.ListKeys()
       commit('loadKeyNames', keyNames)
     },
     deleteKey: async function({ commit, state }, keyName) {
-      const successful = await polykeyClient.deleteKey(keyName)
+      const successful = await PolykeyClient.DeleteKey(keyName)
       if (successful) {
-        const keyNames = await polykeyClient.listKeys()
+        const keyNames = await PolykeyClient.ListKeys()
         return commit('loadKeyNames', keyNames)
       } else {
         return commit('loadKeyNames', state.keyNames)
       }
     },
     loadKeyPair: async function({ commit }) {
-      const keyPair = await polykeyClient.getPrimaryKeyPair(true)
-      commit('loadKeyPair', { publicKey: keyPair.public, privateKey: keyPair.private })
+      const keyPair = await PolykeyClient.GetPrimaryKeyPair(true)
+      console.log('keyPair', keyPair)
+      // commit('loadKeyPair', { publicKey: keyPair.public, privateKey: keyPair.private })
     },
     selectKey: async function({ commit }, keyName: string) {
-      const keyContent = await polykeyClient.getKey(keyName)
+      const keyContent = await PolykeyClient.GetKey(keyName)
       commit('selectKey', { selectedKeyName: keyName, selectedKeyContent: keyContent })
     }
   },

@@ -1,4 +1,4 @@
-import PolykeyClient from '@/store/PolyKeyClient'
+import PolykeyClient from '@/store/PolykeyClient'
 
 export default {
   namespaced: true,
