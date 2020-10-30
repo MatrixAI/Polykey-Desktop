@@ -1,91 +1,54 @@
 <template>
-  <div color="FloralWhite" style="margin: 10px;">
-    <v-form width="100%" v-model="valid" ref="newVaultForm">
-      <ui-grid fluid width="100%">
-        <ui-grid-cell columns="12">
-          <h2>New Vault - Vault Information</h2>
-        </ui-grid-cell>
-        <ui-grid-cell columns="12">
-          <ui-textfield
-            v-model="vaultName"
-            :rules="vaultNameRules"
-            label="Vault Name"
-            counter="100"
-            required
-            outlined
-            style="padding-left: 10px; padding-right: 10px; width: 100%"
-            placeholder="Enter a unique vault Name"
-          ></ui-textfield>
-        </ui-grid-cell>
-        <ui-grid-cell columns="12">
-          <v-col cols="12" md="12">
-            <v-list subheader two-line flat outlined>
-              <v-subheader>Share with Peers (optional)</v-subheader>
-              <v-container fluid>
-                <v-list-item-group multiple style="max-height: 300px" class="overflow-y-auto">
-                  <v-list-item v-for="item in peerNames" :key="item" flat>
-                    <v-checkbox v-model="selectedPeers" :label="item" :value="item"></v-checkbox>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-container>
-            </v-list>
-          </v-col>
-        </ui-grid-cell>
-        <ui-grid-cell columns="12">
-          <v-col>
-            <v-list outlined>
-              <ui-grid-cell columns="12">
-                <v-subheader>Initial Secret (optional)</v-subheader>
-              </ui-grid-cell>
-              <ui-grid-cell columns="12">
-                <ui-textfield
-                  v-model="initialSecretName"
-                  :rules="initialSecretNameRules"
-                  label="Secret Name"
-                  counter="100"
-                  required
-                  outlined
-                  style="padding-left: 10px; padding-right: 10px; width: 100%"
-                  placeholder="Enter a new secret name"
-                ></ui-textfield>
-              </ui-grid-cell>
-              <ui-grid-cell columns="12">
-                <ui-textfield
-                  v-model="initialSecretContent"
-                  label="Secret Content"
-                  required
-                  outlined
-                  style="padding-left: 10px; padding-right: 10px; width: 100%"
-                  placeholder="Enter the content of the secret"
-                ></ui-textfield>
-              </ui-grid-cell>
-            </v-list>
-          </v-col>
-        </ui-grid-cell>
-      </ui-grid>
-
-      <br />
-      <v-card-actions>
-        <ui-button raised @click="cancel">Cancel</ui-button>
-        <ui-button raised @click="resetValidation">Clear</ui-button>
-        <ui-button raised @click="newVault">Create</ui-button>
-      </v-card-actions>
-    </v-form>
-  </div>
+  <ui-form nowrap>
+    <h2>New Vault</h2>
+    <ui-form-field>
+      <ui-textfield v-model="vaultName" placeholder="Vault Name"></ui-textfield>
+    </ui-form-field>
+    <ui-form-field>
+      <ui-textfield v-model="initialSecretName" placeholder="Initial Secret Name"></ui-textfield>
+    </ui-form-field>
+    <ui-form-field>
+      <ui-textfield v-model="initialSecretContent" placeholder="Initial Secret Content"></ui-textfield>
+    </ui-form-field>
+    <br />
+    <ui-form-field>
+      <ui-button @click="createVault" raised>Create</ui-button>
+    </ui-form-field>
+  </ui-form>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, toRefs, reactive } from 'vue'
+import PolykeyClient from '@/store/PolykeyClient'
+import useModule from '@/store/useModule'
 
 export default defineComponent({
   setup() {
+    const vaultsStore = useModule('Vaults')
+    const data = reactive({
+      vaultName: '',
+      initialSecretName: '',
+      initialSecretContent: ''
+    })
+    const createVault = async () => {
+      const successful = await PolykeyClient.NewVault(data.vaultName)
+      vaultsStore.dispatch('loadVaultNames')
+      // if (data.initialSecretName) {
+      //   const successful = await PolykeyClient.CreateSecret(
+      //     data.vaultName,
+      //     data.initialSecretName,
+      //     Buffer.from(data.initialSecretContent)
+      //   )
+      // }
+
+      console.log(successful)
+    }
     return {
-      cancel: () => {},
-      resetValidation: () => {},
-      newVault: () => {},
-    };
-  },
-});
+      ...toRefs(data),
+      createVault
+    }
+  }
+})
 
 // import { Component, Vue, Prop } from 'vue-property-decorator';
 // import { namespace } from 'vuex-class';

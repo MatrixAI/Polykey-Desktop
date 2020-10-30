@@ -15,6 +15,8 @@ import NewKey from '@/components/keys/NewKey.vue'
 
 import Configuration from '@/components/configuration/Configuration.vue'
 import NewKeyNode from '@/components/configuration/NewKeyNode.vue'
+import UnlockKeyNode from '@/components/configuration/UnlockKeyNode.vue'
+import RegisterNode from '@/components/configuration/RegisterNode.vue'
 
 const routes: Array<RouteRecordRaw> = [
   // Vaults
@@ -57,6 +59,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/Configuration/NewKeyNode',
     component: NewKeyNode
+  },
+  {
+    path: '/Configuration/UnlockKeyNode',
+    component: UnlockKeyNode
+  },
+  {
+    path: '/Configuration/RegisterNode',
+    component: RegisterNode
   }
 ]
 
@@ -64,7 +74,5 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes
 })
-
-// router.replace('Configuration')
 
 export default router

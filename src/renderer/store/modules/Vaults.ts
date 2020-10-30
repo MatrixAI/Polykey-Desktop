@@ -1,4 +1,4 @@
-import { polykeyClient } from '@/store/PolyKeyClientMock'
+import PolykeyClient from '@/store/PolykeyClient'
 
 export default {
   namespaced: true,
@@ -8,11 +8,16 @@ export default {
   },
   actions: {
     loadVaultNames: async function({ commit }) {
-      const vaultNames = await polykeyClient.listVaults()
+      const vaultNames = await PolykeyClient.ListVaults()
       commit('setVaultNames', vaultNames)
     },
     selectVault: async function({ commit }, vaultName) {
       commit('setSelectedVault', vaultName)
+    },
+    deleteVault: async function({ commit }, vaultName) {
+      await PolykeyClient.DeleteVault(vaultName)
+      const vaultNames = await PolykeyClient.ListVaults()
+      commit('setVaultNames', vaultNames)
     }
   },
   mutations: {
