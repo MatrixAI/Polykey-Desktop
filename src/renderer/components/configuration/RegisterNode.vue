@@ -26,17 +26,15 @@ export default defineComponent({
       try {
         /** this seems to be funky how will I know that this user has already registered a node */
         await PolykeyClient.UnlockNode({ passphrase: passphrase.value, timeout: 0 })
-        userStore.dispatch('userIsUnlocked')
+        userStore.dispatch('setIsUnlocked', true)
+        userStore.dispatch('setIsInitialized', true)
         /** Reroute on vaults by default */
         router.push('/Vaults')
       } catch (error) {
-        if (error.message.includes('not been initialized')) {
-          userStore.dispatch('setUserStatus', 'NewNode')
-        } else if (error.message.includes('already running')) {
-          userStore.dispatch('setUserStatus', 'UnlockNode')
-        } else if (error.message.includes('node is already unlocked')) {
+        if (error.message.includes('node is already unlocked')) {
           /** There should be a way to know if done registration on node */
-          userStore.dispatch('userIsUnlocked')
+          userStore.dispatch('setIsUnlocked', true)
+          userStore.dispatch('setIsInitialized', true)
           /** Reroute on vaults by default */
           router.push('/Vaults')
         }

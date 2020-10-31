@@ -30,7 +30,8 @@ export default defineComponent({
         passphrase: passphrase.value
       })
       if (result) {
-        userStore.dispatch('userIsUnlocked')
+        userStore.dispatch('setIsUnlocked', true)
+        userStore.dispatch('setIsInitialized', true)
       }
     }
     return {

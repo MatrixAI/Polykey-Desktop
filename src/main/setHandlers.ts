@@ -12,7 +12,7 @@ async function getAgentClient(failOnNotInitialized: boolean = true) {
   // make sure agent is running
   console.log(polykeyPath);
 
-  const x = await PolykeyAgent.startAgent(polykeyPath, false, failOnNotInitialized);
+  await PolykeyAgent.startAgent(polykeyPath, false, failOnNotInitialized);
 
   client = PolykeyAgent.connectToAgent(polykeyPath);
 
@@ -301,15 +301,10 @@ async function setHandlers() {
   });
 
   ipcMain.handle('NewNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient(false);
-    }
-    console.log('heyyyyy2');
+    await getAgentClient(false);
     const res = (await promisifyGrpc(client.newNode.bind(client))(
       pb.NewNodeMessage.deserializeBinary(request),
     )) as pb.BooleanMessage;
-    console.log('heyyyyy3');
-    console.log(res);
     return res.serializeBinary();
   });
 
