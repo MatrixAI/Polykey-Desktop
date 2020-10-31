@@ -125,9 +125,9 @@ class PolykeyClient {
     );
     return res.toObject();
   }
-  static async GetPeerInfo(publicKey: string): Promise<pb.PeerInfoMessage.AsObject> {
+  static async GetPeerInfo(peerId: string): Promise<pb.PeerInfoMessage.AsObject> {
     const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(publicKey);
+    encodedRequest.setS(peerId);
     const res = pb.PeerInfoMessage.deserializeBinary(
       await ipcRenderer.invoke('GetPeerInfo', encodedRequest.serializeBinary()),
     );
@@ -264,9 +264,9 @@ class PolykeyClient {
     );
     return res.getB();
   }
-  static async ScanVaultNames(publicKey: string): Promise<string[]> {
+  static async ScanVaultNames(peerId: string): Promise<string[]> {
     const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(publicKey);
+    encodedRequest.setS(peerId);
     const res = pb.StringListMessage.deserializeBinary(
       await ipcRenderer.invoke('ScanVaultNames', encodedRequest.serializeBinary()),
     );

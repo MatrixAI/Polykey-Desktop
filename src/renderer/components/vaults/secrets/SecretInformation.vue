@@ -1,6 +1,14 @@
 <template>
   <h2>Secret Information - {{ selectedSecretName }}</h2>
-  <ui-textfield class="white-background" :disabled="!isEditing" v-model="selectedSecretContent"></ui-textfield>
+  <ui-textfield
+    input-type="textarea"
+    outlined
+    rows="8"
+    cols="40"
+    class="white-background"
+    :disabled="!isEditing"
+    v-model="selectedSecretContent"
+  ></ui-textfield>
   <br />
   <ui-form-field>
     <ui-button @click="navigateBack" raised>Back</ui-button>
@@ -61,7 +69,7 @@ export default defineComponent({
       toggleIsEdting,
       updateSecret,
       copySecret,
-      navigateBack,
+      navigateBack
     }
   }
 })

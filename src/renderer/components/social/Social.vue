@@ -4,15 +4,15 @@
       <h2 style="text-align: center;">Peers</h2>
       <ui-button raised @click="addPeer()">Add Peer</ui-button>
       <ui-list :type="2" avatar>
-        <template v-for="item in vaultNames">
-          <ui-item @click="selectVault(item)">
+        <template v-for="item in peerIds">
+          <ui-item @click="selectPeer(item)">
             <ui-icon :class="iconClass">folder</ui-icon>
             <ui-item-text-content>
               <ui-item-text1>{{ item }}</ui-item-text1>
-              <ui-item-text2>Vault</ui-item-text2>
+              <ui-item-text2>Peer</ui-item-text2>
             </ui-item-text-content>
             <ui-item-last-content>
-              <ui-button raised @click="deleteVault(item)">
+              <ui-button raised @click="deletePeer(item)">
                 <ui-icon>delete</ui-icon>
               </ui-button>
             </ui-item-last-content>
@@ -21,21 +21,35 @@
       </ui-list>
     </div>
     <div class="main-panel">
-      <h2>{{ selectedVault ?? 'Select Vault' }}</h2>
-      <ui-button raised @click="newSecret()">New Secret</ui-button>
-      <template v-for="item in secretNames">
-        <ui-item @click="selectSecret(item)">
-          <ui-item-text-content>
-            <ui-item-text1>{{ item }}</ui-item-text1>
-            <ui-item-text2>Secret</ui-item-text2>
-          </ui-item-text-content>
-          <ui-item-last-content>
-            <ui-button raised @click="deleteSecret(item)">
-              <ui-icon>delete</ui-icon>
-            </ui-button>
-          </ui-item-last-content>
-        </ui-item>
-      </template>
+      <h2>{{ `Selected Peer ID - ${selectedPeerId}` }}</h2>
+      <h4>Peer Public Key</h4>
+      <ui-textfield
+        input-type="textarea"
+        outlined
+        disabled
+        rows="10"
+        cols="100"
+        class="white-background"
+        v-model="publicKey"
+      ></ui-textfield>
+      <h4>Peer Root Certificate</h4>
+      <ui-textfield
+        input-type="textarea"
+        outlined
+        disabled
+        rows="10"
+        cols="100"
+        class="white-background"
+        v-model="rootCertificate"
+      ></ui-textfield>
+      <br />
+      <h4>Contact Information</h4>
+      <ui-textfield outlined class="white-background" v-model="peerAddress">Peer Address</ui-textfield>
+      <ui-textfield outlined class="white-background" v-model="apiAddress">API Address</ui-textfield>
+      <br />
+      <br />
+      <ui-button @click="createVault" raised>Edit</ui-button>
+      <ui-button @click="updatePeer">Update</ui-button>
     </div>
   </div>
 </template>
@@ -47,49 +61,48 @@ import useModule from '@/store/useModule'
 
 export default defineComponent({
   setup() {
-    const vaultsStore = useModule('Vaults')
-    const secretsStore = useModule('Secrets')
+    const peerStore = useModule('Peers')
     const router = useRouter()
-    const vaultNames = ref([])
-    const secretNames = ref([])
-    const selectedVault = ref('')
+    const peerIds = ref([])
+    const selectedPeerId = ref('')
+    const publicKey = ref('')
+    const rootCertificate = ref('')
+    const peerAddress = ref('')
+    const apiAddress = ref('')
 
     watchEffect(() => {
-      vaultNames.value = vaultsStore.state.vaultNames
-      secretNames.value = secretsStore.state.secretNames
+      peerIds.value = peerStore.state.peerIds
+      selectedPeerId.value = peerStore.state.selectedPeerId
+      publicKey.value = peerStore.state.publicKey
+      rootCertificate.value = peerStore.state.rootCertificate
+      peerAddress.value = peerStore.state.peerAddress
+      apiAddress.value = peerStore.state.apiAddress
     })
 
-    const newVault = () => {
+    const addPeer = () => {
       router.push('/Vaults/NewVault')
     }
-    const newSecret = () => {
-      if (selectedVault.value) {
-        router.push('/Vaults/NewSecret')
-      }
+    const deletePeer = (peerId: string) => {
+      peerStore.dispatch('deletePeer', peerId)
     }
-    const deleteVault = (vaultName: string) => {
-      vaultsStore.dispatch('deleteVault', vaultName)
-    }
-    const deleteSecret = (secretName: string) => {
-      secretsStore.dispatch('deleteSecret', secretName)
-      secretsStore.dispatch('loadSecretNames', selectedVault.value)
-    }
-    const selectVault = vault => {
-      selectedVault.value = vault
-      vaultsStore.dispatch('selectVault', vault)
-      secretsStore.dispatch('loadSecretNames', vault)
-    }
-    const selectSecret = secret => {
-      console.log(secret)
-      secretsStore.dispatch('selectSecret', secret)
-      router.push('/Vaults/SecretInformation')
+    const selectPeer = peerId => {
+      selectedPeerId.value = peerId
+      peerStore.dispatch('selectPeerId', peerId)
     }
 
     /** Load vaults */
-    vaultsStore.dispatch('loadVaultNames', true)
+    peerStore.dispatch('loadPeerIds')
 
     return {
-      newVnewVaultctedVault
+      peerIds,
+      selectedPeerId,
+      publicKey,
+      rootCertificate,
+      peerAddress,
+      apiAddress,
+      addPeer,
+      deletePeer,
+      selectPeer
     }
   }
 })
@@ -111,4 +124,3 @@ export default defineComponent({
   height: 100vh;
 }
 </style>
-
