@@ -63,6 +63,7 @@ function createTray() {
           mainWindow = createWindow()
           mainWindow.show()
         } else {
+          mainWindow.show()
           mainWindow.focus()
         }
       }

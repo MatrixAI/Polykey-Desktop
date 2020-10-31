@@ -2,6 +2,12 @@ import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
 const ipcRenderer = window.require('electron').ipcRenderer;
 
 class PolykeyClient {
+  ///////////////////////
+  // Clipboard control //
+  ///////////////////////
+  static async ClipboardCopy(secretContent: string) : Promise<void> {
+    return await ipcRenderer.invoke('ClipboardCopy', secretContent)
+  }
   ///////////////////
   // Agent Handler //
   ///////////////////

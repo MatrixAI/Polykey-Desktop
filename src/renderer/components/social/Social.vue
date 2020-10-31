@@ -1,204 +1,114 @@
 <template>
-  <ui-grid>
-    <ui-grid-cell>
-      <ui-grid-cell>
-        <h2 style="text-align: center;">Users</h2>
-        <ui-list>
+  <div class="social-container">
+    <div class="side-panel">
+      <h2 style="text-align: center;">Peers</h2>
+      <ui-button raised @click="addPeer()">Add Peer</ui-button>
+      <ui-list :type="2" avatar>
+        <template v-for="item in vaultNames">
+          <ui-item @click="selectVault(item)">
+            <ui-icon :class="iconClass">folder</ui-icon>
+            <ui-item-text-content>
+              <ui-item-text1>{{ item }}</ui-item-text1>
+              <ui-item-text2>Vault</ui-item-text2>
+            </ui-item-text-content>
+            <ui-item-last-content>
+              <ui-button raised @click="deleteVault(item)">
+                <ui-icon>delete</ui-icon>
+              </ui-button>
+            </ui-item-last-content>
+          </ui-item>
+        </template>
+      </ui-list>
+    </div>
+    <div class="main-panel">
+      <h2>{{ selectedVault ?? 'Select Vault' }}</h2>
+      <ui-button raised @click="newSecret()">New Secret</ui-button>
+      <template v-for="item in secretNames">
+        <ui-item @click="selectSecret(item)">
           <ui-item-text-content>
-            <ui-button color="success" rounded small @click="newVault()">Find</ui-button>
+            <ui-item-text1>{{ item }}</ui-item-text1>
+            <ui-item-text2>Secret</ui-item-text2>
           </ui-item-text-content>
-        </ui-list>
-
-        <ui-list :item-height="50" color="transparent">
-          <ui-list-group v-model="selectedVaultIndex" color="primary" mandatory>
-            <ui-item v-for="item in vaultNames" :key="item" color="primary" link :ripple="false">
-              <ui-item-first-content>
-                <ui-icon>fas fa-shield-alt</ui-icon>
-              </ui-item-first-content>
-
-              <ui-item-text-content>{{ item }}</ui-item-text-content>
-
-              <ui-item-last-content>
-                <ui-button link icon x-small color="warning" @click="deleteVault(item)">
-                  <ui-icon>fas fa-trash</ui-icon>
-                </ui-button>
-              </ui-item-last-content>
-            </ui-item>
-          </ui-list-group>
-        </ui-list>
-      </ui-grid-cell>
-
-      <ui-grid-cell>
-        <v-card>
-          <v-banner single-line>
-            <v-layout>
-              <v-flex>
-                <v-btn-toggle rounded style="background-color: transparent;">
-                  <v-list v-for="item in pathList" :key="item.name" style="background-color: transparent;">
-                    <v-btn small @click="changeView(item)">
-                      <v-icon x-small v-if="item.type == 'vault'">fas fa-shield-alt</v-icon>
-                      <v-icon x-small v-else-if="item.type == 'secret'">fas fa-file</v-icon>
-                      <v-icon x-small v-else></v-icon>
-
-                      <span style="padding-left: 5px;">{{ item.name }}</span>
-                    </v-btn>
-                  </v-list>
-                </v-btn-toggle>
-              </v-flex>
-              <v-spacer></v-spacer>
-              <v-btn icon small color="success" @click="newSecret">
-                <v-icon small>fas fa-plus</v-icon>
-              </v-btn>
-            </v-layout>
-          </v-banner>
-          <SecretInformation v-if="pathList[pathList.length - 1].type == 'secret'" />
-          <v-list v-else-if="secretNames.length != 0">
-            <v-list-item v-for="item in secretNames" :key="item" :ripple="false">
-              <v-list-item-icon>
-                <v-icon>fas fa-key</v-icon>
-              </v-list-item-icon>
-
-              <v-list-item-title>{{ item }}</v-list-item-title>
-              <v-spacer></v-spacer>
-              <v-btn link icon small color="info" @click="selectSecret(item)">
-                <v-icon>fas fa-edit</v-icon>
-              </v-btn>
-              <v-btn link icon small color="warning" @click="deleteSecret(item)">
-                <v-icon>fas fa-trash</v-icon>
-              </v-btn>
-            </v-list-item>
-          </v-list>
-          <h4 style="text-align: center;" v-else>No secrets found</h4>
-        </v-card>
-      </ui-grid-cell>
-    </ui-grid-cell>
-  </ui-grid>
+          <ui-item-last-content>
+            <ui-button raised @click="deleteSecret(item)">
+              <ui-icon>delete</ui-icon>
+            </ui-button>
+          </ui-item-last-content>
+        </ui-item>
+      </template>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, watchEffect, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import useModule from '@/store/useModule'
 
 export default defineComponent({
-  setup () {
+  setup() {
+    const vaultsStore = useModule('Vaults')
+    const secretsStore = useModule('Secrets')
+    const router = useRouter()
+    const vaultNames = ref([])
+    const secretNames = ref([])
+    const selectedVault = ref('')
+
+    watchEffect(() => {
+      vaultNames.value = vaultsStore.state.vaultNames
+      secretNames.value = secretsStore.state.secretNames
+    })
+
+    const newVault = () => {
+      router.push('/Vaults/NewVault')
+    }
+    const newSecret = () => {
+      if (selectedVault.value) {
+        router.push('/Vaults/NewSecret')
+      }
+    }
+    const deleteVault = (vaultName: string) => {
+      vaultsStore.dispatch('deleteVault', vaultName)
+    }
+    const deleteSecret = (secretName: string) => {
+      secretsStore.dispatch('deleteSecret', secretName)
+      secretsStore.dispatch('loadSecretNames', selectedVault.value)
+    }
+    const selectVault = vault => {
+      selectedVault.value = vault
+      vaultsStore.dispatch('selectVault', vault)
+      secretsStore.dispatch('loadSecretNames', vault)
+    }
+    const selectSecret = secret => {
+      console.log(secret)
+      secretsStore.dispatch('selectSecret', secret)
+      router.push('/Vaults/SecretInformation')
+    }
+
+    /** Load vaults */
+    vaultsStore.dispatch('loadVaultNames', true)
+
     return {
-      pathList: [{
-        type: 'secret'
-      }],
-      newVault: () => {},
-      deleteVault: () => {},
-      changeView: () => {},
-      selectSecret: () => {},
-      deleteSecret: () => {}
+      newVnewVaultctedVault
     }
   }
 })
-
-// import { namespace } from 'vuex-class';
-// import { polykeyClient } from '@/store';
-// import { Component, Vue, Prop } from 'vue-property-decorator';
-// import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue';
-// import { getConfiguration } from '@/store/modules/Configuration';
-
-// const vaults = namespace('Vaults');
-// const secrets = namespace('Secrets');
-
-// @Component({
-//   name: 'NewVault',
-//   components: {
-//     SecretInformation,
-//   },
-// })
-// export default class Vaults extends Vue {
-//   newVault() {
-//     this.$router.push('Vaults/NewVault');
-//   }
-
-//   newSecret() {
-//     this.$router.push('Vaults/NewSecret');
-//   }
-
-//   async deleteVault(vaultName: string) {
-//     await polykeyClient.deleteVault(vaultName);
-//     this.loadVaultNames();
-//   }
-
-//   async deleteSecret(secretName: string) {
-//     console.log(this.secretNames);
-//     await polykeyClient.deleteSecret(this.selectedVaultName, secretName);
-//     this.loadSecretNames(this.selectedVaultName);
-//     console.log(this.secretNames);
-//   }
-
-//   public get pathList() {
-//     const list = [{ type: 'vault', name: this.selectedVaultName }];
-//     if (this.selectedSecretName) {
-//       list.push({
-//         type: 'secret',
-//         name: this.selectedSecretName,
-//       });
-//     }
-//     return list;
-//   }
-
-//   @vaults.Action
-//   public loadVaultNames!: () => void;
-
-//   @vaults.Action
-//   public selectVault!: (vaultName: string) => void;
-
-//   @vaults.State
-//   public vaultNames!: string[];
-
-//   @vaults.State
-//   public selectedVaultName!: string;
-
-//   public get selectedVaultIndex() {
-//     return this.vaultNames.indexOf(this.selectedVaultName);
-//   }
-
-//   public set selectedVaultIndex(value: number) {
-//     const vaultName = this.vaultNames[value];
-//     this.selectVault(vaultName);
-//     this.loadSecretNames(vaultName);
-//   }
-
-//   @secrets.State
-//   public secretNames!: string[];
-
-//   @secrets.Action
-//   public loadSecretNames!: (vaultName: string) => void;
-
-//   @secrets.State
-//   public selectedSecretName!: string;
-
-//   @secrets.Action
-//   public selectSecret!: (secretName: string) => void;
-
-//   constructor() {
-//     super();
-//     this.loadVaultNames();
-//   }
-// }
 </script>
 
 <style scoped>
 .main-panel {
-  margin: 10px;
-  min-height: 0;
+  background: white;
+  float: left;
+  height: 100vh;
+  width: calc(100% - 300px);
 }
 
 .side-panel {
+  float: left;
   background-color: rgb(184, 184, 184);
   overflow-y: scroll;
-  max-width: 300px;
-  min-width: 150px;
-}
-
-.fill-parent-height {
-  height: 100%;
-}
-
-.top-row {
-  min-height: 0;
+  width: 300px;
+  height: 100vh;
 }
 </style>
+

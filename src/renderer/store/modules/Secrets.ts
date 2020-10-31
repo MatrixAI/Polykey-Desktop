@@ -9,19 +9,19 @@ export default {
     secretNames: []
   },
   actions: {
-    loadSecretNames: async function({ commit }, vaultName: string) {
+    loadSecretNames: async function ({ commit }, vaultName: string) {
       const secretNames = await PolykeyClient.ListSecrets(vaultName)
       commit('setSecretNames', { vaultName, secretNames })
     },
-    selectSecret: async function({ commit, state }, secretName?: string) {
+    selectSecret: async function ({ commit, state }, secretName?: string) {
       if (secretName) {
-        const secretContent = await PolykeyClient.GetSecret({vaultName: state.selectedVaultName, secretName})
+        const secretContent = await PolykeyClient.GetSecret({ vaultName: state.selectedVaultName, secretName })
         commit('setSelectedSecret', { secretName, secretContent })
       } else {
         commit('setSelectedSecret', { secretName: '', secretContent: '' })
       }
     },
-    updateSecret: async function(
+    updateSecret: async function (
       { commit, state },
       { secretName, secretContent }: { secretName: string; secretContent: string }
     ) {
@@ -36,14 +36,20 @@ export default {
       if (successful) {
         commit('setSelectedSecret', { secretName: secretName, secretContent: secretContent })
       }
+    },
+    deleteSecret: async ({ commit, state }, secretName: string) => {
+      const successful = await PolykeyClient.DeleteSecret({
+        vaultName: state.selectedVaultName,
+        secretName,
+      })
     }
   },
   mutations: {
-    setSecretNames: function(state, { vaultName, secretNames }: { vaultName: string; secretNames: string[] }) {
+    setSecretNames: function (state, { vaultName, secretNames }: { vaultName: string; secretNames: string[] }) {
       state.selectedVaultName = vaultName
       state.secretNames = secretNames
     },
-    setSelectedSecret: function(state, { secretName, secretContent }: { secretName: string; secretContent: string }) {
+    setSelectedSecret: function (state, { secretName, secretContent }: { secretName: string; secretContent: string }) {
       state.selectedSecretName = secretName
       state.selectedSecretContent = secretContent
     }

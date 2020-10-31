@@ -7,6 +7,7 @@ import Vaults from '@/components/vaults/Vaults.vue'
 import NewVault from '@/components/vaults/NewVault.vue'
 import NewSecret from '@/components/vaults/secrets/NewSecret.vue'
 import VaultInformation from '@/components/vaults/VaultInformation.vue'
+import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue'
 
 import Social from '@/components/social/Social.vue'
 
@@ -36,6 +37,11 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/Vaults/NewVault',
     component: NewVault
+  },
+  // Secrets
+  {
+    path: '/Vaults/SecretInformation',
+    component: SecretInformation
   },
   // // Social
   {

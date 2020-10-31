@@ -1,5 +1,5 @@
 import os from 'os';
-import { ipcMain } from 'electron';
+import { ipcMain, clipboard } from 'electron';
 import { promisifyGrpc } from './utils';
 import { PolykeyAgent } from '@matrixai/polykey';
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
@@ -32,6 +32,19 @@ function resolveTilde(filePath: string) {
 }
 
 async function setHandlers() {
+  ///////////////////////
+  // Clipboard control //
+  ///////////////////////
+  ipcMain.handle('ClipboardCopy', async (event, secretContent: string) => {
+    clipboard.writeText(secretContent)
+    setTimeout(() => {
+      if (clipboard.readText() == secretContent) {
+        clipboard.clear()
+        clipboard.writeText('')
+      }
+    }, 30000)
+  });
+
   ///////////////////
   // agent control //
   ///////////////////

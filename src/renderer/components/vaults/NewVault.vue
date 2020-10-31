@@ -28,6 +28,7 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const vaultsStore = useModule('Vaults')
+    const secretsStore = useModule('Secrets')
     const data = reactive({
       vaultName: '',
       initialSecretName: '',
@@ -35,14 +36,18 @@ export default defineComponent({
     })
     const createVault = async () => {
       const successful = await PolykeyClient.NewVault(data.vaultName)
+      if (data.initialSecretName) {
+        const successful = await PolykeyClient.NewSecret({
+          secretPath: {
+            vaultName: data.vaultName,
+            secretName: data.initialSecretName
+          },
+          secretContent: data.initialSecretContent,
+          secretFilePath: ''
+        })
+      }
       vaultsStore.dispatch('loadVaultNames')
-      // if (data.initialSecretName) {
-      //   const successful = await PolykeyClient.CreateSecret(
-      //     data.vaultName,
-      //     data.initialSecretName,
-      //     Buffer.from(data.initialSecretContent)
-      //   )
-      // }
+      secretsStore.dispatch('loadSecretNames', data.vaultName)
 
       console.log(successful)
       router.back()

@@ -1,12 +1,12 @@
 <template>
-  <ui-form nowrap>
-    <h2>Register Node</h2>
+  <ui-form nowrap className="center">
+    <h2>Unlock Node</h2>
     <ui-form-field>
-      <ui-textfield v-model="passphrase" placeholder="Passphrase">Passphrase</ui-textfield>
+      <ui-textfield inputType="password" v-model="passphrase" placeholder="Passphrase">Passphrase</ui-textfield>
     </ui-form-field>
     <br />
     <ui-form-field>
-      <ui-button @click="registerNode" raised>Register</ui-button>
+      <ui-button @click="registerNode" raised>Unlock</ui-button>
     </ui-form-field>
   </ui-form>
 </template>
@@ -48,4 +48,8 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.center {
+  margin-top: 3px;
+}
+</style>

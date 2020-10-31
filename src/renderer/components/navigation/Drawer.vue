@@ -7,7 +7,7 @@
     </ui-drawer-header>
     <ui-drawer-content>
       <ui-nav>
-        <NavigationButton faIcon="lock" route="/Vaults" name="Vault" />
+        <NavigationButton faIcon="lock" route="/Vaults" name="Vaults" />
         <NavigationButton faIcon="users" route="/Social" name="Social"/>
         <NavigationButton faIcon="key" route="/Keys" name="Keys"/>
         <NavigationButton faIcon="key" route="/Configuration" name="Configuration"/>

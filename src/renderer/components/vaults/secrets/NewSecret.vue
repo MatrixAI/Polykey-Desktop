@@ -25,6 +25,7 @@ export default defineComponent({
   setup() {
     const router = useRouter()
     const vaultsStore = useModule('Vaults')
+    const secretsStore = useModule('Secrets')
     const secretName = ref('')
     const secretContent = ref('')
 
@@ -38,6 +39,7 @@ export default defineComponent({
         secretFilePath: ''
       })
 
+      secretsStore.dispatch('loadSecretNames', vaultsStore.state.selectedVaultName)
       if (successful) {
         return router.back()
       }
