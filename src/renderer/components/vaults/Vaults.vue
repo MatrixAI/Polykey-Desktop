@@ -88,7 +88,7 @@ export default defineComponent({
       router.push('/Vaults/SecretInformation')
     }
 
-    /** Load vaults */
+    // Load vaults
     vaultsStore.dispatch('loadVaultNames', true)
 
     return {

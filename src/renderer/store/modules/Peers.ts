@@ -1,5 +1,7 @@
 import PolykeyClient from '@/store/PolykeyClient'
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
+import useModule from '@/store/useModule'
+import router from '@/router';
 
 export default {
   namespaced: true,
@@ -10,6 +12,7 @@ export default {
     rootCertificate: '',
     peerAddress: '',
     apiAddress: '',
+    scannedVaultNames: []
   },
   actions: {
     loadPeerIds: async function ({ commit }) {
@@ -18,16 +21,33 @@ export default {
     },
     selectPeerId: async function ({ commit }, peerId: string) {
       const peerInfo = await PolykeyClient.GetPeerInfo(peerId)
-      console.log(peerInfo);
+      commit('setSelectedPeer', { peerId, peerInfo })
 
-      commit('setSelectedPeerId', {peerId, peerInfo})
+      PolykeyClient.ScanVaultNames(peerId)
+        .then((scannedVaultNames: string[]) => {
+          commit('setScannedVaultNames', scannedVaultNames)
+        }).catch((e) => console.log(`error scanning vault names: ${e.message}`))
+    },
+    pullVault: async ({ commit }, { peerId, vaultName }: { peerId: string, vaultName: string }) => {
+      try {
+        const successful = await PolykeyClient.PullVault({
+          publicKey: peerId,
+          vaultName
+        })
+
+        // Load vaults
+        useModule('Vaults').dispatch('loadVaultNames', true)
+        router.push('/Vaults')
+      } catch (error) {
+        console.log(error)
+      }
     }
   },
   mutations: {
-    setPeerNames: function (state, peerIds: string[]) {
+    setPeerNames: (state, peerIds: string[]) => {
       state.peerIds = peerIds
     },
-    setSelectedPeerId: (
+    setSelectedPeer: (
       state,
       { peerId, peerInfo }: { peerId: string; peerInfo: pb.PeerInfoMessage.AsObject }
     ) => {
@@ -36,7 +56,11 @@ export default {
       state.rootCertificate = peerInfo.rootCertificate ?? ''
       state.peerAddress = peerInfo.peerAddress ?? ''
       state.apiAddress = peerInfo.apiAddress ?? ''
-    }
+      state.scannedVaultNames = []
+    },
+    setScannedVaultNames: (state, scannedVaultNames: string[]) => {
+      state.scannedVaultNames = scannedVaultNames
+    },
   },
   getters: {}
 }

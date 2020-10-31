@@ -37,6 +37,12 @@ class PolykeyClient {
     );
     return res.getB();
   }
+  static async AddPeerB64(peerInfoB64: string): Promise<boolean> {
+    const res = pb.BooleanMessage.deserializeBinary(
+      await ipcRenderer.invoke('AddPeerB64', peerInfoB64)
+    );
+    return res.getB();
+  }
   static async DecryptFile(request: pb.DecryptFileMessage.AsObject): Promise<string> {
     const encodedRequest = new pb.DecryptFileMessage();
     encodedRequest.setFilePath(request.filePath);

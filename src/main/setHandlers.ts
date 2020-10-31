@@ -1,7 +1,7 @@
 import os from 'os';
 import { ipcMain, clipboard } from 'electron';
 import { promisifyGrpc } from './utils';
-import { PolykeyAgent } from '@matrixai/polykey';
+import { PolykeyAgent, PeerInfo } from '@matrixai/polykey';
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
 import { AgentClient } from '@matrixai/polykey/proto/compiled/Agent_grpc_pb';
 
@@ -90,6 +90,29 @@ async function setHandlers() {
     const res = (await promisifyGrpc(client.addPeer.bind(client))(
       pb.PeerInfoMessage.deserializeBinary(request),
     )) as pb.BooleanMessage;
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('AddPeerB64', async (event, b64String) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const {
+      publicKey,
+      rootCertificate,
+      peerAddress,
+      apiAddress
+    } = PeerInfo.parseB64(b64String)
+    const request = new pb.PeerInfoMessage
+    request.setPublicKey(publicKey)
+    request.setRootCertificate(rootCertificate)
+    if (peerAddress) {
+      request.setPeerAddress(peerAddress.toString())
+    }
+    if (apiAddress) {
+      request.setApiAddress(apiAddress.toString())
+    }
+    const res = (await promisifyGrpc(client.addPeer.bind(client))(request)) as pb.BooleanMessage;
     return res.serializeBinary();
   });
 
@@ -385,7 +408,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.revokeOAuthToken.bind(client))(
+    const res = (await promisifyGrpc(client.scanVaultNames.bind(client))(
       pb.StringMessage.deserializeBinary(request),
     )) as pb.BooleanMessage;
     return res.serializeBinary();

@@ -21,35 +21,19 @@
       </ui-list>
     </div>
     <div class="main-panel">
-      <h2>{{ `Selected Peer ID - ${selectedPeerId}` }}</h2>
-      <h4>Peer Public Key</h4>
-      <ui-textfield
-        input-type="textarea"
-        outlined
-        disabled
-        rows="10"
-        cols="100"
-        class="white-background"
-        v-model="publicKey"
-      ></ui-textfield>
-      <h4>Peer Root Certificate</h4>
-      <ui-textfield
-        input-type="textarea"
-        outlined
-        disabled
-        rows="10"
-        cols="100"
-        class="white-background"
-        v-model="rootCertificate"
-      ></ui-textfield>
-      <br />
-      <h4>Contact Information</h4>
-      <ui-textfield outlined class="white-background" v-model="peerAddress">Peer Address</ui-textfield>
-      <ui-textfield outlined class="white-background" v-model="apiAddress">API Address</ui-textfield>
-      <br />
-      <br />
-      <ui-button @click="createVault" raised>Edit</ui-button>
-      <ui-button @click="updatePeer">Update</ui-button>
+      <ui-tabs v-model="active">
+        <ui-tab>Peer Info</ui-tab>
+        <ui-tab>Peer Vaults</ui-tab>
+      </ui-tabs>
+
+      <ui-panels v-model="active">
+        <ui-panel>
+          <PeerInfo />
+        </ui-panel>
+        <ui-panel>
+          <PeerVaults />
+        </ui-panel>
+      </ui-panels>
     </div>
   </div>
 </template>
@@ -58,29 +42,29 @@
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import useModule from '@/store/useModule'
+import PeerInfo from '@/components/social/PeerInfo.vue'
+import PeerVaults from '@/components/social/PeerVaults.vue'
 
 export default defineComponent({
+  components: {
+    PeerInfo,
+    PeerVaults
+  },
   setup() {
     const peerStore = useModule('Peers')
     const router = useRouter()
     const peerIds = ref([])
     const selectedPeerId = ref('')
-    const publicKey = ref('')
-    const rootCertificate = ref('')
-    const peerAddress = ref('')
-    const apiAddress = ref('')
+    const active = ref(0)
+    const tabs = ref(['PeerInfo', 'PeerVaults'])
 
     watchEffect(() => {
       peerIds.value = peerStore.state.peerIds
       selectedPeerId.value = peerStore.state.selectedPeerId
-      publicKey.value = peerStore.state.publicKey
-      rootCertificate.value = peerStore.state.rootCertificate
-      peerAddress.value = peerStore.state.peerAddress
-      apiAddress.value = peerStore.state.apiAddress
     })
 
     const addPeer = () => {
-      router.push('/Vaults/NewVault')
+      router.push('/Social/AddPeer')
     }
     const deletePeer = (peerId: string) => {
       peerStore.dispatch('deletePeer', peerId)
@@ -90,19 +74,17 @@ export default defineComponent({
       peerStore.dispatch('selectPeerId', peerId)
     }
 
-    /** Load vaults */
+    // Load peers
     peerStore.dispatch('loadPeerIds')
 
     return {
       peerIds,
       selectedPeerId,
-      publicKey,
-      rootCertificate,
-      peerAddress,
-      apiAddress,
+      active,
+      tabs,
       addPeer,
       deletePeer,
-      selectPeer
+      selectPeer,
     }
   }
 })

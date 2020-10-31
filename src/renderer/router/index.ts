@@ -10,6 +10,7 @@ import VaultInformation from '@/components/vaults/VaultInformation.vue'
 import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue'
 
 import Social from '@/components/social/Social.vue'
+import AddPeer from '@/components/social/AddPeer.vue'
 
 import Keys from '@/components/keys/Keys.vue'
 import NewKey from '@/components/keys/NewKey.vue'
@@ -43,12 +44,16 @@ const routes: Array<RouteRecordRaw> = [
     path: '/Vaults/SecretInformation',
     component: SecretInformation
   },
-  // // Social
+  // Social
   {
     path: '/Social',
     component: Social
   },
-  // // Keys
+  {
+    path: '/Social/AddPeer',
+    component: AddPeer
+  },
+  // Keys
   {
     path: '/Keys',
     component: Keys
