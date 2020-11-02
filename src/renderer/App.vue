@@ -1,5 +1,5 @@
 <template>
-  <div style="background: LightGrey;">
+  <div class="bg-purple-400 h-screen">
     <div class="demo-container">
       <Alert />
       <!-- Drawer -->
