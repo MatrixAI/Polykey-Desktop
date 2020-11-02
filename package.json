@@ -20,7 +20,7 @@
     "dev:webpack:watch": "webpack-cli --watch",
     "dev:electron": "electron .",
     "cleanup": "rimraf ./dist",
-    "mock_for_oauth2orize": "mkdir dist/grant && mkdir dist/exchange",
+    "mock_for_oauth2orize": "mkdir -p ./dist/grant && mkdir -p ./dist/exchange",
     "dev": "npm-run-all cleanup compile 'concurrently 'npm:dev:*''",
     "lint:fix": "eslint . --fix",
     "storybook:build": "vue-cli-service storybook:build -c config/storybook",
