@@ -35,7 +35,8 @@ const VueApp = {
             loader: MiniCssExtractPlugin.loader,
             options: { hmr: !env.production }
           },
-          'css-loader'
+          'css-loader',
+          'postcss-loader'
         ]
       },
       {

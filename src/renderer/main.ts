@@ -5,7 +5,7 @@ import store from '@/store'
 import BalmUI from 'balm-ui'
 import BalmUIPlus from 'balm-ui/dist/balm-ui-plus'
 import 'balm-ui/dist/balm-ui.css'
-import '../index.css'
+import '@/assets/index.css'
 
 createApp(App)
   .use(BalmUI)

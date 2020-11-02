@@ -12163,6 +12163,15 @@ let
         sha512 = "jR2b5v7d2vIOust+w3wtFKZIfpC2pnRmFAhAC/BuweZFQR8qZzxH1OyrQ10HmdVYiXWkYUqPVsz91cG7EL2FBg==";
       };
     };
+    "jsonfile-6.1.0" = {
+      name = "jsonfile";
+      packageName = "jsonfile";
+      version = "6.1.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/jsonfile/-/jsonfile-6.1.0.tgz";
+        sha512 = "5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==";
+      };
+    };
     "jsonparse-1.3.1" = {
       name = "jsonparse";
       packageName = "jsonparse";
@@ -19021,6 +19030,15 @@ let
         sha512 = "rb6X1W158d7pRQBg5gkR8uPaSfiids68LTJQYOtEUhoJUWBdaQHsuT/EUduxXYxcrt4r5PJ4fuHW1MHT6p0qug==";
       };
     };
+    "universalify-2.0.0" = {
+      name = "universalify";
+      packageName = "universalify";
+      version = "2.0.0";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/universalify/-/universalify-2.0.0.tgz";
+        sha512 = "hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==";
+      };
+    };
     "unpipe-1.0.0" = {
       name = "unpipe";
       packageName = "unpipe";
@@ -21354,6 +21372,11 @@ let
           sources."chalk-2.4.2"
           sources."color-convert-1.9.3"
           sources."color-name-1.1.3"
+          (sources."cosmiconfig-6.0.0" // {
+            dependencies = [
+              sources."path-type-4.0.0"
+            ];
+          })
           sources."dir-glob-2.2.2"
           sources."eslint-scope-4.0.3"
           sources."fast-glob-2.2.7"
@@ -21362,6 +21385,19 @@ let
               sources."extend-shallow-2.0.1"
             ];
           })
+          (sources."fork-ts-checker-webpack-plugin-v5-npm:fork-ts-checker-webpack-plugin@5.2.1" // {
+            dependencies = [
+              sources."ansi-styles-4.3.0"
+              sources."chalk-4.1.0"
+              sources."color-convert-2.0.1"
+              sources."color-name-1.1.4"
+              sources."has-flag-4.0.0"
+              sources."schema-utils-2.7.0"
+              sources."semver-7.3.2"
+              sources."supports-color-7.2.0"
+            ];
+          })
+          sources."fs-extra-9.0.1"
           sources."glob-7.1.6"
           (sources."glob-parent-3.1.0" // {
             dependencies = [
@@ -21373,6 +21409,11 @@ let
           (sources."is-number-3.0.0" // {
             dependencies = [
               sources."kind-of-3.2.2"
+            ];
+          })
+          (sources."jsonfile-6.1.0" // {
+            dependencies = [
+              sources."universalify-2.0.0"
             ];
           })
           sources."micromatch-3.1.10"
@@ -21394,6 +21435,7 @@ let
               sources."to-regex-range-5.0.1"
             ];
           })
+          sources."universalify-1.0.0"
           sources."webpack-4.44.2"
         ];
       })
@@ -22834,16 +22876,6 @@ let
           sources."semver-5.7.1"
           sources."supports-color-5.5.0"
           sources."to-regex-range-2.1.1"
-        ];
-      })
-      (sources."fork-ts-checker-webpack-plugin-v5-npm:fork-ts-checker-webpack-plugin@5.2.1" // {
-        dependencies = [
-          sources."cosmiconfig-6.0.0"
-          sources."fs-extra-9.0.1"
-          sources."jsonfile-6.0.1"
-          sources."schema-utils-2.7.0"
-          sources."semver-7.3.2"
-          sources."universalify-1.0.0"
         ];
       })
       sources."form-data-2.3.3"
