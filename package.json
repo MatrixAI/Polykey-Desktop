@@ -21,7 +21,7 @@
     "dev:electron": "electron .",
     "cleanup": "rimraf ./dist",
     "mock_for_oauth2orize": "mkdir dist/grant && mkdir dist/exchange",
-    "dev": "npm-run-all cleanup compile 'concurrently 'npm:dev:*''",
+    "dev": "npm-run-all cleanup compile \"concurrently \"npm:dev:*\"\"",
     "lint:fix": "eslint . --fix",
     "storybook:build": "vue-cli-service storybook:build -c config/storybook",
     "storybook:serve": "vue-cli-service storybook:serve -p 6006 -c config/storybook",
@@ -30,6 +30,7 @@
   "dependencies": {
     "@matrixai/polykey": "^0.0.23",
     "balm-ui": "^9.0.0-rc.4",
+    "tailwindcss": "^1.9.6",
     "vue": "^3.0.2",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
@@ -50,6 +51,7 @@
     "concurrently": "^5.3.0",
     "cross-env": "^7.0.2",
     "css-loader": "^4.3.0",
+    "electron": "^10.1.5",
     "electron-builder": "^22.9.1",
     "electron-packager": "^15.0.0",
     "eslint": "^7.6.0",
@@ -64,6 +66,8 @@
     "jest": "^25.0.0",
     "mini-css-extract-plugin": "^1.2.0",
     "npm-run-all": "^4.1.5",
+    "postcss": "^8.1.4",
+    "postcss-loader": "^4.0.4",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.2",
     "storybook": "^5.3.19",

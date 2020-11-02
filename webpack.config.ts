@@ -35,7 +35,8 @@ const VueApp = {
             loader: MiniCssExtractPlugin.loader,
             options: { hmr: !env.production }
           },
-          'css-loader'
+          'css-loader',
+          'postcss-loader'
         ]
       },
       {
@@ -97,6 +98,12 @@ const ElectronApp = {
         test: /\.ts?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        use: [
+          'file-loader'
+        ]
       }
     ]
   },
