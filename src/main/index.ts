@@ -52,7 +52,7 @@ function createWindow() {
 }
 
 function createTray() {
-  const logoPath = path.join(__static, 'logo.png')
+  const logoPath = require.resolve('../../static/logo.png')
 
   tray = new Tray(logoPath)
 
