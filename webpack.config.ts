@@ -5,6 +5,7 @@ import { VueLoaderPlugin } from 'vue-loader';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import CopyPlugin from 'copy-webpack-plugin';
 
 const env = process.env
 
@@ -90,7 +91,7 @@ const ElectronApp = {
   devtool: 'inline-source-map',
   node: {
     __dirname: true,
-    __filename: true,
+    // __filename: true,
   },
   module: {
     rules: [
@@ -101,9 +102,10 @@ const ElectronApp = {
       },
       {
         test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
-        use: [
-          'file-loader'
-        ]
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]',
+        }
       }
     ]
   },
@@ -117,7 +119,12 @@ const ElectronApp = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      __static: `"${path.resolve(__dirname, 'static')}"`
+      __static: `"${path.resolve(__dirname, 'dist', 'static')}"`
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: 'static', to: 'static' }
+      ]
     })
   ],
   output: {

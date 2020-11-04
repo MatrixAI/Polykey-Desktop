@@ -39,7 +39,11 @@ export default defineComponent({
 
     const pullVault = vaultName => {
       console.log(vaultName)
-      peerStore.dispatch('pullVault', {peerId: peerStore.state.selectedPeerId, vaultName})
+      peerStore.dispatch('pullVault', { peerId: peerStore.state.selectedPeerId, vaultName })
+
+      // Load vaults
+      vaultsStore.dispatch('loadVaultNames', true)
+      router.push('/Vaults')
     }
 
     return {

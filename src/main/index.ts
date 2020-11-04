@@ -1,9 +1,10 @@
+import fs from 'fs';
 import path from 'path';
 import { promisifyGrpc } from './utils';
+import { PolykeyAgent } from '@matrixai/polykey';
 import setHandlers, { polykeyPath } from './setHandlers'
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
 import { app, BrowserWindow, Menu, Tray, shell } from "electron";
-import { PolykeyAgent } from '@matrixai/polykey';
 
 setHandlers()
 
@@ -52,9 +53,17 @@ function createWindow() {
 }
 
 function createTray() {
-  const logoPath = require.resolve('../../static/logo.png')
+  const dirname = path.dirname(__filename)
+  const prodPath = path.join(dirname, 'static', 'logo.png')
+  const devPath = path.join('..', '..', 'static', 'logo.png')
 
-  tray = new Tray(logoPath)
+  if (fs.existsSync(prodPath)) {
+    tray = new Tray(prodPath)
+  } else if (fs.existsSync(devPath)) {
+    tray = new Tray(devPath)
+  } else {
+    throw Error('logo not found')
+  }
 
   const contextMenu = Menu.buildFromTemplate([
     {

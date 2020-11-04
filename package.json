@@ -20,7 +20,7 @@
     "dev:webpack:watch": "webpack-cli --watch",
     "dev:electron": "electron .",
     "cleanup": "rimraf ./dist",
-    "mock_for_oauth2orize": "mkdir dist/grant && mkdir dist/exchange",
+    "mock_for_oauth2orize": "mkdir -p ./dist/grant && mkdir -p ./dist/exchange",
     "dev": "npm-run-all cleanup compile \"concurrently \"npm:dev:*\"\"",
     "lint:fix": "eslint . --fix",
     "storybook:build": "vue-cli-service storybook:build -c config/storybook",
@@ -36,6 +36,7 @@
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
+    "@types/copy-webpack-plugin": "^6.0.0",
     "@types/jest": "^25.0.0",
     "@types/node": "^13.13.1",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
@@ -49,9 +50,9 @@
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/test-utils": "^2.0.0-beta.5",
     "concurrently": "^5.3.0",
+    "copy-webpack-plugin": "^6.3.0",
     "cross-env": "^7.0.2",
     "css-loader": "^4.3.0",
-    "electron": "^10.1.5",
     "electron-builder": "^22.9.1",
     "electron-packager": "^15.0.0",
     "eslint": "^7.6.0",
@@ -95,12 +96,11 @@
     "appId": "com.matrixai.polykey",
     "extends": null,
     "files": [
-      "dist/**/*"
+      "dist/**/*",
+      "static"
     ],
-    "directories": {
-      "buildResources": "assets"
-    },
     "linux": {
+      "icon": "static/logo.png",
       "target": "tar.gz"
     },
     "win": {
@@ -110,22 +110,6 @@
     "mac": {
       "icon": "static/logo.png",
       "target": "tar.gz"
-    }
-  },
-  "electronWebpack": {
-    "whiteListedModules": [
-      "vue",
-      "vuetify",
-      "vue-property-decorator",
-      "vue-class-component",
-      "vue-styled-components",
-      "vuex-module-decorators"
-    ],
-    "main": {
-      "sourceDirectory": "./src/main"
-    },
-    "renderer": {
-      "sourceDirectory": "./src/renderer"
     }
   },
   "engines": {

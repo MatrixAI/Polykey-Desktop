@@ -32,12 +32,8 @@ export default {
       try {
         const successful = await PolykeyClient.PullVault({
           publicKey: peerId,
-          vaultName
+          vaultName: vaultName
         })
-
-        // Load vaults
-        useModule('Vaults').dispatch('loadVaultNames', true)
-        router.push('/Vaults')
       } catch (error) {
         console.log(error)
       }
