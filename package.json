@@ -28,9 +28,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^5.1.7",
     "@matrixai/polykey": "^0.0.23",
+    "ant-design-vue": "^2.0.0-beta.15",
     "balm-ui": "^9.0.0-rc.4",
-    "tailwindcss": "^1.9.6",
+    "electron": "^9.3.5",
+    "tailwindcss": "^2.0.0",
     "vue": "^3.0.2",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
@@ -65,6 +68,7 @@
     "file-loader": "^6.1.0",
     "html-webpack-plugin": "^4.5.0",
     "jest": "^25.0.0",
+    "less-loader": "^7.1.0",
     "mini-css-extract-plugin": "^1.2.0",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.1.4",
@@ -72,6 +76,7 @@
     "prettier": "^1.19.1",
     "rimraf": "^3.0.2",
     "storybook": "^5.3.19",
+    "style-loader": "^2.0.0",
     "ts-loader": "^8.0.7",
     "ts-node": "^8.8.2",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
@@ -79,8 +84,9 @@
     "unzip": "^0.1.11",
     "vue-jest": "^5.0.0-0",
     "vue-loader": "^16.0.0-beta.5",
+    "vue-style-loader": "^4.1.2",
     "webpack": "^5.2.0",
-    "webpack-cli": "^4.1.0",
+    "webpack-cli": "^4.2.0",
     "webpackbar": "^4.0.0"
   },
   "browserslist": [

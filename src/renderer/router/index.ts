@@ -1,8 +1,4 @@
-import {
-  createRouter,
-  createWebHashHistory,
-  RouteRecordRaw
-} from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import Vaults from '@/components/vaults/Vaults.vue'
 import NewVault from '@/components/vaults/NewVault.vue'
 import NewSecret from '@/components/vaults/secrets/NewSecret.vue'
@@ -20,7 +16,33 @@ import NewKeyNode from '@/components/configuration/NewKeyNode.vue'
 import UnlockKeyNode from '@/components/configuration/UnlockKeyNode.vue'
 import RegisterNode from '@/components/configuration/RegisterNode.vue'
 
+import Bootstrap from '@/pages/bootstrap/Bootstrap.vue'
+import Installation from '@/pages/installation/Installation.vue'
+import SelectKeyNode from '@/pages/bootstrap/SelectKeyNode.vue'
+import SelectExistingKeyNode from '@/pages/bootstrap/SelectExistingKeyNode.vue'
+import CreatePassword from '@/pages/bootstrap/CreatePassword.vue'
+
 const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/Bootstrap',
+    component: Bootstrap
+  },
+  {
+    path: '/Installation',
+    component: Installation
+  },
+  {
+    path: '/SelectKeyNode',
+    component: SelectKeyNode
+  },
+  {
+    path: '/SelectExistingKeyNode',
+    component: SelectExistingKeyNode
+  },
+  {
+    path: '/CreatePassword',
+    component: CreatePassword
+  },
   // Vaults
   {
     path: '/Vaults',

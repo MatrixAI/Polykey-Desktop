@@ -4,7 +4,8 @@ export default {
   namespaced: true,
   state: {
     isUnlocked: false,
-    isInitialized: false
+    isInitialized: false,
+    step: 4
   },
   actions: {
     checkUserStatus: async function ({ commit }) {

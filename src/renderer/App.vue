@@ -1,19 +1,6 @@
 <template>
-  <div class="bg-purple-400 h-screen">
-    <div class="demo-container">
-      <Alert />
-      <!-- Drawer -->
-      <Drawer />
-      <!-- Content -->
-      <div class="content">
-        <!-- App bar -->
-        <AppBar />
-        <!-- App content -->
-        <div class="app-content">
-          <router-view />
-        </div>
-      </div>
-    </div>
+  <div class="h-screen">
+    <router-view />
   </div>
 </template>
 
@@ -34,9 +21,9 @@ const noop = () => {}
 
 export default defineComponent({
   components: {
-    Alert,
-    AppBar,
-    Drawer
+    // Alert,
+    // AppBar,
+    // Drawer
   },
   setup() {
     const router = useRouter()
@@ -45,6 +32,23 @@ export default defineComponent({
       /** Watch the status here for redirection */
       const isUnlocked = userStore.state.isUnlocked
       const isInitialized = userStore.state.isInitialized
+      console.log(userStore.state.step)
+      if (userStore.state.step === 1) {
+        return router.replace('/Installation')
+      }
+
+      if (userStore.state.step === 2) {
+        return router.replace('/SelectKeyNode')
+      }
+
+      if (userStore.state.step === 3) {
+        return router.replace('/SelectExistingKeyNode')
+      }
+
+      if (userStore.state.step === 4) {
+        return router.replace('/CreatePassword')
+      }
+
       if (isUnlocked && isInitialized) {
         /** Reroute on vaults by default */
         const path = router.currentRoute.value.path

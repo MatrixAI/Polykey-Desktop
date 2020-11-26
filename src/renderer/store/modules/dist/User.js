@@ -36,60 +36,96 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var PolyKeyClient_1 = require("@/store/PolyKeyClient");
+var PolykeyClient_1 = require("@/store/PolykeyClient");
 exports["default"] = {
     namespaced: true,
     state: {
         isUnlocked: false,
-        userStatus: 'init'
+        isInitialized: false,
+        step: 2
     },
     actions: {
         checkUserStatus: function (_a) {
             var commit = _a.commit;
             return __awaiter(this, void 0, void 0, function () {
-                var pid, error_1;
+                var pid, vaultsList, error_1, vaultsList, error_2;
                 return __generator(this, function (_b) {
                     switch (_b.label) {
                         case 0:
-                            _b.trys.push([0, 2, , 3]);
-                            return [4 /*yield*/, PolyKeyClient_1["default"].StartAgent()];
+                            // first set both initialized and unlocked to false, they will be changed in the process
+                            commit('setIsUnlocked', false);
+                            commit('setIsInitialized', false);
+                            _b.label = 1;
                         case 1:
+                            _b.trys.push([1, 4, , 12]);
+                            return [4 /*yield*/, PolykeyClient_1["default"].StartAgent()];
+                        case 2:
                             pid = _b.sent();
                             console.log("Agent has been started with a pid of: " + pid);
-                            commit('setUserStatus', 'RegisterNode');
-                            return [3 /*break*/, 3];
-                        case 2:
+                            return [4 /*yield*/, PolykeyClient_1["default"].ListVaults()];
+                        case 3:
+                            vaultsList = _b.sent();
+                            console.log(vaultsList);
+                            commit('setIsUnlocked', true);
+                            commit('setIsInitialized', true);
+                            return [3 /*break*/, 12];
+                        case 4:
                             error_1 = _b.sent();
-                            if (error_1.message.includes('not been initialized')) {
-                                commit('setUserStatus', 'NewNode');
-                            }
-                            else if (error_1.message.includes('already running')) {
-                                commit('setUserStatus', 'UnlockNode');
+                            console.log(error_1);
+                            if (!error_1.message.includes('not been initialized')) return [3 /*break*/, 5];
+                            commit('setIsUnlocked', false);
+                            commit('setIsInitialized', false);
+                            return [3 /*break*/, 11];
+                        case 5:
+                            if (!error_1.message.includes('already running')) return [3 /*break*/, 10];
+                            _b.label = 6;
+                        case 6:
+                            _b.trys.push([6, 8, , 9]);
+                            return [4 /*yield*/, PolykeyClient_1["default"].ListVaults()];
+                        case 7:
+                            vaultsList = _b.sent();
+                            console.log(vaultsList);
+                            commit('setIsUnlocked', true);
+                            commit('setIsInitialized', true);
+                            return [3 /*break*/, 9];
+                        case 8:
+                            error_2 = _b.sent();
+                            commit('setIsUnlocked', false);
+                            commit('setIsInitialized', false);
+                            return [3 /*break*/, 9];
+                        case 9: return [3 /*break*/, 11];
+                        case 10:
+                            if (error_1.message.includes('locked')) {
+                                commit('setIsUnlocked', false);
+                                commit('setIsInitialized', true);
                             }
                             else {
                                 // some other error
+                                commit('setIsUnlocked', false);
+                                commit('setIsInitialized', false);
                                 throw Error("something else went wrong: " + error_1.message);
                             }
-                            return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
+                            _b.label = 11;
+                        case 11: return [3 /*break*/, 12];
+                        case 12: return [2 /*return*/];
                     }
                 });
             });
         },
-        setUserStatus: function (_a, status) {
+        setIsUnlocked: function (_a, isUnlocked) {
             var commit = _a.commit;
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_b) {
-                    commit('setUserStatus', status);
+                    commit('setIsUnlocked', isUnlocked);
                     return [2 /*return*/];
                 });
             });
         },
-        userIsUnlocked: function (_a) {
+        setIsInitialized: function (_a, isInitialized) {
             var commit = _a.commit;
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_b) {
-                    commit('setIsUnlocked', true);
+                    commit('setIsInitialized', isInitialized);
                     return [2 /*return*/];
                 });
             });
@@ -99,8 +135,8 @@ exports["default"] = {
         setIsUnlocked: function (state, isUnlocked) {
             state.isUnlocked = isUnlocked;
         },
-        setUserStatus: function (state, userStatus) {
-            state.userStatus = userStatus;
+        setIsInitialized: function (state, isInitialized) {
+            state.isInitialized = isInitialized;
         }
     },
     getters: {}
