@@ -19,9 +19,9 @@ let tray: Tray
 function createWindow() {
   // Create the browser window.
   let window = new BrowserWindow({
-    width: 800,
-    height: 600,
-    frame: false,
+    width: 900,
+    height: 700,
+    // frame: false,
     webPreferences: {
       nodeIntegration: true
     }

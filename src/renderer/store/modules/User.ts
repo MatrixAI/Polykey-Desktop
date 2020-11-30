@@ -5,7 +5,7 @@ export default {
   state: {
     isUnlocked: false,
     isInitialized: false,
-    step: 4
+    step: 7
   },
   actions: {
     checkUserStatus: async function ({ commit }) {

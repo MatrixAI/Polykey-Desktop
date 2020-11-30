@@ -21,6 +21,9 @@ import Installation from '@/pages/installation/Installation.vue'
 import SelectKeyNode from '@/pages/bootstrap/SelectKeyNode.vue'
 import SelectExistingKeyNode from '@/pages/bootstrap/SelectExistingKeyNode.vue'
 import CreatePassword from '@/pages/bootstrap/CreatePassword.vue'
+import RecoveryCode from '@/pages/bootstrap/ReoveryCode.vue'
+import ConfirmCode from '@/pages/bootstrap/ConfirmCode.vue'
+import Congratulations from '@/pages/bootstrap/Congratulations.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -43,6 +46,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/CreatePassword',
     component: CreatePassword
   },
+  {
+    path: '/RecoveryCode',
+    component: RecoveryCode
+  },
+  {
+    path: '/ConfirmCode',
+    component: ConfirmCode
+  },
+  {
+    path: '/Congratulations',
+    component: Congratulations
+  },
+
   // Vaults
   {
     path: '/Vaults',
@@ -61,6 +77,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/Vaults/NewVault',
     component: NewVault
   },
+
   // Secrets
   {
     path: '/Vaults/SecretInformation',

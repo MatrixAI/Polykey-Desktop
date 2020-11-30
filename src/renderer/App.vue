@@ -33,20 +33,24 @@ export default defineComponent({
       const isUnlocked = userStore.state.isUnlocked
       const isInitialized = userStore.state.isInitialized
       console.log(userStore.state.step)
-      if (userStore.state.step === 1) {
-        return router.replace('/Installation')
-      }
 
-      if (userStore.state.step === 2) {
-        return router.replace('/SelectKeyNode')
-      }
-
-      if (userStore.state.step === 3) {
-        return router.replace('/SelectExistingKeyNode')
-      }
-
-      if (userStore.state.step === 4) {
-        return router.replace('/CreatePassword')
+      switch (userStore.state.step) {
+        case 1:
+          return router.replace('/Installation')
+        case 2:
+          return router.replace('/SelectKeyNode')
+        case 3:
+          return router.replace('/SelectExistingKeyNode')
+        case 4:
+          return router.replace('/CreatePassword')
+        case 5:
+          return router.replace('/RecoveryCode')
+        case 6:
+          return router.replace('/ConfirmCode')
+        case 7:
+          return router.replace('/Congratulations')
+        default:
+          break
       }
 
       if (isUnlocked && isInitialized) {
