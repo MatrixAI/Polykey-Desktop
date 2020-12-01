@@ -109,7 +109,6 @@ function createTray() {
 
 app.on('ready', () => {
   mainWindow = createWindow()
-
   createTray()
 });
 

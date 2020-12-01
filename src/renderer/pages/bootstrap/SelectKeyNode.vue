@@ -12,16 +12,16 @@
               <a-form-item label="KEYNODE">
                 <a-input placeholder="~/.polykey">
                   <template #suffix>
-                    <a-button type="default">
+                    <Button type="default">
                       <template #icon><FolderOpenOutlined /></template>
-                    </a-button>
+                    </Button>
                   </template>
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary">
+                <Button type="danger">
                   Create
-                </a-button>
+                </Button>
               </a-form-item>
             </a-form>
           </div>
@@ -45,11 +45,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Button from '@/atoms/button/Button.vue'
 import Illustration from '@/components/bootstrap/Illustration.vue'
 import { FolderOpenOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({
   components: {
+    Button,
     Illustration,
     FolderOpenOutlined
   },
