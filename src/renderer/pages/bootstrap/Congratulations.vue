@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import IllustrationContratulations from '@/components/bootstrap/illustrationCongratulations.vue'
+import IllustrationContratulations from '@renderer/components/bootstrap/illustrationCongratulations.vue'
 
 export default defineComponent({
   components: {

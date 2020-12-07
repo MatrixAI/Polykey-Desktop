@@ -58,10 +58,10 @@
 
 <script lang="ts">
 import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
+import { polykeyClient } from '@renderer/store';
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import KeyInformation from '@/components/keys/KeyInformation.vue';
-import KeyPairInformation from '@/components/keys/KeyPairInformation.vue';
+import KeyInformation from '@renderer/components/keys/KeyInformation.vue';
+import KeyPairInformation from '@renderer/components/keys/KeyPairInformation.vue';
 
 const keys = namespace('Keys');
 

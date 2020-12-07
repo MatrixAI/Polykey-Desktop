@@ -45,8 +45,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Button from '@/atoms/button/Button.vue'
-import Illustration from '@/components/bootstrap/Illustration.vue'
+import Button from '@renderer/atoms/button/Button.vue'
+import Illustration from '@renderer/components/bootstrap/Illustration.vue'
 import { FolderOpenOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({

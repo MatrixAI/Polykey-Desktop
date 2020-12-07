@@ -80,8 +80,8 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
-import { getConfiguration } from '@/store/modules/Configuration';
+import { polykeyClient } from '@renderer/store';
+import { getConfiguration } from '@renderer/store/modules/Configuration';
 
 const configuration = namespace('Configuration');
 

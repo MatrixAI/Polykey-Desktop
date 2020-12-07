@@ -30,7 +30,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
+import { polykeyClient } from '@renderer/store';
 
 const keys = namespace('Keys');
 

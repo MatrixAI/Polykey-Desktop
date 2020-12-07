@@ -1,7 +1,7 @@
-import PolykeyClient from '@/store/PolykeyClient'
+import PolykeyClient from '@renderer/store/PolykeyClient'
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
-import useModule from '@/store/useModule'
-import router from '@/router';
+import useModule from '@renderer/store/useModule'
+import router from '@renderer/router';
 
 export default {
   namespaced: true,

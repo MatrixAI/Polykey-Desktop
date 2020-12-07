@@ -79,7 +79,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Illustration from '@/components/bootstrap/Illustration.vue'
+import Illustration from '@renderer/components/bootstrap/Illustration.vue'
 import { ArrowLeftOutlined } from '@ant-design/icons-vue'
 
 export default defineComponent({

@@ -15,7 +15,7 @@ import Alert from './components/alerts/Alert.vue'
 import AppBar from './components/navigation/AppBar.vue'
 import Drawer from './components/navigation/Drawer.vue'
 
-import useModule from '@/store/useModule'
+import useModule from '@renderer/store/useModule'
 
 const noop = () => {}
 

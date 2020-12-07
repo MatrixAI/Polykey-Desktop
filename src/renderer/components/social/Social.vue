@@ -41,9 +41,9 @@
 <script lang="ts">
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import useModule from '@/store/useModule'
-import PeerInfo from '@/components/social/PeerInfo.vue'
-import PeerVaults from '@/components/social/PeerVaults.vue'
+import useModule from '@renderer/store/useModule'
+import PeerInfo from '@renderer/components/social/PeerInfo.vue'
+import PeerVaults from '@renderer/components/social/PeerVaults.vue'
 
 export default defineComponent({
   components: {

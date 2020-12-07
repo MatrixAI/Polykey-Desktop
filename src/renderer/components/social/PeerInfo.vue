@@ -32,8 +32,8 @@
 
 <script lang="ts">
 import { useRouter } from 'vue-router'
-import useModule from '@/store/useModule'
-import PolykeyClient from '@/store/PolykeyClient'
+import useModule from '@renderer/store/useModule'
+import PolykeyClient from '@renderer/store/PolykeyClient'
 import { defineComponent, watchEffect, ref } from 'vue'
 
 export default defineComponent({

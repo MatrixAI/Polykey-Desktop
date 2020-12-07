@@ -89,10 +89,10 @@
 
 <script lang="ts">
 import { namespace } from 'vuex-class';
-import { polykeyClient } from '@/store';
+import { polykeyClient } from '@renderer/store';
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue';
-import { getConfiguration } from '@/store/modules/Configuration';
+import SecretInformation from '@renderer/components/vaults/secrets/SecretInformation.vue';
+import { getConfiguration } from '@renderer/store/modules/Configuration';
 
 const vaults = namespace('Vaults');
 const secrets = namespace('Secrets');

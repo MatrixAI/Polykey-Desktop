@@ -1,16 +1,16 @@
 // import Vue from "vue";
 // import VueRouter, { RouteConfig } from "vue-router";
-// import Vaults from '@/components/vaults/Vaults.vue';
-// import NewVault from '@/components/vaults/NewVault.vue';
-// import NewSecret from '@/components/vaults/secrets/NewSecret.vue';
-// import VaultInformation from '@/components/vaults/VaultInformation.vue';
+// import Vaults from '@renderer/components/vaults/Vaults.vue';
+// import NewVault from '@renderer/components/vaults/NewVault.vue';
+// import NewSecret from '@renderer/components/vaults/secrets/NewSecret.vue';
+// import VaultInformation from '@renderer/components/vaults/VaultInformation.vue';
 
-// import Social from '@/components/social/Social.vue';
+// import Social from '@renderer/components/social/Social.vue';
 
-// import Keys from '@/components/keys/Keys.vue';
-// import NewKey from '@/components/keys/NewKey.vue';
+// import Keys from '@renderer/components/keys/Keys.vue';
+// import NewKey from '@renderer/components/keys/NewKey.vue';
 
-// import Configuration from '@/components/configuration/Configuration.vue';
+// import Configuration from '@renderer/components/configuration/Configuration.vue';
 
 // Vue.use(VueRouter);
 
