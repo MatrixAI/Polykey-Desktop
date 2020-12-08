@@ -11,9 +11,9 @@
  */
 import { defineComponent, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
-import Alert from './components/alerts/Alert.vue'
-import AppBar from './components/navigation/AppBar.vue'
-import Drawer from './components/navigation/Drawer.vue'
+// import Alert from './components/alerts/Alert.vue'
+// import AppBar from './components/navigation/AppBar.vue'
+// import Drawer from './components/navigation/Drawer.vue'
 
 import useModule from '@renderer/store/useModule'
 

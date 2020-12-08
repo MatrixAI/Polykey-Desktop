@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import PolykeyClient from '@renderer/store/PolykeyClient'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
 import useModule from '@renderer/store/useModule'
 import { useRouter } from 'vue-router'
 

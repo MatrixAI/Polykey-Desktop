@@ -23,29 +23,19 @@
       <div class="font-nunito opacity-40 text-sm">A one-liner descriptor about the app</div>
     </div>
     <div class="flex flex-col h-30vh justify-center items-center">
-      <div class="w-72 mb-1">
-        <a-progress :showInfo="false" :percent="30" />
-      </div>
-      <div class="font-roboto text-xs w-72 bg-gray-50 p-5 h-15">
-        <div class="overflow-y-auto h-8">
-          <p class="opacity-50 -mb-0.5">Initializing...</p>
-          <p class="opacity-50 -mb-0.5">Initializing Polykey...</p>
-          <p class="opacity-50 -mb-0.5">Intalling Agent...</p>
-          <p class="opacity-50 -mb-0.5">Initializing...</p>
-          <p class="opacity-50 -mb-0.5">Initializing Polykey...</p>
-          <p class="opacity-50 -mb-0.5">Intalling Agent...</p>
-        </div>
-      </div>
+      <Console />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Console from '@renderer/molecules/console/Console.vue'
 
 export default defineComponent({
   components: {
     // Logo
+    Console
   },
   setup() {
     console.log('awdawd')

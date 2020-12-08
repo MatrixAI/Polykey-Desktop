@@ -22,7 +22,7 @@
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import useModule from '@renderer/store/useModule'
-import PolykeyClient from '@renderer/store/PolykeyClient'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
 
 export default defineComponent({
   setup() {

@@ -1,4 +1,4 @@
-import PolykeyClient from '@renderer/store/PolykeyClient'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
 import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
 import useModule from '@renderer/store/useModule'
 import router from '@renderer/router';
