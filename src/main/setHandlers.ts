@@ -8,7 +8,7 @@ import { AgentClient } from '@matrixai/polykey/proto/compiled/Agent_grpc_pb'
 const polykeyPath: string = resolveTilde('~/.polykey')
 let client: AgentClient
 
-async function getAgentClient(failOnNotInitialized: boolean = true) {
+async function getAgentClient(failOnNotInitialized) {
   // make sure agent is running
   console.log(polykeyPath)
 
@@ -74,7 +74,7 @@ async function setHandlers() {
   ipcMain.handle('agent-restart', async (event, request) => {
     const client = PolykeyAgent.connectToAgent(polykeyPath)
     await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage())
-    const pid = <number> await PolykeyAgent.startAgent(polykeyPath)
+    const pid = <number>await PolykeyAgent.startAgent(polykeyPath)
     await getAgentClient()
     return pid
   })
@@ -312,7 +312,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient()
     }
-    (await promisifyGrpc(client.lockNode.bind(client))(new pb.EmptyMessage())) as pb.EmptyMessage
+    ;(await promisifyGrpc(client.lockNode.bind(client))(new pb.EmptyMessage())) as pb.EmptyMessage
   })
 
   ipcMain.handle('NewClientCertificate', async (event, request) => {

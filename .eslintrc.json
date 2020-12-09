@@ -1,22 +1,30 @@
 {
-    "env": {
-        "browser": true,
-        "es2020": true
-    },
-    "extends": [
-        "plugin:vue/essential",
-        "standard"
-    ],
-    "parserOptions": {
-        "ecmaVersion": 11,
-        "parser": "@typescript-eslint/parser",
-        "sourceType": "module"
-    },
-    "plugins": [
-        "vue",
-        "@typescript-eslint"
-    ],
-    "rules": {
-        "space-before-function-paren" : 0
-    }
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2018
+  },
+  "rules": {
+    "@typescript-eslint/no-namespace": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "no-prototype-builtins": 1,
+    "no-useless-catch": 1,
+    "no-undef": 1,
+    "no-empty": 1,
+    "linebreak-style": ["error", "unix"]
+  }
 }

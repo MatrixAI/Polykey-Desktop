@@ -7,7 +7,7 @@ export default {
     selectedVaultName: ''
   },
   actions: {
-    loadVaultNames: async function({ commit }, selectFirstVault: boolean = false) {
+    loadVaultNames: async function({ commit }, selectFirstVault = false) {
       const vaultNames = await PolykeyClient.ListVaults()
       commit('setVaultNames', vaultNames)
       console.log(selectFirstVault)
