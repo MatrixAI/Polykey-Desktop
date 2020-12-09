@@ -1,4 +1,4 @@
-import devtools from '@vue/devtools'
+// import devtools from '@vue/devtools'
 import { createApp } from 'vue'
 import App from '@renderer/App.vue'
 import router from '@renderer/router'
@@ -7,8 +7,8 @@ import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 import '@renderer/assets/index.css'
 
-console.log('connecting')
-devtools.connect('http://localhost', 8098)
+console.log(process.env)
+// devtools.connect('http://localhost', 8098)
 
 createApp(App)
   .use(Antd)

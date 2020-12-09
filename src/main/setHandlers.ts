@@ -8,7 +8,7 @@ import { AgentClient } from '@matrixai/polykey/proto/compiled/Agent_grpc_pb'
 const polykeyPath: string = resolveTilde('~/.polykey')
 let client: AgentClient
 
-async function getAgentClient(failOnNotInitialized) {
+async function getAgentClient(failOnNotInitialized = false) {
   // make sure agent is running
   console.log(polykeyPath)
 

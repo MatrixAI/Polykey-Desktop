@@ -21,11 +21,9 @@
   },
   "include": [
     "src/**/*",
-    "tests/**/*.ts",
-    "types/**/*.d.ts"
+    "tests/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "src/renderer-vue2/**/*"
+    "node_modules"
   ]
 }
