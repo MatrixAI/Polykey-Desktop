@@ -1,4 +1,5 @@
-import path from 'path';
+/* eslint no-unused-vars: 0 */
+import path from 'path'
 
 declare global {
   namespace NodeJS {
@@ -9,5 +10,5 @@ declare global {
   }
 }
 
-global.projectDir = path.join(__dirname, '../');
-global.testDir = __dirname;
+global.projectDir = path.join(__dirname, '../')
+global.testDir = __dirname

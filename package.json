@@ -11,8 +11,9 @@
   ],
   "main": "dist/main.js",
   "scripts": {
+    "lint": "eslint '{src,tests}/**/*.{js,ts}'",
+    "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix",
     "vue-devtools": "vue-devtools",
-    "lint": "eslint .",
     "npm-run-all": "npm-run-all",
     "rimraf": "rimraf",
     "concurrently": "concurrently",
@@ -23,7 +24,6 @@
     "cleanup": "rimraf ./dist",
     "mock_for_oauth2orize": "mkdir -p ./dist/grant && mkdir -p ./dist/exchange",
     "dev": "npm-run-all cleanup compile \"concurrently \"npm:dev:*\"\"",
-    "lint:fix": "eslint . --fix",
     "storybook:build": "vue-cli-service storybook:build -c config/storybook",
     "storybook:serve": "vue-cli-service storybook:serve -p 6006 -c config/storybook",
     "test": "jest"
