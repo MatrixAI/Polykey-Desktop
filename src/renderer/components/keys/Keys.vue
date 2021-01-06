@@ -27,9 +27,9 @@
 <script lang="ts">
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import useModule from '@/store/useModule'
-import KeyInformation from '@/components/keys/KeyInformation.vue'
-import KeyPairInformation from '@/components/keys/KeyPairInformation.vue'
+import useModule from '@renderer/store/useModule'
+import KeyInformation from '@renderer/components/keys/KeyInformation.vue'
+import KeyPairInformation from '@renderer/components/keys/KeyPairInformation.vue'
 
 export default defineComponent({
   components: {
@@ -65,10 +65,10 @@ export default defineComponent({
 })
 
 // import { namespace } from 'vuex-class';
-// import { polykeyClient } from '@/store';
+// import { polykeyClient } from '@renderer/store';
 // import { Component, Vue, Prop } from 'vue-property-decorator';
-// import KeyInformation from '@/components/keys/KeyInformation.vue';
-// import KeyPairInformation from '@/components/keys/KeyPairInformation.vue';
+// import KeyInformation from '@renderer/components/keys/KeyInformation.vue';
+// import KeyPairInformation from '@renderer/components/keys/KeyPairInformation.vue';
 
 // const keys = namespace('Keys');
 

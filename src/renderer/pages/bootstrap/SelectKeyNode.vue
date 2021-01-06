@@ -12,31 +12,22 @@
               <a-form-item label="KEYNODE">
                 <a-input placeholder="~/.polykey">
                   <template #suffix>
-                    <a-button type="default">
+                    <Button type="default">
                       <template #icon><FolderOpenOutlined /></template>
-                    </a-button>
+                    </Button>
                   </template>
                 </a-input>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary">
+                <Button type="danger">
                   Create
-                </a-button>
+                </Button>
               </a-form-item>
             </a-form>
           </div>
         </div>
         <div class="flex flex-col h-30vh justify-center items-center">
-          <div class="font-roboto text-xs w-72 bg-gray-50 p-5 h-15">
-            <div class="overflow-y-auto h-8">
-              <p class="opacity-50 -mb-0.5">Initializing...</p>
-              <p class="opacity-50 -mb-0.5">Initializing Polykey...</p>
-              <p class="opacity-50 -mb-0.5">Intalling Agent...</p>
-              <p class="opacity-50 -mb-0.5">Initializing...</p>
-              <p class="opacity-50 -mb-0.5">Initializing Polykey...</p>
-              <p class="opacity-50 -mb-0.5">Intalling Agent...</p>
-            </div>
-          </div>
+          <Console />
         </div>
       </div>
     </div>
@@ -45,11 +36,15 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Illustration from '@/components/bootstrap/Illustration.vue'
+import Button from '@renderer/atoms/button/Button.vue'
+import Illustration from '@renderer/components/bootstrap/Illustration.vue'
 import { FolderOpenOutlined } from '@ant-design/icons-vue'
+import Console from '@renderer/molecules/console/Console.vue'
 
 export default defineComponent({
   components: {
+    Button,
+    Console,
     Illustration,
     FolderOpenOutlined
   },

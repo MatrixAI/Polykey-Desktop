@@ -24,7 +24,7 @@
 <script lang="ts">
 import { defineComponent, watchEffect, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import useModule from '@/store/useModule'
+import useModule from '@renderer/store/useModule'
 
 export default defineComponent({
   setup() {

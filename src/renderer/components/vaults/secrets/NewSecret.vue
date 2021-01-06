@@ -18,8 +18,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import PolykeyClient from '@/store/PolykeyClient'
-import useModule from '@/store/useModule'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
+import useModule from '@renderer/store/useModule'
 
 export default defineComponent({
   setup() {
@@ -57,8 +57,8 @@ export default defineComponent({
 })
 // import { Component, Vue, Prop } from 'vue-property-decorator';
 // import { namespace } from 'vuex-class';
-// import { polykeyClient } from '@/store';
-// import { getConfiguration } from '@/store/modules/Configuration';
+// import { polykeyClient } from '@renderer/store';
+// import { getConfiguration } from '@renderer/store/modules/Configuration';
 
 // const vaults = namespace('Vaults');
 // const secrets = namespace('Secrets');

@@ -21,7 +21,7 @@ export default {
     }
   }
 }
-// import store from '@/store'
+// import store from '@renderer/store'
 // import { getModule, Module, MutationAction, VuexModule } from 'vuex-module-decorators'
 
 // @Module({ name: 'Configuration', namespaced: true })

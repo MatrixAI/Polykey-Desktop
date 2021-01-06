@@ -1,4 +1,4 @@
-import PolykeyClient from '@/store/PolykeyClient'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
 
 export default {
   namespaced: true,
@@ -9,11 +9,11 @@ export default {
     secretNames: []
   },
   actions: {
-    loadSecretNames: async function ({ commit }, vaultName: string) {
+    loadSecretNames: async function({ commit }, vaultName: string) {
       const secretNames = await PolykeyClient.ListSecrets(vaultName)
       commit('setSecretNames', { vaultName, secretNames })
     },
-    selectSecret: async function ({ commit, state }, secretName?: string) {
+    selectSecret: async function({ commit, state }, secretName?: string) {
       if (secretName) {
         const secretContent = await PolykeyClient.GetSecret({ vaultName: state.selectedVaultName, secretName })
         commit('setSelectedSecret', { secretName, secretContent })
@@ -21,14 +21,14 @@ export default {
         commit('setSelectedSecret', { secretName: '', secretContent: '' })
       }
     },
-    updateSecret: async function (
+    updateSecret: async function(
       { commit, state },
       { secretName, secretContent }: { secretName: string; secretContent: string }
     ) {
       const successful = await PolykeyClient.UpdateSecret({
         secretPath: {
           vaultName: state.selectedVaultName,
-          secretName,
+          secretName
         },
         secretContent: secretContent,
         secretFilePath: ''
@@ -38,18 +38,18 @@ export default {
       }
     },
     deleteSecret: async ({ commit, state }, secretName: string) => {
-      const successful = await PolykeyClient.DeleteSecret({
+      await PolykeyClient.DeleteSecret({
         vaultName: state.selectedVaultName,
-        secretName,
+        secretName
       })
     }
   },
   mutations: {
-    setSecretNames: function (state, { vaultName, secretNames }: { vaultName: string; secretNames: string[] }) {
+    setSecretNames: function(state, { vaultName, secretNames }: { vaultName: string; secretNames: string[] }) {
       state.selectedVaultName = vaultName
       state.secretNames = secretNames
     },
-    setSelectedSecret: function (state, { secretName, secretContent }: { secretName: string; secretContent: string }) {
+    setSelectedSecret: function(state, { secretName, secretContent }: { secretName: string; secretContent: string }) {
       state.selectedSecretName = secretName
       state.selectedSecretContent = secretContent
     }

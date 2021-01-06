@@ -1,7 +1,5 @@
-import PolykeyClient from '@/store/PolykeyClient'
-import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
-import useModule from '@/store/useModule'
-import router from '@/router';
+import PolykeyClient from '@renderer/resources/PolykeyClient'
+import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb'
 
 export default {
   namespaced: true,
@@ -15,22 +13,23 @@ export default {
     scannedVaultNames: []
   },
   actions: {
-    loadPeerIds: async function ({ commit }) {
+    loadPeerIds: async function({ commit }) {
       const peerIds = await PolykeyClient.ListPeers()
       commit('setPeerNames', peerIds)
     },
-    selectPeerId: async function ({ commit }, peerId: string) {
+    selectPeerId: async function({ commit }, peerId: string) {
       const peerInfo = await PolykeyClient.GetPeerInfo(peerId)
       commit('setSelectedPeer', { peerId, peerInfo })
 
       PolykeyClient.ScanVaultNames(peerId)
         .then((scannedVaultNames: string[]) => {
           commit('setScannedVaultNames', scannedVaultNames)
-        }).catch((e) => console.log(`error scanning vault names: ${e.message}`))
+        })
+        .catch(e => console.log(`error scanning vault names: ${e.message}`))
     },
-    pullVault: async ({ commit }, { peerId, vaultName }: { peerId: string, vaultName: string }) => {
+    pullVault: async ({ commit }, { peerId, vaultName }: { peerId: string; vaultName: string }) => {
       try {
-        const successful = await PolykeyClient.PullVault({
+        await PolykeyClient.PullVault({
           publicKey: peerId,
           vaultName: vaultName
         })
@@ -43,10 +42,7 @@ export default {
     setPeerNames: (state, peerIds: string[]) => {
       state.peerIds = peerIds
     },
-    setSelectedPeer: (
-      state,
-      { peerId, peerInfo }: { peerId: string; peerInfo: pb.PeerInfoMessage.AsObject }
-    ) => {
+    setSelectedPeer: (state, { peerId, peerInfo }: { peerId: string; peerInfo: pb.PeerInfoMessage.AsObject }) => {
       state.selectedPeerId = peerId
       state.publicKey = peerInfo.publicKey ?? ''
       state.rootCertificate = peerInfo.rootCertificate ?? ''
@@ -56,7 +52,7 @@ export default {
     },
     setScannedVaultNames: (state, scannedVaultNames: string[]) => {
       state.scannedVaultNames = scannedVaultNames
-    },
+    }
   },
   getters: {}
 }

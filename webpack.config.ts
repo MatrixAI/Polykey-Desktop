@@ -40,25 +40,13 @@ const VueApp = {
           'postcss-loader'
         ]
       },
-      // {
-      //   test: /\.less$/,
-      //   use: [
-      //     {
-      //       loader: 'less-loader',
-      //       options: {
-      //         lessOptions: {
-      //           modifyVars: {
-      //             'primary-color': 'blue'
-      //           },
-      //           javascriptEnabled: true
-      //         }
-      //       }
-      //     }
-      //   ]
-      // },
       {
-        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         use: ['file-loader']
+      },
+      {
+        test: /\.svg$/,
+        use: ['vue-loader', 'vue-svg-loader']
       }
     ]
   },
@@ -115,11 +103,15 @@ const ElectronApp = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         loader: 'file-loader',
         options: {
           name: '[path][name].[ext]'
         }
+      },
+      {
+        test: /\.svg$/,
+        loader: 'vue-svg-loader'
       }
     ]
   },

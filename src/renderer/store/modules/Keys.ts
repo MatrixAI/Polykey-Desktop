@@ -1,4 +1,4 @@
-import PolykeyClient from '@/store/PolykeyClient'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
 
 export default {
   namespaced: true,
@@ -48,8 +48,8 @@ export default {
   },
   getters: {}
 }
-// import { polykeyClient } from '@/store'
-// import { getConfiguration } from '@/store/modules/Configuration'
+// import { polykeyClient } from '@renderer/store'
+// import { getConfiguration } from '@renderer/store/modules/Configuration'
 // import { VuexModule, Module, Mutation, MutationAction } from 'vuex-module-decorators'
 
 // @Module({ namespaced: true })

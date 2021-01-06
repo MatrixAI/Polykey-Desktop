@@ -1,26 +1,33 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import Vaults from '@/components/vaults/Vaults.vue'
-import NewVault from '@/components/vaults/NewVault.vue'
-import NewSecret from '@/components/vaults/secrets/NewSecret.vue'
-import VaultInformation from '@/components/vaults/VaultInformation.vue'
-import SecretInformation from '@/components/vaults/secrets/SecretInformation.vue'
 
-import Social from '@/components/social/Social.vue'
-import AddPeer from '@/components/social/AddPeer.vue'
+import Vaults from '@renderer/pages/vault/VaultList.vue'
+// import Vaults from '@renderer/components/vaults/Vaults.vue'
 
-import Keys from '@/components/keys/Keys.vue'
-import NewKey from '@/components/keys/NewKey.vue'
+import NewVault from '@renderer/components/vaults/NewVault.vue'
+import NewSecret from '@renderer/components/vaults/secrets/NewSecret.vue'
+import VaultInformation from '@renderer/components/vaults/VaultInformation.vue'
+import SecretInformation from '@renderer/components/vaults/secrets/SecretInformation.vue'
 
-import Configuration from '@/components/configuration/Configuration.vue'
-import NewKeyNode from '@/components/configuration/NewKeyNode.vue'
-import UnlockKeyNode from '@/components/configuration/UnlockKeyNode.vue'
-import RegisterNode from '@/components/configuration/RegisterNode.vue'
+import Social from '@renderer/components/social/Social.vue'
+import AddPeer from '@renderer/components/social/AddPeer.vue'
 
-import Bootstrap from '@/pages/bootstrap/Bootstrap.vue'
-import Installation from '@/pages/installation/Installation.vue'
-import SelectKeyNode from '@/pages/bootstrap/SelectKeyNode.vue'
-import SelectExistingKeyNode from '@/pages/bootstrap/SelectExistingKeyNode.vue'
-import CreatePassword from '@/pages/bootstrap/CreatePassword.vue'
+import Keys from '@renderer/components/keys/Keys.vue'
+import NewKey from '@renderer/components/keys/NewKey.vue'
+
+import Configuration from '@renderer/components/configuration/Configuration.vue'
+import NewKeyNode from '@renderer/components/configuration/NewKeyNode.vue'
+import UnlockKeyNode from '@renderer/components/configuration/UnlockKeyNode.vue'
+import RegisterNode from '@renderer/components/configuration/RegisterNode.vue'
+
+import Bootstrap from '@renderer/pages/bootstrap/Bootstrap.vue'
+import Installation from '@renderer/pages/installation/Installation.vue'
+import SelectKeyNode from '@renderer/pages/bootstrap/SelectKeyNode.vue'
+import SelectExistingKeyNode from '@renderer/pages/bootstrap/SelectExistingKeyNode.vue'
+import CreatePassword from '@renderer/pages/bootstrap/CreatePassword.vue'
+import RecoveryCode from '@renderer/pages/bootstrap/ReoveryCode.vue'
+import ConfirmCode from '@renderer/pages/bootstrap/ConfirmCode.vue'
+import Congratulations from '@renderer/pages/bootstrap/Congratulations.vue'
+import AtomicDesign from '@renderer/pages/AtomicDesign.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -43,6 +50,24 @@ const routes: Array<RouteRecordRaw> = [
     path: '/CreatePassword',
     component: CreatePassword
   },
+  {
+    path: '/RecoveryCode',
+    component: RecoveryCode
+  },
+  {
+    path: '/ConfirmCode',
+    component: ConfirmCode
+  },
+  {
+    path: '/Congratulations',
+    component: Congratulations
+  },
+
+  {
+    path: '/AtomicDesign',
+    component: AtomicDesign
+  },
+
   // Vaults
   {
     path: '/Vaults',
@@ -61,6 +86,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/Vaults/NewVault',
     component: NewVault
   },
+
   // Secrets
   {
     path: '/Vaults/SecretInformation',

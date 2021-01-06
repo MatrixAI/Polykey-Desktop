@@ -1,14 +1,14 @@
-import PolykeyClient from '@/store/PolykeyClient'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
 
 export default {
   namespaced: true,
   state: {
     isUnlocked: false,
     isInitialized: false,
-    step: 4
+    step: 8
   },
   actions: {
-    checkUserStatus: async function ({ commit }) {
+    checkUserStatus: async function({ commit }) {
       // first set both initialized and unlocked to false, they will be changed in the process
       commit('setIsUnlocked', false)
       commit('setIsInitialized', false)
@@ -47,18 +47,18 @@ export default {
         }
       }
     },
-    setIsUnlocked: async function ({ commit }, isUnlocked: boolean) {
+    setIsUnlocked: async function({ commit }, isUnlocked: boolean) {
       commit('setIsUnlocked', isUnlocked)
     },
-    setIsInitialized: async function ({ commit }, isInitialized: boolean) {
+    setIsInitialized: async function({ commit }, isInitialized: boolean) {
       commit('setIsInitialized', isInitialized)
     }
   },
   mutations: {
-    setIsUnlocked: function (state, isUnlocked) {
+    setIsUnlocked: function(state, isUnlocked) {
       state.isUnlocked = isUnlocked
     },
-    setIsInitialized: function (state, isInitialized) {
+    setIsInitialized: function(state, isInitialized) {
       state.isInitialized = isInitialized
     }
   },

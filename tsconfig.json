@@ -1,29 +1,29 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    "sourceMap": true,
+    "declaration": true,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
     "module": "CommonJS",
+    "target": "ES2016",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "noImplicitAny": false,
-    "moduleResolution": "node",
     "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
     "baseUrl": "./src",
     "paths": {
-      "@/*": [ "renderer/*" ],
-      "@server/*": [ "main/*" ]
+      "@": ["index"],
+      "@*": ["*"]
     }
   },
   "include": [
     "src/**/*",
-    "tests/**/*.ts",
-    "types/**/*.d.ts"
+    "tests/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "src/renderer-vue2/**/*"
+    "node_modules"
   ]
 }

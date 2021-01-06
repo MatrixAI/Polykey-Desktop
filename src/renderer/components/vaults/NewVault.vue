@@ -29,8 +29,8 @@
 <script lang="ts">
 import { defineComponent, toRefs, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import PolykeyClient from '@/store/PolykeyClient'
-import useModule from '@/store/useModule'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
+import useModule from '@renderer/store/useModule'
 
 export default defineComponent({
   setup() {

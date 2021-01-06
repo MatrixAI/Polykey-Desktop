@@ -1,6 +1,9 @@
 <template>
-  <div class="h-screen">
-    <router-view />
+  <div class="h-screen bg-grey3">
+    <Header />
+    <div class="px-5">
+      <router-view />
+    </div>
   </div>
 </template>
 
@@ -11,19 +14,14 @@
  */
 import { defineComponent, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
-import Alert from './components/alerts/Alert.vue'
-import AppBar from './components/navigation/AppBar.vue'
-import Drawer from './components/navigation/Drawer.vue'
-
-import useModule from '@/store/useModule'
+import Header from '@renderer/organisms/header/Header.vue'
+import useModule from '@renderer/store/useModule'
 
 const noop = () => {}
 
 export default defineComponent({
   components: {
-    // Alert,
-    // AppBar,
-    // Drawer
+    Header
   },
   setup() {
     const router = useRouter()
@@ -33,20 +31,28 @@ export default defineComponent({
       const isUnlocked = userStore.state.isUnlocked
       const isInitialized = userStore.state.isInitialized
       console.log(userStore.state.step)
-      if (userStore.state.step === 1) {
-        return router.replace('/Installation')
-      }
 
-      if (userStore.state.step === 2) {
-        return router.replace('/SelectKeyNode')
-      }
-
-      if (userStore.state.step === 3) {
-        return router.replace('/SelectExistingKeyNode')
-      }
-
-      if (userStore.state.step === 4) {
-        return router.replace('/CreatePassword')
+      switch (userStore.state.step) {
+        case 1:
+          return router.replace('/Installation')
+        case 2:
+          return router.replace('/SelectKeyNode')
+        case 3:
+          return router.replace('/SelectExistingKeyNode')
+        case 4:
+          return router.replace('/CreatePassword')
+        case 5:
+          return router.replace('/RecoveryCode')
+        case 6:
+          return router.replace('/ConfirmCode')
+        case 7:
+          return router.replace('/Congratulations')
+        case 8:
+          return router.replace('/Vaults')
+        case 99:
+          return router.replace('/AtomicDesign')
+        default:
+          break
       }
 
       if (isUnlocked && isInitialized) {

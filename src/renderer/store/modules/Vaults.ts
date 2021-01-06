@@ -1,4 +1,4 @@
-import PolykeyClient from '@/store/PolykeyClient'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
 
 export default {
   namespaced: true,
@@ -7,30 +7,30 @@ export default {
     selectedVaultName: ''
   },
   actions: {
-    loadVaultNames: async function ({ commit }, selectFirstVault: boolean = false) {
+    loadVaultNames: async function({ commit }, selectFirstVault = false) {
       const vaultNames = await PolykeyClient.ListVaults()
       commit('setVaultNames', vaultNames)
-      console.log(selectFirstVault);
+      console.log(selectFirstVault)
 
-      if (selectFirstVault && vaultNames.length != 0) {
-        console.log(vaultNames[0]);
+      if (selectFirstVault && vaultNames.length !== 0) {
+        console.log(vaultNames[0])
         commit('setSelectedVault', vaultNames[0])
       }
     },
-    selectVault: async function ({ commit }, vaultName) {
+    selectVault: async function({ commit }, vaultName) {
       commit('setSelectedVault', vaultName)
     },
-    deleteVault: async function ({ commit }, vaultName) {
+    deleteVault: async function({ commit }, vaultName) {
       await PolykeyClient.DeleteVault(vaultName)
       const vaultNames = await PolykeyClient.ListVaults()
       commit('setVaultNames', vaultNames)
     }
   },
   mutations: {
-    setVaultNames: function (state, vaultNames) {
+    setVaultNames: function(state, vaultNames) {
       state.vaultNames = vaultNames
     },
-    setSelectedVault: function (state, vaultName) {
+    setSelectedVault: function(state, vaultName) {
       state.selectedVaultName = vaultName
     }
   },

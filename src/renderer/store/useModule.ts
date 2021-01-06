@@ -5,7 +5,7 @@ export default module => {
 
   return {
     state: store.state[module],
-    dispatch: (action, params? : any) => {
+    dispatch: (action, params?: any) => {
       store.dispatch(`${module}/${action}`, params)
     }
   }

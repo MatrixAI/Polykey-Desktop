@@ -16,8 +16,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import PolykeyClient from '@/store/PolykeyClient'
-import useModule from '@/store/useModule'
+import PolykeyClient from '@renderer/resources/PolykeyClient'
+import useModule from '@renderer/store/useModule'
 
 export default defineComponent({
   setup() {

@@ -11,7 +11,9 @@
   ],
   "main": "dist/main.js",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint '{src,tests}/**/*.{js,ts}'",
+    "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix",
+    "vue-devtools": "vue-devtools",
     "npm-run-all": "npm-run-all",
     "rimraf": "rimraf",
     "concurrently": "concurrently",
@@ -22,7 +24,6 @@
     "cleanup": "rimraf ./dist",
     "mock_for_oauth2orize": "mkdir -p ./dist/grant && mkdir -p ./dist/exchange",
     "dev": "npm-run-all cleanup compile \"concurrently \"npm:dev:*\"\"",
-    "lint:fix": "eslint . --fix",
     "storybook:build": "vue-cli-service storybook:build -c config/storybook",
     "storybook:serve": "vue-cli-service storybook:serve -p 6006 -c config/storybook",
     "test": "jest"
@@ -33,6 +34,7 @@
     "ant-design-vue": "^2.0.0-beta.15",
     "balm-ui": "^9.0.0-rc.4",
     "electron": "^9.3.5",
+    "jdenticon": "^3.1.0",
     "tailwindcss": "^2.0.0",
     "vue": "^3.0.2",
     "vue-router": "^4.0.0-0",
@@ -51,6 +53,7 @@
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-plugin-unit-jest": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/devtools": "^6.0.0-beta.2",
     "@vue/test-utils": "^2.0.0-beta.5",
     "concurrently": "^5.3.0",
     "copy-webpack-plugin": "^6.3.0",
@@ -85,6 +88,7 @@
     "vue-jest": "^5.0.0-0",
     "vue-loader": "^16.0.0-beta.5",
     "vue-style-loader": "^4.1.2",
+    "vue-svg-loader": "^0.17.0-beta.2",
     "webpack": "^5.2.0",
     "webpack-cli": "^4.2.0",
     "webpackbar": "^4.0.0"
