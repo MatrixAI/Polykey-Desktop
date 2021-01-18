@@ -15,6 +15,8 @@ module.exports = {
         grey4: '#E7E9F2',
         grey5: '#E8F0F0',
         grey6: '#EEEFF2',
+        grey7: '#2C3531',
+        grey8: '#F7F9FC',
 
         // Primary
         primary1: '#116466',
@@ -32,6 +34,7 @@ module.exports = {
         content2: '#7F88A5',
         content3: '#C2C9DF',
         content4: '#E4E9F2',
+        content5: '#D1E8E2',
 
         'list-border': '#95A1C3'
       },
@@ -42,6 +45,7 @@ module.exports = {
         '80vh': '80vh',
         header: '42px',
         search: '29px',
+        action: '12px',
         'large-input': '34px'
       },
       borderRadius: {
@@ -57,4 +61,4 @@ module.exports = {
   },
   variants: {},
   plugins: []
-}
+};

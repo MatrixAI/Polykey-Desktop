@@ -29,14 +29,14 @@
   </div>
 </template>
 <script>
-import Action from '@/renderer/assets/action.svg'
-import Navigation from '@/renderer/molecules/navigation/Navigation.vue'
-import Search from '@/renderer/molecules/search/Search.vue'
-import Notification from '@/renderer/molecules/notification/Notification.vue'
-import Setting from '@/renderer/molecules/setting/Setting.vue'
-import Profile from '@/renderer/molecules/profile/Profile.vue'
+import Action from '@/renderer/assets/action.svg';
+import Navigation from '@/renderer/molecules/navigation/Navigation.vue';
+import Search from '@/renderer/molecules/search/Search.vue';
+import Notification from '@/renderer/molecules/notification/Notification.vue';
+import Setting from '@/renderer/molecules/setting/Setting.vue';
+import Profile from '@/renderer/molecules/profile/Profile.vue';
 
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   components: {
@@ -47,5 +47,5 @@ export default defineComponent({
     Setting,
     Profile
   }
-})
+});
 </script>

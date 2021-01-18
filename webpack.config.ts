@@ -1,17 +1,17 @@
-import path from 'path'
-import webpack from 'webpack'
-import WebpackBar from 'webpackbar'
-import { VueLoaderPlugin } from 'vue-loader'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
-import MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
-import CopyPlugin from 'copy-webpack-plugin'
+import path from 'path';
+import webpack from 'webpack';
+import WebpackBar from 'webpackbar';
+import { VueLoaderPlugin } from 'vue-loader';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import CopyPlugin from 'copy-webpack-plugin';
 
-const env = process.env
+const env = process.env;
 
 const VueApp = {
   mode: env.production ? 'production' : 'development',
-  entry: './src/renderer/main.ts',
+  entry: './src/renderer/index.ts',
 
   // This should be checked if dev mode
   devtool: 'inline-source-map',
@@ -83,7 +83,7 @@ const VueApp = {
       __VUE_PROD_DEVTOOLS__: 'false'
     })
   ]
-}
+};
 
 const ElectronApp = {
   target: 'electron10.1-main',
@@ -135,6 +135,6 @@ const ElectronApp = {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist')
   }
-}
+};
 
-module.exports = [VueApp, ElectronApp]
+module.exports = [VueApp, ElectronApp];

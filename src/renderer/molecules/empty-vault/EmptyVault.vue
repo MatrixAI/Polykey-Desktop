@@ -5,11 +5,11 @@
   </div>
 </template>
 <script>
-import Bulb from '@/renderer/assets/bulb.svg'
-import { defineComponent } from 'vue'
+import Bulb from '@/renderer/assets/bulb.svg';
+import { defineComponent } from 'vue';
 export default defineComponent({
   components: {
     Bulb
   }
-})
+});
 </script>
