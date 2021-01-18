@@ -83,3 +83,9 @@ Current status:
 * js-virtualgit - https://github.com/MatrixAI/js-virtualgit
 
 The last 2 are still being developed.
+
+
+### Development
+1. `npm install`
+2. `npm run dev:webpack.watch`
+3. `npm run dev:electron`

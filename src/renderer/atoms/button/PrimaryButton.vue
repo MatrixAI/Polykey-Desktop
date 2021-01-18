@@ -21,11 +21,11 @@
   </PKButton>
 </template>
 <script>
-import PKButton from '@/renderer/atoms/button/Button.vue'
+import PKButton from '@/renderer/atoms/button/Button.vue';
 
 export default {
   components: {
     PKButton
   }
-}
+};
 </script>

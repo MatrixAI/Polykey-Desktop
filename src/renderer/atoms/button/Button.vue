@@ -15,12 +15,10 @@ export default {
   data() {
     const attributes = {
       type: this.type
-    }
+    };
     return {
       attributes
-    }
+    };
   }
-}
+};
 </script>
-
-<style scoped lang="scss"></style>

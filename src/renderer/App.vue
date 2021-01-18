@@ -1,7 +1,10 @@
 <template>
   <div class="h-screen bg-grey3">
-    <Header />
-    <div class="px-5">
+    <Header v-show="authenticated" />
+    <div v-if="authenticated" class="px-5">
+      <router-view />
+    </div>
+    <div v-else>
       <router-view />
     </div>
   </div>
@@ -9,69 +12,69 @@
 
 <script lang="ts">
 /**
- * Chore:
- * 1. Login not used yet
+ * Libs
  */
-import { defineComponent, watchEffect } from 'vue'
-import { useRouter } from 'vue-router'
-import Header from '@renderer/organisms/header/Header.vue'
-import useModule from '@renderer/store/useModule'
+import { defineComponent, watchEffect, ref, onMounted } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
-const noop = () => {}
+/** Store */
+import { STATUS, actions } from '@renderer/store/modules/User';
+
+/** Components */
+import Header from '@renderer/organisms/header/Header.vue';
 
 export default defineComponent({
   components: {
     Header
   },
   setup() {
-    const router = useRouter()
-    const userStore = useModule('User')
+    const store = useStore();
+    const router = useRouter();
+
+    /** Local state */
+    const authenticated = ref(false);
+
     watchEffect(() => {
       /** Watch the status here for redirection */
-      const isUnlocked = userStore.state.isUnlocked
-      const isInitialized = userStore.state.isInitialized
-      console.log(userStore.state.step)
+      const status = store.state.User.status;
 
-      switch (userStore.state.step) {
-        case 1:
-          return router.replace('/Installation')
-        case 2:
-          return router.replace('/SelectKeyNode')
-        case 3:
-          return router.replace('/SelectExistingKeyNode')
-        case 4:
-          return router.replace('/CreatePassword')
-        case 5:
-          return router.replace('/RecoveryCode')
-        case 6:
-          return router.replace('/ConfirmCode')
-        case 7:
-          return router.replace('/Congratulations')
-        case 8:
-          return router.replace('/Vaults')
-        case 99:
-          return router.replace('/AtomicDesign')
+      switch (status) {
+        case STATUS.PENDING:
+          // Do some loader here
+          return router.replace('/installation');
+          break;
+        case STATUS.UNINITIALIZED:
+          return router.replace('/selectKeyNode');
+          break;
+        case STATUS.LOCKED:
+          return router.replace('/selectExistingKeyNode');
+          break;
+        case STATUS.ONLINE:
+          authenticated.value = true;
+
+          if (
+            router.currentRoute.value.path == '/selectKeyNode' ||
+            router.currentRoute.value.path == '/selectExistingKeyNode' ||
+            router.currentRoute.value.path == '/installation'
+          ) {
+            return router.replace('/vaults');
+          }
+          break;
         default:
-          break
       }
+    });
 
-      if (isUnlocked && isInitialized) {
-        /** Reroute on vaults by default */
-        const path = router.currentRoute.value.path
-        if (path.includes('NewKeyNode') || path.includes('RegisterNode')) {
-          router.replace('/Vaults')
-        }
-        return noop()
-      } else if (!isInitialized) {
-        router.replace('/Configuration/NewKeyNode')
-      } else {
-        router.replace('/Configuration/RegisterNode')
-      }
-    })
-    /**
-     * Check user if isUnlocked if not need to run the polykeyclient
-     */
-    userStore.dispatch('checkUserStatus')
+    onMounted(() => {
+      /**
+       * Check user if isUnlocked if not need to run the polykeyclient
+       */
+      store.dispatch(actions.CheckUserStatus);
+    });
+
+    return {
+      authenticated
+    };
   }
-})
+});
 </script>
