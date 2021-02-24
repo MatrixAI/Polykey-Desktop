@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen bg-grey3">
     <Header v-show="authenticated" />
-    <div v-if="authenticated" class="px-5">
+    <div v-if="authenticated">
       <router-view />
     </div>
     <div v-else>
@@ -52,12 +52,13 @@ export default defineComponent({
           break;
         case STATUS.ONLINE:
           authenticated.value = true;
-
           if (
             router.currentRoute.value.path == '/selectKeyNode' ||
             router.currentRoute.value.path == '/selectExistingKeyNode' ||
             router.currentRoute.value.path == '/installation'
           ) {
+            // return router.replace('/gestalt-profile');
+            // return router.replace('/identities');
             return router.replace('/vaults');
           }
           break;

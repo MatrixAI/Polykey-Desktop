@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div class="flex px-5">
     <!-- div class="w-3/4" -->
     <div class="w-full">
       <Control />
@@ -16,9 +16,6 @@
         </div>
       </div>
     </div>
-    <!-- div class="w-1/4">
-      Slider
-    </div -->
   </div>
 </template>
 <script>
@@ -64,6 +61,6 @@ export default defineComponent({
 </script>
 <style scoped>
 .h-body {
-  height: calc(100vh - 42px - 75px);
+  height: calc(100vh - 42px - 100px);
 }
 </style>

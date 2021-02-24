@@ -11,7 +11,7 @@
     </div>
 
     <!-- Sample Content -->
-    <div v-for="vault in vaultList" class="flex py-4 pl-3 border-b border-content4 border-opacity-50">
+    <div v-for="vault in vaults" class="flex py-4 pl-3 border-b border-content4 border-opacity-50">
       <div class="w-1/12 flex items-center"><CheckBox /></div>
       <div class="w-4/12 flex">
         <div class="flex items-center">
@@ -39,19 +39,14 @@
         <More />
       </div>
     </div>
-
-    <div>Pagination</div>
+    <!-- <div>Pagination</div> -->
   </div>
 </template>
 <script>
 /** Libs */
-import { toSvg } from 'jdenticon';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { defineComponent, ref, watchEffect, onMounted } from 'vue';
-
-/** Components */
-import Control from '@/renderer/organisms/controls/Controls.vue';
+import { defineComponent } from 'vue';
 
 /** Store */
 import { actions as actionsJobs } from '@/renderer/store/modules/Vaults';
@@ -69,48 +64,16 @@ export default defineComponent({
     Copy,
     More
   },
+  props: {
+    vaults : {
+      type: Object
+    }
+  },
   setup() {
     const store = useStore();
     const router = useRouter();
 
-    /** local state */
-    const vaultList = ref([]);
-
-    /**
-     * Listen:
-     * 1. Everytime there are changes in the store for vaults list
-     * 2. Everytime there is search filter
-     */
-    watchEffect(() => {
-      const vaults = store.state.Vaults.vaultNames;
-      const searchFilter = store.state.Vaults.searchFilter;
-
-      vaultList.value = Object.keys(vaults)
-        .map(key => {
-          let vaultName = vaults[key];
-          if (vaultName.toUpperCase().match(searchFilter.toUpperCase())) {
-            return {
-              name: vaultName,
-              icon: toSvg(vaultName, 34),
-              share1: toSvg(vaultName + 'a', 22),
-              share2: toSvg(vaultName + 'b', 22)
-            };
-          }
-        })
-        .filter(vault => {
-          return !!vault;
-        });
-    });
-
-    /**
-     * Upon mounted get all the list of vaults
-     */
-    onMounted(() => {
-      store.dispatch(actionsJobs.LoadVaultNames);
-    });
-
     return {
-      vaultList,
       goToVault: vault => {
         store.dispatch(actionsJobs.SelectVault, vault);
         return router.replace('/vaults/' + vault);

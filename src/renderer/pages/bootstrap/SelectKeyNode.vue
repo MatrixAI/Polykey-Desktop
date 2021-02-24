@@ -18,14 +18,15 @@
             PASSWORD
           </div>
           <div class="mt-2">
-            <Input v-model="password" class="w-full" type="password" />
+            <Input v-model="password" class="w-full" type="password" v-on:keyup.enter="seal"/>
           </div>
           <div class="font-bold mt-6">
             CONFIRM PASSWORD
           </div>
           <div class="mt-2">
-            <Input v-model="confirmPassword" class="w-full" type="password" />
+            <Input v-model="confirmPassword" class="w-full" type="password" v-on:keyup.enter="seal"/>
           </div>
+          <div v-if="error" class="text-xs text-red-400 mt-1">Passwords dont match</div>
           <div class="mt-4">
             <PrimaryButton @click="seal">SEAL</PrimaryButton>
           </div>
@@ -68,19 +69,22 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const error = ref(false);
     const password = ref('');
     const confirmPassword = ref('');
 
     return {
+      error,
       password,
       confirmPassword,
       seal: async function() {
         if (password.value == confirmPassword.value) {
-          store.dispatch(actions.CreateNewNode, {
+          return store.dispatch(actions.CreateNewNode, {
             userid: 'polykey',
             passphrase: password.value
           });
         }
+        error.value = true;
       }
     };
   }

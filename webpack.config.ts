@@ -76,6 +76,12 @@ const VueApp = {
     new MiniCssExtractPlugin({
       filename: '[name].css'
     }),
+    new webpack.DefinePlugin({
+      __static: `"${path.resolve(__dirname, 'dist', 'static')}"`
+    }),
+    new CopyPlugin({
+      patterns: [{ from: 'static', to: 'static' }]
+    }),
     new WebpackBar(),
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
@@ -92,8 +98,8 @@ const ElectronApp = {
   // This should be checked if dev mode
   devtool: 'inline-source-map',
   node: {
-    __dirname: true
-    // __filename: true,
+    __dirname: env.production ? true : false,
+    __filename: env.production ? true : false
   },
   module: {
     rules: [
@@ -137,4 +143,4 @@ const ElectronApp = {
   }
 };
 
-module.exports = [VueApp, ElectronApp];
+module.exports = [VueApp];

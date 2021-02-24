@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div class="flex px-5">
     <!-- div class="w-3/4" -->
     <div class="w-full">
       <Control />
@@ -10,7 +10,7 @@
             <!-- Breadcrumbs, Filters and Sort To be decided if this is another organism-->
             <Filter />
             <!-- Content -->
-            <VaultsList />
+            <VaultsList :vaults="vaults" />
           </div>
         </div>
       </div>
@@ -19,7 +19,7 @@
 </template>
 <script>
 /** Libs */
-import { defineComponent, ref, watchEffect } from 'vue';
+import { defineComponent, ref, reactive, watchEffect, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { toSvg } from 'jdenticon';
 
@@ -44,6 +44,7 @@ export default defineComponent({
 
     /** local state */
     const empty = ref(true);
+    const vaults = ref([]);
 
     /**
      * Listen:
@@ -52,16 +53,39 @@ export default defineComponent({
      * 3. If not empty the show vaults list component
      */
     watchEffect(() => {
-      const vaults = store.state.Vaults.vaultNames;
-      if (Object.keys(vaults).length) {
+      const storeVaults = store.state.Vaults.vaultNames;
+      const searchFilter = store.state.Vaults.searchFilter;
+
+      vaults.value = Object.keys(storeVaults)
+        .map(key => {
+          let vaultName = storeVaults[key];
+          if (vaultName.toUpperCase().match(searchFilter.toUpperCase())) {
+            return {
+              name: vaultName,
+              icon: toSvg(vaultName, 34),
+              share1: toSvg(vaultName + 'a', 22),
+              share2: toSvg(vaultName + 'b', 22)
+            };
+          }
+        })
+        .filter(vault => {
+          return !!vault;
+        });
+
+      if (Object.keys(vaults.value).length) {
         empty.value = false;
       } else {
         empty.value = true;
       }
     });
 
+    onMounted(() => {
+      store.dispatch(actionsJobs.LoadVaultNames);
+    });
+
     return {
-      empty
+      empty,
+      vaults
     };
   }
 });

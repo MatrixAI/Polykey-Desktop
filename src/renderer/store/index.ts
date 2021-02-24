@@ -9,6 +9,7 @@ import Peers from '@renderer/store/modules/Peers';
 import Secrets from '@renderer/store/modules/Secrets';
 import Vaults from '@renderer/store/modules/Vaults';
 import User from '@renderer/store/modules/User';
+import Gestalt from '@renderer/store/modules/Gestalt';
 
 export default createStore({
   modules: {
@@ -22,6 +23,7 @@ export default createStore({
     /** Currently used */
     Secrets,
     Vaults,
-    User
+    User,
+    Gestalt
   }
 });
