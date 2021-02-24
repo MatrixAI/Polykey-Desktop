@@ -16,7 +16,7 @@ export default {
     },
     deleteKey: async function({ commit, state }, keyName) {
       const successful = await PolykeyClient.DeleteKey(keyName);
-      if (successful) {
+      if (successful !== null || successful !== undefined) {
         const keyNames = await PolykeyClient.ListKeys();
         return commit('loadKeyNames', keyNames);
       } else {

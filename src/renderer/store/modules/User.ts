@@ -1,7 +1,8 @@
+import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
 import PolykeyClient from '@renderer/resources/client';
 import { makeIdentifiers } from '@renderer/store/utils';
 
-const DELAY = 2500;
+const DELAY = 0;
 
 const [actionsInt, actionsExt] = makeIdentifiers('User', [
   'CreateNewNode',
@@ -9,13 +10,15 @@ const [actionsInt, actionsExt] = makeIdentifiers('User', [
   'CheckUserStatus',
   'SetIsUnlocked',
   'SetIsInitialized',
-  'SetStatus'
+  'SetStatus',
+  'GetLocalPeerInfo'
 ]);
 
 const enum mutations {
   SetIsUnlocked = 'SetIsUnlocked',
   SetIsInitialized = 'SetIsInitialized',
-  SetStatus = 'SetStatus'
+  SetStatus = 'SetStatus',
+  SetGetLocalPeerInfo = 'SetGetLocalPeerInfo'
 }
 
 const enum STATUS {
@@ -29,12 +32,34 @@ type State = {
   isUnlocked: boolean;
   isInitialized: boolean;
   status: STATUS;
+  localPeerInfo: pb.NodeInfoMessage.AsObject;
 };
 
 const state: State = {
   isUnlocked: false,
   isInitialized: false,
-  status: STATUS.PENDING
+  status: STATUS.PENDING,
+  localPeerInfo: {
+    pem: '',
+    alias: '',
+    publicKey: '',
+    nodeId: '',
+    rootPublicKey: '',
+    nodeAddress: '',
+    apiAddress: '',
+    linkInfoList: [
+      {
+        type: '',
+        node: '',
+        identity: '',
+        provider: '',
+        dateissued: '',
+        signature: '',
+        key: '',
+        url: ''
+      }
+    ]
+  }
 };
 
 export { actionsExt as actions };
@@ -45,10 +70,16 @@ export default {
   state,
   actions: {
     async [actionsInt.CreateNewNode]({ commit }, node) {
-      const result = await PolykeyClient.NewNode(node);
-      if (result) {
-        commit(mutations.SetIsUnlocked, true);
-        return commit(mutations.SetStatus, STATUS.ONLINE);
+      try {
+        console.log('Starting to InitializeKeyNode');
+        const result = await PolykeyClient.InitializeKeyNode(node);
+        console.log(result);
+        if (result === undefined) {
+          commit(mutations.SetIsUnlocked, true);
+          return commit(mutations.SetStatus, STATUS.ONLINE);
+        }
+      } catch (e) {
+        console.log('Error InitializeKeyNode', e);
       }
     },
     async [actionsInt.UnlockKeyNode]({ commit }, passphrase: string) {
@@ -56,24 +87,29 @@ export default {
         timeout: 0,
         passphrase
       });
-      if (result) {
+      if (result !== null) {
         commit(mutations.SetIsUnlocked, true);
         return commit(mutations.SetStatus, STATUS.ONLINE);
       }
     },
     async [actionsInt.CheckUserStatus]({ commit }) {
       try {
+        console.log('Checking CheckUserStatus');
         const pid = await PolykeyClient.StartAgent();
+
+        console.log(`Done starting agent CheckUserStatus : ${pid}`);
         // This needs to discussed
         commit(mutations.SetIsInitialized, true);
 
         // We can get the actual error if we load this up
+        console.log('Starting to ListKeyts');
         await PolykeyClient.ListKeys();
         commit(mutations.SetIsUnlocked, true);
         setTimeout(() => {
           return commit(mutations.SetStatus, STATUS.ONLINE);
         }, DELAY);
       } catch (error) {
+        console.log('Error:', error);
         if (error.message.includes('locked')) {
           setTimeout(() => {
             return commit(mutations.SetStatus, STATUS.LOCKED);
@@ -95,6 +131,10 @@ export default {
     },
     async [actionsInt.SetStatus]({ commit }, status: string) {
       commit(mutations.SetStatus, status);
+    },
+    async [actionsInt.GetLocalPeerInfo]({ commit }) {
+      const localPeerInfo = await PolykeyClient.GetLocalPeerInfo();
+      commit(mutations.SetGetLocalPeerInfo, localPeerInfo);
     }
   },
   mutations: {
@@ -106,6 +146,9 @@ export default {
     },
     [mutations.SetStatus](state, status) {
       state.status = status;
+    },
+    [mutations.SetGetLocalPeerInfo](state, localPeerInfo) {
+      state.localPeerInfo = localPeerInfo;
     }
   },
   getters: {}

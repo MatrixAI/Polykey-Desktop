@@ -1,57 +1,40 @@
+import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
 import PolykeyClient from '@renderer/resources/client';
-import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
+import { makeIdentifiers } from '@renderer/store/utils';
 
+const [actionsInt, actionsExt] = makeIdentifiers('Peers', ['ListPeers', 'ScanPeer', 'PullVaults', 'PingPeer']);
+
+const enum mutations {
+  SetListPeers = 'SetListPeers',
+  SetPullVaults = 'SetPullVaults'
+}
+
+type State = {
+  peers: string[];
+};
+
+const state: State = {
+  peers: []
+};
 export default {
   namespaced: true,
-  state: {
-    peerIds: [],
-    selectedPeerId: '',
-    publicKey: '',
-    rootCertificate: '',
-    peerAddress: '',
-    apiAddress: '',
-    scannedVaultNames: []
-  },
+  state,
   actions: {
-    loadPeerIds: async function({ commit }) {
+    async [actionsInt.ListPeers]({ commit }) {
       const peerIds = await PolykeyClient.ListPeers();
-      commit('setPeerNames', peerIds);
+      console.log(peerIds);
+      commit(mutations.SetListPeers);
     },
-    selectPeerId: async function({ commit }, peerId: string) {
-      const peerInfo = await PolykeyClient.GetPeerInfo(peerId);
-      commit('setSelectedPeer', { peerId, peerInfo });
-
-      PolykeyClient.ScanVaultNames(peerId)
-        .then((scannedVaultNames: string[]) => {
-          commit('setScannedVaultNames', scannedVaultNames);
-        })
-        .catch(e => console.log(`error scanning vault names: ${e.message}`));
+    async [actionsInt.PullVaults]({ commit }, peerId: string) {
+      //commit(mutations.PullVaults, searchMode);
     },
-    pullVault: async ({ commit }, { peerId, vaultName }: { peerId: string; vaultName: string }) => {
-      try {
-        await PolykeyClient.PullVault({
-          publicKey: peerId,
-          vaultName: vaultName
-        });
-      } catch (error) {
-        console.log(error);
-      }
+    async [actionsInt.PingPeer]({ commit }, peerId: string) {
+      //commit(mutations.PullVaults, searchMode);
     }
   },
   mutations: {
-    setPeerNames: (state, peerIds: string[]) => {
-      state.peerIds = peerIds;
-    },
-    setSelectedPeer: (state, { peerId, peerInfo }: { peerId: string; peerInfo: pb.PeerInfoMessage.AsObject }) => {
-      state.selectedPeerId = peerId;
-      state.publicKey = peerInfo.publicKey ?? '';
-      state.rootCertificate = peerInfo.rootCertificate ?? '';
-      state.peerAddress = peerInfo.peerAddress ?? '';
-      state.apiAddress = peerInfo.apiAddress ?? '';
-      state.scannedVaultNames = [];
-    },
-    setScannedVaultNames: (state, scannedVaultNames: string[]) => {
-      state.scannedVaultNames = scannedVaultNames;
+    [mutations.SetListPeers]: function(state: State, peers: string[]) {
+      state.peers = peers;
     }
   },
   getters: {}

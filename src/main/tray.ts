@@ -1,10 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { PolykeyAgent } from '@matrixai/polykey';
-import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
+import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
+import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
 import { app, Menu, BrowserWindow, Tray } from 'electron';
 
-import { promisifyGrpc } from './utils';
 import { polykeyPath } from './server';
 
 type CreateWinow = () => BrowserWindow;
@@ -55,12 +54,8 @@ export default class TrayComponent {
   }
 
   showApp() {
-    if (this.mainWindow === null) {
-      this.mainWindow = this.createWindow();
-      this.mainWindow.show();
-    } else {
-      this.mainWindow.show();
-      this.mainWindow.focus();
+    if (this.mainWindow !== null) {
+      this.createWindow();
     }
   }
 

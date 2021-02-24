@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron';
+import path from 'path';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -9,6 +10,7 @@ export default class WindowApp {
     this.mainWindow = new BrowserWindow({
       width: 900,
       height: 700,
+      // icon: prodPath,
       // frame: false,
       webPreferences: {
         nodeIntegration: true
@@ -18,6 +20,7 @@ export default class WindowApp {
     this.mainWindow.loadFile('dist/index.html');
 
     /** Attach listeners */
+    console.log('attaching listenere');
     this.mainWindow.on('close', this.close.bind(this));
     this.mainWindow.on('minimize', this.minimize.bind(this));
 
@@ -30,6 +33,7 @@ export default class WindowApp {
 
   close(event) {
     event.preventDefault();
+    console.log('closing', this.mainWindow);
     if (this.mainWindow) {
       this.mainWindow.hide();
       this.mainWindow = null;

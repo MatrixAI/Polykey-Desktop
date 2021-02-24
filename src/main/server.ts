@@ -1,19 +1,23 @@
 import os from 'os';
+import fixPath from 'fix-path';
 import { ipcMain, clipboard } from 'electron';
-import { promisifyGrpc } from './utils';
-import { PolykeyAgent, PeerInfo } from '@matrixai/polykey';
-import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
-import { AgentClient } from '@matrixai/polykey/proto/compiled/Agent_grpc_pb';
+import { PolykeyAgent, NodeInfo, promisifyGrpc } from '@matrixai/polykey';
+import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
+import { AgentClient } from '@matrixai/polykey/proto/js/Agent_grpc_pb';
+
+fixPath();
 
 const polykeyPath: string = resolveTilde('~/.polykey');
 let client: AgentClient;
 
 async function getAgentClient(failOnNotInitialized = false) {
   // make sure agent is running
+  console.log('starting....');
   console.log(polykeyPath);
 
-  await PolykeyAgent.startAgent(polykeyPath, false, failOnNotInitialized);
+  await PolykeyAgent.startAgent(polykeyPath, true, failOnNotInitialized, true);
 
+  console.log('done starting agent..');
   client = PolykeyAgent.connectToAgent(polykeyPath);
 
   const res = (await promisifyGrpc(client.getStatus.bind(client))(new pb.EmptyMessage())) as pb.AgentStatusMessage;
@@ -49,20 +53,41 @@ async function setHandlers() {
   // agent control //
   /// ////////////////
   ipcMain.handle('agent-start', async (event, request) => {
+    // this method has a 3 possible cases:
+    // case 1: polykey agent is not started and is started to return the pid
+    // case 2: polykey agent is already started and returns true
+    // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
     try {
-      const client = PolykeyAgent.connectToAgent(polykeyPath);
+      // phase 1: the first thing we ever do is check if the agent is running or not
+      // but we only know the agent is offline if getStatus returns an error (because its offline)
+      // so check status and if it throws we know its offline, if not we assume its online
+      console.log('connectToAgent');
+      console.log(polykeyPath);
+      const tempClient = PolykeyAgent.connectToAgent(polykeyPath) as AgentClient;
 
-      const res = (await promisifyGrpc(client.getStatus.bind(client))(new pb.EmptyMessage())) as pb.AgentStatusMessage;
+      console.log('getStatus');
+      const res = (await promisifyGrpc(tempClient.getStatus.bind(tempClient))(
+        new pb.EmptyMessage()
+      )) as pb.AgentStatusMessage;
+      console.log('done2');
       if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
         throw Error('agent is not running');
       }
+      // it is here that we know that the agent is running and client is initialize
     } catch (error) {
       try {
-        const pid = await PolykeyAgent.startAgent(polykeyPath, true);
-        client = PolykeyAgent.connectToAgent(polykeyPath);
-        const res = (await promisifyGrpc(client.getStatus.bind(client))(
+        // agent is offline so we start it!
+        console.log('startAgent');
+        const pid = await PolykeyAgent.startAgent(polykeyPath, true, true, true);
+        console.log('connectToAgent');
+        const tempClient = PolykeyAgent.connectToAgent(polykeyPath);
+        // we just confirm that the agent has actually been started
+        // if not, it is most likely not initalize so we just throw the error for the frontend to handle
+        console.log('getStatus');
+        const res = (await promisifyGrpc(tempClient.getStatus.bind(tempClient))(
           new pb.EmptyMessage()
         )) as pb.AgentStatusMessage;
+        console.log('done');
         if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
           throw Error('agent could not be started');
         }
@@ -76,7 +101,7 @@ async function setHandlers() {
   ipcMain.handle('agent-restart', async (event, request) => {
     const client = PolykeyAgent.connectToAgent(polykeyPath);
     await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
-    const pid = <number>await PolykeyAgent.startAgent(polykeyPath);
+    const pid = <number>await PolykeyAgent.startAgent(polykeyPath, true, false, true);
     await getAgentClient();
     return pid;
   });
@@ -88,27 +113,29 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.addPeer.bind(client))(
-      pb.PeerInfoMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
+    const res = (await promisifyGrpc(client.addNode.bind(client))(
+      pb.NodeInfoReadOnlyMessage.deserializeBinary(request)
+    )) as pb.StringMessage;
     return res.serializeBinary();
   });
 
-  ipcMain.handle('AddPeerB64', async (event, b64String) => {
+  ipcMain.handle('AuthenticateProvider', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const { publicKey, rootCertificate, peerAddress, apiAddress } = PeerInfo.parseB64(b64String);
-    const request = new pb.PeerInfoMessage();
-    request.setPublicKey(publicKey);
-    request.setRootCertificate(rootCertificate);
-    if (peerAddress) {
-      request.setPeerAddress(peerAddress.toString());
+    const res = (await promisifyGrpc(client.authenticateProvider.bind(client))(
+      pb.AuthenticateProviderRequest.deserializeBinary(request)
+    )) as pb.StringMessage;
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('AugmentKeynode', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
     }
-    if (apiAddress) {
-      request.setApiAddress(apiAddress.toString());
-    }
-    const res = (await promisifyGrpc(client.addPeer.bind(client))(request)) as pb.BooleanMessage;
+    const res = (await promisifyGrpc(client.augmentKeynode.bind(client))(
+      pb.AugmentKeynodeRequest.deserializeBinary(request)
+    )) as pb.StringMessage;
     return res.serializeBinary();
   });
 
@@ -126,40 +153,32 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.deleteKey.bind(client))(
-      pb.StringMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.deleteKey.bind(client))(pb.StringMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('DeleteSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.deleteSecret.bind(client))(
-      pb.SecretPathMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.deleteSecret.bind(client))(pb.SecretPathMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('DeleteVault', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.deleteVault.bind(client))(
-      pb.StringMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.deleteVault.bind(client))(pb.StringMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('DeriveKey', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.deriveKey.bind(client))(
-      pb.DeriveKeyMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.deriveKey.bind(client))(pb.DeriveKeyMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('EncryptFile', async (event, request) => {
@@ -176,18 +195,110 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.findPeer.bind(client))(
-      pb.ContactPeerMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.findNode.bind(client))(pb.ContactNodeMessage.deserializeBinary(request));
+    return;
   });
 
-  ipcMain.handle('FindSocialPeer', async (event, request) => {
+  ipcMain.on('GetConnectedIdentityInfos-message', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.findSocialPeer.bind(client))(
-      pb.ContactPeerMessage.deserializeBinary(request)
+    const responseStream = client.getConnectedIdentityInfos(pb.ProviderSearchMessage.deserializeBinary(request));
+
+    responseStream.on('data', async (identityInfo: pb.IdentityInfoMessage) => {
+      console.log('recieving data');
+      event.reply('GetConnectedIdentityInfos-reply', identityInfo.serializeBinary());
+    });
+
+    // responseStream.on('error', () => {});
+    // responseStream.on('end', () => {});
+  });
+
+  ipcMain.handle('GetIdentityInfo', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.getIdentityInfo.bind(client))(new pb.EmptyMessage())) as pb.IdentityInfo;
+
+    return res.serializeBinary();
+  });
+
+  ipcMain.on('DiscoverGestaltIdentity-message', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const responseStream = client.discoverGestaltIdentity(pb.IdentityMessage.deserializeBinary(request));
+
+    responseStream.on('data', async () => {
+      const res = (await promisifyGrpc(client.getGestalts.bind(client))(
+        new pb.EmptyMessage()
+      )) as pb.GestaltListMessage;
+      event.reply('DiscoverGestaltIdentity-reply', res.serializeBinary());
+    });
+    // responseStream.on('error', () => {});
+    // responseStream.on('end', () => {});
+  });
+
+  ipcMain.on('DiscoverGestaltNode', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const responseStream = client.discoverGestaltNode(pb.IdentityMessage.deserializeBinary(request));
+
+    responseStream.on('data', async () => {
+      const res = (await promisifyGrpc(client.getGestalts.bind(client))(
+        new pb.EmptyMessage()
+      )) as pb.GestaltListMessage;
+      event.reply(res.serializeBinary());
+    });
+    // responseStream.on('error', () => {});
+    // responseStream.on('end', () => {});
+  });
+
+  ipcMain.handle('GetGestalts', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.getGestalts.bind(client))(new pb.EmptyMessage())) as pb.GestaltListMessage;
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('GetGestaltByIdentity', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.getGestaltByIdentity.bind(client))(
+      pb.IdentityMessage.deserializeBinary(request)
+    )) as pb.GestaltMessage;
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('TrustGestalt', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.trustGestalt.bind(client))(
+      pb.StringMessage.deserializeBinary(request)
+    )) as pb.EmptyMessage;
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('UntrustGestalt', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.untrustGestalt.bind(client))(
+      pb.StringMessage.deserializeBinary(request)
+    )) as pb.EmptyMessage;
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('GestaltIsTrusted', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.gestaltIsTrusted.bind(client))(
+      pb.StringMessage.deserializeBinary(request)
     )) as pb.BooleanMessage;
     return res.serializeBinary();
   });
@@ -216,9 +327,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getLocalPeerInfo.bind(client))(
+    const res = (await promisifyGrpc(client.getLocalNodeInfo.bind(client))(
       new pb.EmptyMessage()
-    )) as pb.PeerInfoMessage;
+    )) as pb.NodeInfoMessage;
     return res.serializeBinary();
   });
 
@@ -226,9 +337,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getPeerInfo.bind(client))(
+    const res = (await promisifyGrpc(client.getNodeInfo.bind(client))(
       pb.StringMessage.deserializeBinary(request)
-    )) as pb.PeerInfoMessage;
+    )) as pb.NodeInfoMessage;
     return res.serializeBinary();
   });
 
@@ -249,7 +360,7 @@ async function setHandlers() {
     const res = (await promisifyGrpc(client.getRootCertificate.bind(client))(
       new pb.EmptyMessage()
     )) as pb.StringMessage;
-    return res.serializeBinary();
+    return res.getS();
   });
 
   ipcMain.handle('GetSecret', async (event, request) => {
@@ -292,7 +403,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.listPeers.bind(client))(new pb.EmptyMessage())) as pb.StringListMessage;
+    const res = (await promisifyGrpc(client.listNodes.bind(client))(new pb.EmptyMessage())) as pb.StringListMessage;
     return res.serializeBinary();
   });
 
@@ -331,22 +442,18 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('NewNode', async (event, request) => {
+  ipcMain.handle('InitializeKeyNode', async (event, request) => {
     await getAgentClient(false);
-    const res = (await promisifyGrpc(client.newNode.bind(client))(
-      pb.NewNodeMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.initializeNode.bind(client))(pb.NewKeyPairMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('NewSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.newSecret.bind(client))(
-      pb.SecretContentMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.newSecret.bind(client))(pb.SecretContentMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('NewOAuthToken', async (event, request) => {
@@ -363,40 +470,32 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.newVault.bind(client))(
-      pb.StringMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.newVault.bind(client))(pb.StringMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('PingPeer', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.pingPeer.bind(client))(
-      pb.ContactPeerMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.pingNode.bind(client))(pb.ContactNodeMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('PullVault', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.pullVault.bind(client))(
-      pb.VaultPathMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.pullVault.bind(client))(pb.VaultPathMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('RevokeOAuthToken', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.revokeOAuthToken.bind(client))(
-      pb.StringMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.revokeOAuthToken.bind(client))(pb.StringMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('ScanVaultNames', async (event, request) => {
@@ -405,7 +504,7 @@ async function setHandlers() {
     }
     const res = (await promisifyGrpc(client.scanVaultNames.bind(client))(
       pb.StringMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
+    )) as pb.StringListMessage;
     return res.serializeBinary();
   });
 
@@ -423,68 +522,65 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage())) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
+    return;
   });
 
   ipcMain.handle('ToggleStealthMode', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.toggleStealthMode.bind(client))(
-      pb.BooleanMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.toggleStealthMode.bind(client))(pb.BooleanMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('UnlockNode', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.unlockNode.bind(client))(
-      pb.UnlockNodeMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.unlockNode.bind(client))(pb.UnlockNodeMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('UpdateLocalPeerInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.updateLocalPeerInfo.bind(client))(
-      pb.PeerInfoMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.updateLocalNodeInfo.bind(client))(pb.NodeInfoMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('UpdatePeerInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.updatePeerInfo.bind(client))(
-      pb.PeerInfoMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.updateNodeInfo.bind(client))(pb.NodeInfoReadOnlyMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('UpdateSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.updateSecret.bind(client))(
-      pb.SecretContentMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.updateSecret.bind(client))(pb.SecretContentMessage.deserializeBinary(request));
+    return;
   });
 
   ipcMain.handle('VerifyFile', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.verifyFile.bind(client))(
-      pb.VerifyFileMessage.deserializeBinary(request)
-    )) as pb.BooleanMessage;
-    return res.serializeBinary();
+    await promisifyGrpc(client.verifyFile.bind(client))(pb.VerifyFileMessage.deserializeBinary(request));
+    return;
+  });
+
+  /** Test handlers */
+  ipcMain.handle('SetIdentity', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    await promisifyGrpc(client.setIdentity.bind(client))(pb.StringMessage.deserializeBinary(request));
+    return;
   });
 }
 

@@ -89,3 +89,12 @@ The last 2 are still being developed.
 1. `npm install`
 2. `npm run dev:webpack.watch`
 3. `npm run dev:electron`
+
+
+### Building
+1. npm run mock_for_oauth2orize
+2. Then create temp files under copy grant and lib.
+3. npm run dev:webpack:watch
+4. npx tsc -p tsconfig-electron.json
+5. npm run make:mac
+6. electron-packager ./dist Polykey --out=out/win --platform=win32 --arch=x64 --icon=icons/icons/win/icon.ico

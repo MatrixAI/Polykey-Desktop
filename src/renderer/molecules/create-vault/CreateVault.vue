@@ -1,10 +1,14 @@
 <template>
-  <div class="pr-2"><Input v-model="vaultName" /></div>
+  <div class="pr-2 relative">
+    <Input v-model="vaultName" />
+    <div v-if="error" class="absolute text-xs text-red-400 mt-1">{{ error }}</div>
+  </div>
   <div><PrimaryButton @click="save">+ CREATE VAULT</PrimaryButton></div>
 </template>
 <script>
 /** Libs */
-import { defineComponent, ref } from 'vue';
+import PolykeyClient from '@renderer/resources/client';
+import { defineComponent, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 /** Components */
@@ -21,14 +25,29 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
-
+    const error = ref('');
     const vaultName = ref('');
 
+    onMounted(() => {
+      console.log(this);
+    });
+
     return {
+      error,
       vaultName,
       // Save Vault
-      save() {
-        store.dispatch(actions.NewVault, vaultName.value);
+      save : async () => {
+        if(!vaultName.value) {
+          error.value = 'Enter a valid vault name.';
+          return;
+        }
+        try {
+          const results = await PolykeyClient.NewVault(vaultName.value);
+          console.log(results)
+          store.dispatch(actions.LoadVaultNames);
+        } catch (e) {
+          error.value = e;
+        }
       }
     };
   }
