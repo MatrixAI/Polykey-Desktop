@@ -44,9 +44,19 @@ export default {
       const secretNames = await PolykeyClient.ListSecrets(vaultName);
       commit(mutations.SetSecretNames, { vaultName, secretNames });
     },
-    async [actionsInt.GetSecret]({ commit }, { secretName = '', vaultName = '' }) {
-      const secret = await await PolykeyClient.GetSecret({ vaultName, secretName });
-      console.log(secret);
+    async [actionsInt.GetSecret]({ commit }, { secretName = '', vaultName = '', copy = false }) {
+      const secret = await PolykeyClient.GetSecret({ vaultName, secretName });
+      if (copy) {
+        navigator.clipboard.writeText(secret).then(
+          function() {
+            console.log('Async: Copying to clipboard was successful!');
+          },
+          function(err) {
+            console.error('Async: Could not copy text: ', err);
+          }
+        );
+        return;
+      }
       const file = new File([secret], secretName, { type: 'text/plain;charset=utf-8' });
       FileSaver.saveAs(file);
     },
