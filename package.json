@@ -148,50 +148,6 @@
     "url": "https://github.com/MatrixAI/PolyKey.git"
   },
   "config": {
-    "forge": {
-      "packagerConfig": {
-        "osxSign": {
-          "identity": "Developer ID Application: MATRIX AI PTY. LTD. (9347PACJQG)",
-          "hardened-runtime": true,
-          "entitlements": "entitlements.plist",
-          "entitlements-inherit": "entitlements.plist",
-          "signature-flags": "library"
-        },
-        "osxNotarize": {
-          "appleId": "gideon.rosales@matrix.ai",
-          "appleIdPassword": "fvey-wjea-uyce-ktkn"
-        },
-        "icon": "icons/icons/mac/icon.icns"
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "iconUrl": "icons/icons/win/icon.ico"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-dmg",
-          "config": {
-            "background": "./static/logo-big.png",
-            "format": "ULFO"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ]
-    }
+    "forge": "./forge.config.js"
   }
 }
