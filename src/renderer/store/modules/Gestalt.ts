@@ -8,6 +8,7 @@ const [actionsInt, actionsExt] = makeIdentifiers('Gestalt', [
   'ToggleAddKeyNode',
   'ActiveKeynodeVaults',
   'SearchDI',
+  'PingNodes',
 
   'GetGestalts',
   'DiscoverGestaltIdentity'
@@ -51,6 +52,7 @@ type Keynode = {
   name: string;
   digitalIdentity: DigitalIdentity[];
   vaults?: string[];
+  online?: boolean;
 };
 
 type Gestalt = {
@@ -267,7 +269,24 @@ export default {
       //   console.log(e)
       // }
     },
-
+    async [actionsInt.PingNodes]({ commit, state }) {
+      state.gestalts.forEach(async gestalt => {
+        gestalt.keynodes.forEach(async keynode => {
+          if (keynode.id) {
+            try {
+              await PolykeyClient.PingPeer({
+                publicKeyOrHandle: keynode.id,
+                timeout: 300
+              });
+              keynode.online = true;
+            } catch (e) {
+              keynode.online = false;
+            }
+          }
+        });
+      });
+      commit(mutations.SetGestalt, state.gestalts);
+    },
     /**
      * GetGestalts
      */

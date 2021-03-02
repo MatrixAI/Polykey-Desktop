@@ -47,7 +47,11 @@
             </div>
             <!-- Keynode Identities -->
             <div v-if="keynode.id" class="w-4/5 text-xs flex items-center">
-              <div v-html="icon" class="mr-1 border border-content4"></div>
+              <div class="mr-1 relative">
+                <div v-html="icon"></div>
+                <Online v-if="keynode.online" class="absolute bottom-0 right-0"/>
+                <Offline v-else class="absolute bottom-0 right-0"/>
+              </div>
               <div>{{ keynode.name }}</div>
             </div>
 
@@ -84,6 +88,8 @@ import Twitter from '@/renderer/assets/twitter.svg';
 import Trust from '@/renderer/assets/trust.svg';
 import Github from '@/renderer/assets/github.svg';
 import FB from '@/renderer/assets/fb.svg';
+import Online from '@/renderer/assets/online.svg';
+import Offline from '@/renderer/assets/offline.svg';
 
 /** Store */
 import { actions } from '@renderer/store/modules/Gestalt';
@@ -95,7 +101,9 @@ export default defineComponent({
     FB,
     Github,
     MoreOutlined,
-    DefaultButton
+    DefaultButton,
+    Online,
+    Offline
   },
   props: {
     gestalt : {
@@ -112,7 +120,6 @@ export default defineComponent({
       store.dispatch(actions.PullVaultDrawer, true);
     }
 
-  console.log(gestalt)
     return {
       gestalt,
       pullVaultDrawer,

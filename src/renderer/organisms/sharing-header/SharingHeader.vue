@@ -9,7 +9,7 @@
 
       <!-- Right header -->
       <div class="flex">
-        <!-- <div class="mr-2"><DefaultButton>PING</DefaultButton></div> -->
+        <div class="mr-2" @click="ping"><DefaultButton>PING</DefaultButton></div>
         <div><PrimaryButton @click="toggleAddKeynode">TRUST AN IDENTITY</PrimaryButton></div>
       </div>
   </div>
@@ -23,6 +23,7 @@ import { useStore, ref } from 'vuex';
 import Search from '@renderer/molecules/search/Search.vue';
 import PrimaryButton from '@renderer/atoms/button/PrimaryButton.vue';
 import DefaultButton from '@renderer/atoms/button/DefaultButton.vue';
+import Shake from '@/renderer/assets/shake.svg';
 
 /** Store */
 import { actions } from '@/renderer/store/modules/Gestalt';
@@ -31,19 +32,24 @@ export default defineComponent({
   components: {
     Search,
     PrimaryButton,
-    DefaultButton
+    DefaultButton,
+    Shake
   },
   setup() {
     const store = useStore();
 
     const toggleAddKeynode = (event) => {
       event.preventDefault();
-      console.log('dispatch')
       store.dispatch(actions.ToggleAddKeyNode);
+    }
+
+    const ping = () => {
+      store.dispatch(actions.PingNodes);
     }
 
     return {
       toggleAddKeynode,
+      ping,
       updateFilter(event) {
         // Search here for all the gestalt
       }
