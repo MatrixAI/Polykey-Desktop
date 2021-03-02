@@ -35,7 +35,6 @@
       <div class="w-2/12 flex items-center">25/11/2020 11:30AM</div>
       <div class="w-1/12 flex flex-row justify-end items-center">
         <Download class="mr-2" />
-        <Copy class="mr-2" />
         <More />
       </div>
     </div>

@@ -32,6 +32,7 @@
         <div class="w-2/12 flex items-center">25/11/2020 11:30AM</div>
         <div class="w-1/12 flex flex-row justify-end items-center">
           <Download class="mr-2 cursor-pointer" @click="download(secret.name)" />
+          <Copy class="mr-2 cursor-pointer" @click="copy(secret.name)"/>
           <More />
         </div>
       </div>
@@ -52,13 +53,15 @@ import CheckBox from '@/renderer/assets/checkbox.svg';
 import Download from '@/renderer/assets/download.svg';
 import More from '@/renderer/assets/more.svg';
 import File from '@/renderer/assets/file1.svg';
+import Copy from '@/renderer/assets/copy.svg';
 
 export default defineComponent({
   components: {
     CheckBox,
     Download,
     More,
-    File
+    File,
+    Copy
   },
   setup(props, context) {
     const defaultContainerClass = 'secrets-container';
@@ -82,7 +85,6 @@ export default defineComponent({
       store.dispatch(actions.LoadSecretNames, router.currentRoute.value.params.id);
     });
 
-    console.log(context)
     return {
       defaultContainerClass,
       draggingClass,
@@ -93,6 +95,17 @@ export default defineComponent({
           vaultName: router.currentRoute.value.params.id,
           secretName
         });
+      },
+      copy(secretName) {
+        store.dispatch(actions.GetSecret, {
+          vaultName: router.currentRoute.value.params.id,
+          secretName,
+          copy: true
+        });
+        this.$notification['info']({
+            message: 'Copying secret',
+            description: `Copied secret ${secretName}`
+          });
       },
       dragover(event) {
         event.preventDefault();
