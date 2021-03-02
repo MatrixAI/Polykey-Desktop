@@ -1,4 +1,4 @@
-const isWin = process.platform === 'win32';
+const isWin = process.platform === 'win32' || 'linux';
 const isDarwin = process.platform === 'darwin';
 
 let packagerConfig = {};
