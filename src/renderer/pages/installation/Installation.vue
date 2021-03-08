@@ -13,8 +13,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Console from '@renderer/molecules/console/Console.vue';
-import Logo from '@renderer/assets/logo.svg';
+import Console from '@/renderer/molecules/console/Console.vue';
+import Logo from '@/renderer/assets/logo.svg';
 
 export default defineComponent({
   components: {

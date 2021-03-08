@@ -1,44 +1,39 @@
-{
-  pkgs ? import ./pkgs.nix
-}:
+{ pkgs ? import ./pkgs.nix {} }:
 
 with pkgs;
-let
-  nodeVersion = "12";
-  drv = callPackage ./default.nix {};
-in
-  drv.overrideAttrs (attrs: {
-    src = null;
-    nativeBuildInputs = [
-      nodePackages.node2nix
-      electron_9
-      unzip
-      #wine
-      #p7zip # Insecure package but needed for electron-builder
-    ] ++ (lib.attrByPath [ "nativeBuildInputs" ] [] attrs);
-    shellHook = ''
-      echo 'Entering ${attrs.name}'
-      set -o allexport
-      . ./.env
-      set +o allexport
-      set -v
+pkgs.mkShell {
+  nativeBuildInputs = [
+    nodejs
+    nodePackages.node2nix
+    # electron is also installed in package.json
+    # electron-forge demands this
+    # but we make nix electron priority
+    electron
+    nodePackages."@electron-forge/cli"
+    dpkg
+    fakeroot
+    rpm
+    wineWowPackages.full
+    mono
+    zip
+  ];
+  # prevent electron download from electron in package.json
+  ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
+  shellHook = ''
+    echo 'Entering Polykey'
+    set -o allexport
+    . ./.env
+    set +o allexport
+    set -v
 
-      export PATH="$(pwd)/dist/bin:$(npm bin):$PATH"
+    export PATH="${electron}/bin:$(pwd)/dist/bin:$(npm bin):$PATH"
+    npm install
+    mkdir --parents "$(pwd)/tmp"
 
-      # setting up for nix-build
-      npm install --package-lock-only
+    # needed to use fakeroot
+    # otherwise the electron-forge complains
+    # umask 022
 
-      mkdir --parents "$(pwd)/nix/generated"
-      node2nix -d \
-        --input package.json \
-        --lock package-lock.json \
-        --node-env ./nix/generated/node-env.nix \
-        --output ./nix/generated/node-packages.nix \
-        --composition ./nix/generated/node-composition.nix \
-        --nodejs-${nodeVersion}
-
-      mkdir --parents "$(pwd)/tmp"
-
-      set +v
-    '';
-  })
+    set +v
+  '';
+}

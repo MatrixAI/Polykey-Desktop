@@ -1,10 +1,9 @@
-/* eslint no-unused-vars: 0 */
 import path from 'path'
 
 declare global {
   namespace NodeJS {
     interface Global {
-      projectDir: string,
+      projectDir: string
       testDir: string
     }
   }

@@ -46,7 +46,7 @@ import { useStore } from 'vuex';
 import { defineComponent, ref, watchEffect, onMounted, watch } from 'vue';
 
 /** Store */
-import { actions } from '@renderer/store/modules/Secrets';
+import { actions } from '@/renderer/store/modules/Secrets';
 
 /** Assets */
 import CheckBox from '@/renderer/assets/checkbox.svg';

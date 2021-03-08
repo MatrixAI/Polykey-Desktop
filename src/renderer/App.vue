@@ -19,10 +19,10 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 /** Store */
-import { STATUS, actions } from '@renderer/store/modules/User';
+import { STATUS, actions } from '@/renderer/store/modules/User';
 
 /** Components */
-import Header from '@renderer/organisms/header/Header.vue';
+import Header from '@/renderer/organisms/header/Header.vue';
 
 export default defineComponent({
   components: {

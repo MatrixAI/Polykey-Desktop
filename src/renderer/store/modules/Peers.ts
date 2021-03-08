@@ -1,41 +1,46 @@
-import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
-import PolykeyClient from '@renderer/resources/client';
-import { makeIdentifiers } from '@renderer/store/utils';
+import * as pb from '@matrixai/polykey/proto/js/Agent_pb'
+import PolykeyClient from '@/renderer/resources/client'
+import { makeIdentifiers } from '@/renderer/store/utils'
 
-const [actionsInt, actionsExt] = makeIdentifiers('Peers', ['ListPeers', 'ScanPeer', 'PullVaults', 'PingPeer']);
+const [actionsInt, actionsExt] = makeIdentifiers('Peers', [
+  'ListPeers',
+  'ScanPeer',
+  'PullVaults',
+  'PingPeer',
+])
 
 const enum mutations {
   SetListPeers = 'SetListPeers',
-  SetPullVaults = 'SetPullVaults'
+  SetPullVaults = 'SetPullVaults',
 }
 
 type State = {
-  peers: string[];
-};
+  peers: string[]
+}
 
 const state: State = {
-  peers: []
-};
+  peers: [],
+}
 export default {
   namespaced: true,
   state,
   actions: {
     async [actionsInt.ListPeers]({ commit }) {
-      const peerIds = await PolykeyClient.ListPeers();
-      console.log(peerIds);
-      commit(mutations.SetListPeers);
+      const peerIds = await PolykeyClient.ListPeers()
+      console.log(peerIds)
+      commit(mutations.SetListPeers)
     },
     async [actionsInt.PullVaults]({ commit }, peerId: string) {
       //commit(mutations.PullVaults, searchMode);
     },
     async [actionsInt.PingPeer]({ commit }, peerId: string) {
       //commit(mutations.PullVaults, searchMode);
-    }
+    },
   },
   mutations: {
-    [mutations.SetListPeers]: function(state: State, peers: string[]) {
-      state.peers = peers;
-    }
+    [mutations.SetListPeers]: function (state: State, peers: string[]) {
+      state.peers = peers
+    },
   },
-  getters: {}
-};
+  getters: {},
+}

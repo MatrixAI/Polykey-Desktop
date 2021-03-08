@@ -93,23 +93,23 @@
 </template>
 <script>
 /** Libs */
-import PolykeyClient from '@renderer/resources/client';
+import PolykeyClient from '@/renderer/resources/client';
 import { defineComponent, onMounted, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { toSvg } from 'jdenticon';
 import { useRouter } from 'vue-router';
 
 /** Components */
-import Search from '@renderer/molecules/search/Search.vue';
-import PrimaryButton from '@renderer/atoms/button/PrimaryButton.vue';
+import Search from '@/renderer/molecules/search/Search.vue';
+import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
 
 /** Assets */
-import Github from '@renderer/assets/github.svg';
-import Augment from '@renderer/assets/augment.svg';
+import Github from '@/renderer/assets/github.svg';
+import Augment from '@/renderer/assets/augment.svg';
 
 /** Store */
-import { actions } from '@renderer/store/modules/User';
-import { actions as actionsGestalt } from '@renderer/store/modules/Gestalt';
+import { actions } from '@/renderer/store/modules/User';
+import { actions as actionsGestalt } from '@/renderer/store/modules/Gestalt';
 
 export default defineComponent({
   components: {

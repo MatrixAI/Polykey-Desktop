@@ -1,57 +1,61 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-
 stages:
   - check
   - build
+  - release
 
-prettier:
-  stage: check
-  image: node:12
-  before_script:
-    - node --version
-    - npm install
-  script:
-    - npm run lint
+image: registry.gitlab.com/matrixai/engineering/maintenance/gitlab-runner
 
-jest:
+lint:
   stage: check
-  image: node:12
-  before_script:
-    - node --version
-    - npm install
   script:
-    - npm run test
+    - >
+        nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
+        npm install;
+        npm run lint;
+        '
+
+test:
+  stage: check
+  script:
+    - >
+        nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
+        npm install;
+        npm run test;
+        '
 
 nix-dry:
   stage: check
-  image: nixos/nix:2.3
-  # image: registry.gitlab.com/matrixai/engineering/maintenance/gitlab-runner
-  before_script:
-    - nix-channel --add https://nixos.org/channels/nixos-20.03 nixpkgs
-    - nix-channel --update
-    - nix-env -i git
-    - nix-env -i docker
-    # - docker login registry.gitlab.com -u robert-cronin -p $RC_CI_BUILD_TOKEN
   script:
     - nix-build -v -v --dry-run ./release.nix --attr application
     - nix-build -v -v --dry-run ./release.nix --attr docker
+    - nix-build -v -v --dry-run ./release.nix --attr package.linux.x64.deb
+    - nix-build -v -v --dry-run ./release.nix --attr package.linux.ia32.deb
+    - nix-build -v -v --dry-run ./release.nix --attr package.windows.x64.exe
+    - nix-build -v -v --dry-run ./release.nix --attr package.windows.ia32.exe
+    - nix-build -v -v --dry-run ./release.nix --attr package.darwin.x64.zip
 
 nix:
   stage: build
-  image: nixos/nix:2.3
-  # image: registry.gitlab.com/matrixai/engineering/maintenance/gitlab-runner
-  before_script:
-    - nix-channel --add https://nixos.org/channels/nixos-20.03 nixpkgs
-    - nix-channel --update
-    - nix-env -i git
-    - nix-env -i docker
-    # - docker login registry.gitlab.com -u robert-cronin -p $RC_CI_BUILD_TOKEN
   script:
-    - nix-build ./release.nix --attr application
-    - nix-build ./release.nix --attr docker
+    - >
+        nix-build ./release.nix
+        --attr application
+        --attr docker
+  only:
+    - master
+
+packages:
+  stage: release
+  script:
+    - >
+        nix-build ./release.nix
+        --attr package.linux.x64.deb
+        --attr package.linux.ia32.deb
+        --attr package.windows.x64.exe
+        --attr package.windows.ia32.exe
+        --attr package.darwin.x64.zip
+  only:
+    - master
