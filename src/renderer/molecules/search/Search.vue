@@ -1,11 +1,11 @@
 <template>
   <div :class="['relative', full ? 'w-full' : '']">
-    <div :class="iconClass"><Search /></div>
+    <div :class="iconClass"><Magnify /></div>
     <input :class="[inputClass, full ? 'w-full' : '']" placeholder="Search" />
   </div>
 </template>
 <script>
-import Search from '@renderer/assets/magnify.svg';
+import Magnify from '@/renderer/assets/magnify.svg';
 import { defineComponent } from 'vue';
 export default defineComponent({
   props: {
@@ -36,7 +36,7 @@ export default defineComponent({
     };
   },
   components: {
-    Search
+    Magnify
   }
 });
 </script>

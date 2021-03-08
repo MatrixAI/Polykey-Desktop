@@ -41,7 +41,7 @@
 </template>
 <script>
 /** Libs */
-import PolykeyClient from '@renderer/resources/client';
+import PolykeyClient from '@/renderer/resources/client';
 import { defineComponent, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
@@ -51,14 +51,14 @@ import SharingHeader from '@/renderer/organisms/sharing-header/SharingHeader.vue
 import AddKeynode from '@/renderer/organisms/add-keynode/AddKeynode.vue';
 import Gestalt from '@/renderer/organisms/gestalt/Gestalt.vue';
 import PullVault from '@/renderer/organisms/gestalt/PullVault.vue';
-import DefaultButton from '@renderer/atoms/button/DefaultButton.vue';
-import PrimaryButton from '@renderer/atoms/button/PrimaryButton.vue';
+import DefaultButton from '@/renderer/atoms/button/DefaultButton.vue';
+import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
 
 /** Assets */
-import Github from '@renderer/assets/github.svg';
+import Github from '@/renderer/assets/github.svg';
 
 /** Store */
-import { actions } from '@renderer/store/modules/Gestalt';
+import { actions } from '@/renderer/store/modules/Gestalt';
 
 export default defineComponent({
   components: {

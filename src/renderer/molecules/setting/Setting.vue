@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import Cog from '@renderer/assets/cog.svg';
+import Cog from '@/renderer/assets/cog.svg';
 import { defineComponent } from 'vue';
 export default defineComponent({
   components: {

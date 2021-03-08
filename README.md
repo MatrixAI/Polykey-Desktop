@@ -87,11 +87,47 @@ The last 2 are still being developed.
 
 ### Development
 1. `npm install`
-2. `npm run dev:webpack.watch`
-3. `npm run dev:electron`
+2. `npm run dev:build`
+3. `npm run electron`
+
+You can do `npm run watch`, but because of the issue to do with oauth2orize, you will have to run `npm run mock_for_oauth2orize` which just creates the required directory in the dist, before you can run `electron .`.
+
+**Other Instructions**:
+```
+# install (or reinstall packages from package.json)
+npm install
+# build the development dist and watch for file changes
+npm run watch
+# build the production dist
+npm run build
+# run the tests
+npm run test
+# lint the source code
+npm run lint
+# automatically fix the source
+npm run lintfix
+```
 
 
-### Building
+### Building the releases:
+```
+nix-build ./release.nix --attr application
+nix-build ./release.nix --attr docker # untested
+# packages for distribution
+nix-build ./release.nix --attr package.linux.x64.deb
+nix-build ./release.nix --attr package.linux.x64.rpm
+nix-build ./release.nix --attr package.windows.x64.exe
+nix-build ./release.nix --attr package.darwin.x64.zip
+```
+
+**Install into Nix user profile**:
+```
+nix-env -f ./release.nix --install --attr application
+```
+
+
+
+### Building - old
 1. npm run mock_for_oauth2orize
 2. Then create temp files under copy grant and lib.
 3. npm run dev:webpack:watch

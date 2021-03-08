@@ -2,24 +2,36 @@ export default {
   namespaced: true,
   state: {
     visible: false,
-    color: 'success'
+    color: 'success',
   },
   actions: {
-    toggleAlert: function(
+    toggleAlert: function (
       context,
-      props: { visible: boolean; type: 'success' | 'warning' | 'error' | 'info'; message?: string }
+      props: {
+        visible: boolean
+        type: 'success' | 'warning' | 'error' | 'info'
+        message?: string
+      },
     ) {
-      context.commit('setVisible', props);
-    }
+      context.commit('setVisible', props)
+    },
   },
   mutations: {
-    setVisible: function(
+    setVisible: function (
       state,
-      { visible, type, message }: { visible: boolean; type: 'success' | 'warning' | 'error' | 'info'; message?: string }
+      {
+        visible,
+        type,
+        message,
+      }: {
+        visible: boolean
+        type: 'success' | 'warning' | 'error' | 'info'
+        message?: string
+      },
     ): void {
-      state.visible = visible;
-      state.color = type;
-      state.message = message ?? '';
-    }
-  }
-};
+      state.visible = visible
+      state.color = type
+      state.message = message ?? ''
+    },
+  },
+}

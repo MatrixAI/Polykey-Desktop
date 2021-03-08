@@ -1,4 +1,4 @@
 import (
-  let rev = "dcb64ea42e64aaecd8e6fef65cc86245c9666818"; in
-  fetchTarball "https://github.com/NixOS/nixpkgs-channels/archive/${rev}.tar.gz"
-) {}
+  let rev = "4b94aba5016a59be706a05d8dd03c57d0b7db3b0"; in
+  fetchTarball "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz"
+)
