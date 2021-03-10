@@ -1,6 +1,6 @@
 <template>
   <div class="pr-2 relative">
-    <Input v-model="vaultName" />
+    <Input v-model="vaultName" placeholder="Enter name of vault"/>
     <div v-if="error" class="absolute text-xs text-red-400 mt-1">{{ error }}</div>
   </div>
   <div><PrimaryButton @click="save">+ CREATE VAULT</PrimaryButton></div>
