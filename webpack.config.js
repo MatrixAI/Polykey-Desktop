@@ -19,6 +19,9 @@ const electronMain = {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json'],
     plugins: [new TsConfigPathsPlugin()]
   },
+  node: {
+    __dirname: true
+  },
   module: {
     rules: [
       {

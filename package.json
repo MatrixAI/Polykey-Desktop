@@ -31,7 +31,7 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
     "@grpc/grpc-js": "^1.2.5",
-    "@matrixai/polykey": "0.0.33",
+    "@matrixai/polykey": "0.0.34",
     "@types/copy-webpack-plugin": "^6.0.0",
     "@types/jest": "^26.0.20",
     "@types/node": "^13.13.1",
