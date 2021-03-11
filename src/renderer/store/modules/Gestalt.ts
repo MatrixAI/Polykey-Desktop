@@ -278,9 +278,12 @@ export default {
                 publicKeyOrHandle: keynode.id,
                 timeout: 300
               });
-              keynode.online = true;
             } catch (e) {
-              keynode.online = false;
+              if (e.message.match('Cannot connect to self')) {
+                keynode.online = true;
+              } else {
+                keynode.online = false;
+              }
             }
           }
         });

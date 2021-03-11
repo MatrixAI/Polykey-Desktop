@@ -35,7 +35,7 @@
       <div class="w-2/12 flex items-center">25/11/2020 11:30AM</div>
       <div class="w-1/12 flex flex-row justify-end items-center">
         <Download class="mr-2" />
-        <More />
+        <More :delete="() => deleteVault(vault.name)" :open="() => goToVault(vault.name)"/>
       </div>
     </div>
     <!-- <div>Pagination</div> -->
@@ -50,11 +50,14 @@ import { defineComponent } from 'vue';
 /** Store */
 import { actions as actionsJobs } from '@/renderer/store/modules/Vaults';
 
+/** Components */
+import More from '@/renderer/molecules/menus/Menu.vue';
+
 /** Assets */
 import CheckBox from '@/renderer/assets/checkbox.svg';
 import Download from '@/renderer/assets/download.svg';
 import Copy from '@/renderer/assets/copy.svg';
-import More from '@/renderer/assets/more.svg';
+
 
 export default defineComponent({
   components: {
@@ -76,6 +79,9 @@ export default defineComponent({
       goToVault: vault => {
         store.dispatch(actionsJobs.SelectVault, vault);
         return router.replace('/vaults/' + vault);
+      },
+      deleteVault: vault =>{
+        store.dispatch(actionsJobs.DeleteVault, vault);
       }
     };
   }

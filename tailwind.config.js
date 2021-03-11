@@ -67,6 +67,9 @@ module.exports = {
       },
       zIndex: {
         '-10': '-10'
+      },
+      top: {
+        '30': '30px'
       }
     }
   },

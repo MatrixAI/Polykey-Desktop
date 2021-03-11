@@ -9,14 +9,14 @@
 
       <!-- Right header -->
       <div class="flex">
-        <div class="mr-2" @click="ping"><DefaultButton>PING</DefaultButton></div>
+        <!-- <div class="mr-2" @click="ping"><DefaultButton>PING</DefaultButton></div> -->
         <div><PrimaryButton @click="toggleAddKeynode">TRUST AN IDENTITY</PrimaryButton></div>
       </div>
   </div>
 </template>
 <script>
 /** Libs */
-import { defineComponent } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted } from 'vue';
 import { useStore, ref } from 'vuex';
 
 /** Components */
@@ -37,6 +37,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    let interval;
 
     const toggleAddKeynode = (event) => {
       event.preventDefault();
@@ -46,6 +47,16 @@ export default defineComponent({
     const ping = () => {
       store.dispatch(actions.PingNodes);
     }
+
+    onMounted(()=>{
+      interval = setInterval(()=>{
+        store.dispatch(actions.PingNodes);
+      },2000)
+    })
+
+    onBeforeUnmount(()=>{
+      clearInterval(interval)
+    })
 
     return {
       toggleAddKeynode,

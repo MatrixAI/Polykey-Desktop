@@ -383,6 +383,14 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
+  ipcMain.handle('GetIdentity', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const res = (await promisifyGrpc(client.getIdentityInfo.bind(client))(new pb.EmptyMessage())) as pb.IdentityInfo;
+    return res.serializeBinary();
+  });
+
   ipcMain.handle('ListOAuthTokens', async (event, request) => {
     if (!client) {
       await getAgentClient();

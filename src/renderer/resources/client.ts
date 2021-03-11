@@ -173,6 +173,14 @@ class PolykeyClient {
     return await ipcRenderer.invoke('GetRootCertificate');
   }
 
+  static async GetIdentity(request: pb.EmptyMessage.AsObject): Promise<string> {
+    const encodedRequest = new pb.EmptyMessage();
+    const res = pb.IdentityInfo.deserializeBinary(
+      await ipcRenderer.invoke('GetIdentity', encodedRequest.serializeBinary())
+    );
+    return res.getKey();
+  }
+
   static async GetSecret(request: pb.SecretPathMessage.AsObject): Promise<string> {
     const encodedRequest = new pb.SecretPathMessage();
     encodedRequest.setVaultName(request.vaultName);

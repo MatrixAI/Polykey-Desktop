@@ -73,13 +73,13 @@
                 <div v-if="authCode" class="flex flex-col border border-content2 rounded-b-md p-2">
                   <div class="text-center text-lg font-bold mt-2 mb-2">{{ authCode }}</div>
                   <div class="text-xs mb-1">
-                    Copy paste this code to authenticate. After authenticating enter your username and augment.
+                    Copy paste this code to authenticate. Wait until we can get the access token.
                   </div>
-                  <div class="flex flex-row">
+                  <!-- <div class="flex flex-row">
                     <a-input @input="updateUsername" class="rounded" placeholder="Enter username" />
                     <PrimaryButton @click="augment">Augment</PrimaryButton>
                   </div>
-                  <div v-if="error" class="text-xs text-red-400 mt-1">{{ error }}</div>
+                  <div v-if="error" class="text-xs text-red-400 mt-1">{{ error }}</div> -->
                 </div>
 
                 <div class="mt-2">Augmentation of other digital identities will be made available soon.</div>
@@ -152,27 +152,47 @@ export default defineComponent({
             providerKey: 'github.com'
           });
           authCode.value = result;
+
+          const checkIfKeyIsExisting = async () => {
+            let key;
+            try {
+              key = await PolykeyClient.GetIdentity()
+              await PolykeyClient.AugmentKeynode({
+                identityKey: key,
+                providerKey: 'github.com'
+              });
+              store.dispatch(actions.GetLocalPeerInfo);
+              authCode.value = '';
+            } catch(e) {
+              setTimeout(()=>{
+                checkIfKeyIsExisting();
+              }, 2000)
+            }
+          }
+
+          checkIfKeyIsExisting();
+
         } catch (e) {
           console.log(e);
         }
       },
-      augment: async () => {
-        if(!username.value) {
-          return error.value = 'Please input username';
-        }
-        try {
-          const result = await PolykeyClient.AugmentKeynode({
-            identityKey: username.value,
-            providerKey: 'github.com'
-          });
+      // augment: async () => {
+      //   if(!username.value) {
+      //     return error.value = 'Please input username';
+      //   }
+      //   try {
+      //     const result = await PolykeyClient.AugmentKeynode({
+      //       identityKey: username.value,
+      //       providerKey: 'github.com'
+      //     });
 
 
-          store.dispatch(actions.GetLocalPeerInfo);
-          authCode.value = '';
-        } catch (e) {
-          error.value = 'Please authenticate with Github';
-        }
-      },
+      //     store.dispatch(actions.GetLocalPeerInfo);
+      //     authCode.value = '';
+      //   } catch (e) {
+      //     error.value = 'Please authenticate with Github';
+      //   }
+      // },
       icon: toSvg(profile.peerId, 100),
       updateFilter: () => {}
     };
