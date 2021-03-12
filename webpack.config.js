@@ -9,7 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const electronMain = {
   target: 'electron-main',
-  entry: { index: './src/main/index.ts' },
+  entry: { index: './src/main/index.ts'},
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js'
@@ -20,16 +20,17 @@ const electronMain = {
     plugins: [new TsConfigPathsPlugin()]
   },
   node: {
-    __dirname: true
+    // When in devmode, webpack needs to get it from node_modules
+    __dirname: process.env.NODE_ENV === 'development' ? true : false
   },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: "ts-loader",
+        test: /\.ts?$/,
+        loader: 'ts-loader',
       },
       {
-        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         use: [
           'file-loader'
         ]
@@ -38,7 +39,7 @@ const electronMain = {
         enforce: "pre",
         test: /\.js$/,
         loader: "source-map-loader"
-      }
+      },
     ]
   },
   watchOptions: {
@@ -71,21 +72,25 @@ const electronRenderer = {
     rules: [
       {
         test: /\.vue$/,
-        use: 'vue-loader'
+        loader: 'vue-loader'
       },
       {
-        test: /\.tsx?$/,
-        loader: "ts-loader",
+        test: /\.ts?$/,
+        loader: 'ts-loader',
         options: {
           appendTsSuffixTo: [/\.vue$/]
         }
       },
       {
-        test: /\.css$/i,
-        use: [ MiniCssExtractPlugin.loader, 'css-loader' ]
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'postcss-loader'
+        ]
       },
       {
-        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         use: [
           'file-loader'
         ]
@@ -97,7 +102,7 @@ const electronRenderer = {
       },
       {
         test: /\.svg$/,
-        loader: 'vue-svg-loader'
+        use: ['vue-loader', 'vue-svg-loader']
       }
     ]
   },
