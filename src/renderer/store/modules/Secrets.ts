@@ -1,6 +1,6 @@
 import PolykeyClient from '@/renderer/resources/client'
 import { makeIdentifiers } from '@/renderer/store/utils'
-import * as pb from '@matrixai/polykey/proto/js/Agent_pb'
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
 import FileSaver from 'file-saver'
 
 const [actionsInt, actionsExt] = makeIdentifiers('Secrets', [

@@ -2,8 +2,8 @@ import os from 'os'
 import fixPath from 'fix-path'
 import { ipcMain, clipboard } from 'electron'
 import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey'
-import * as pb from '@matrixai/polykey/proto/js/Agent_pb'
-import { AgentClient } from '@matrixai/polykey/proto/js/Agent_grpc_pb'
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
+import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb'
 import { getDefaultNodePath } from './utils'
 
 fixPath()
