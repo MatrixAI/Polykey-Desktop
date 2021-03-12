@@ -57,5 +57,3 @@ packages:
         --attr package.windows.x64.exe
         --attr package.windows.ia32.exe
         --attr package.darwin.x64.zip
-  only:
-    - master

@@ -16,6 +16,7 @@ rec {
     mkdir $out
     ${nodePackages.node2nix}/bin/node2nix \
       ${lib.optionalString dev "--development"} \
+      --strip-optional-dependencies \
       --input ${src}/package.json \
       --lock ${src}/package-lock.json \
       --node-env $out/node-env.nix \
