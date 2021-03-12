@@ -1,14 +1,15 @@
+const process = require('process');
 const path = require('path');
 const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const electronMain = {
   target: 'electron-main',
-  entry: { index: './src/main/index.ts'},
+  entry: { index: './src/main/index.ts' },
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js'
@@ -24,11 +25,11 @@ const electronMain = {
   module: {
     rules: [
       {
-        test: /\.ts?$/,
-        use: 'ts-loader',
+        test: /\.tsx?$/,
+        loader: "ts-loader",
       },
       {
-        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         use: [
           'file-loader'
         ]
@@ -37,10 +38,6 @@ const electronMain = {
         enforce: "pre",
         test: /\.js$/,
         loader: "source-map-loader"
-      },
-      {
-        test: /\.svg$/,
-        loader: 'vue-svg-loader'
       }
     ]
   },
@@ -68,7 +65,7 @@ const electronRenderer = {
   devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json'],
-    plugins: [new TsConfigPathsPlugin()],
+    plugins: [new TsConfigPathsPlugin()]
   },
   module: {
     rules: [
@@ -77,25 +74,18 @@ const electronRenderer = {
         use: 'vue-loader'
       },
       {
-        test: /\.ts?$/,
-        loader: 'ts-loader',
+        test: /\.tsx?$/,
+        loader: "ts-loader",
         options: {
           appendTsSuffixTo: [/\.vue$/]
         }
       },
       {
-        test: /\.css$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            // options: { hmr: !process.env.production }
-          },
-          'css-loader',
-          'postcss-loader'
-        ]
+        test: /\.css$/i,
+        use: [ MiniCssExtractPlugin.loader, 'css-loader' ]
       },
       {
-        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         use: [
           'file-loader'
         ]
@@ -107,7 +97,7 @@ const electronRenderer = {
       },
       {
         test: /\.svg$/,
-        use: ['vue-loader', 'vue-svg-loader']
+        loader: 'vue-svg-loader'
       }
     ]
   },
@@ -118,17 +108,15 @@ const electronRenderer = {
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html'
     }),
+    new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
-      filename: 'index.css'
-    }),
-    new webpack.DefinePlugin({
-      __static: `"${path.resolve(__dirname, 'dist', 'static')}"`
+      filename: '[name].css'
     }),
     new CopyWebpackPlugin({
       patterns: [{ from: 'static', to: 'static' }]
     }),
-    new VueLoaderPlugin(),
     new webpack.DefinePlugin({
+      __static: `"${path.resolve(__dirname, 'dist', 'static')}"`,
       // configure global feature flags for vue esm-bundler
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false

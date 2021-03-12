@@ -158,6 +158,9 @@ in
         x64 = {
           zip = buildZip "x64";
         };
+        arm64 = {
+          zip = buildZip "arm64";
+        };
       };
     };
   }
