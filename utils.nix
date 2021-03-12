@@ -53,21 +53,29 @@ rec {
   electronVersion = "12.0.0";
   electronBuilds = {
     "12.0.0" = {
-      "shasum256" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.0/SHASUMS256.txt";
-        sha256 = "07xxam8dvn1aixvx39gd5x3yc1bs6i599ywxwi5cbkpf957ilpcx";
-      };
       "linux-x64" = fetchurl {
         url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-linux-x64.zip";
         sha256 = "1wciz9bzzng390iw49l3g64c6pjmq8mvfp526qz7h3jh107ahcni";
+      };
+      "linux-ia32" = fetchurl {
+        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-linux-ia32.zip";
+        sha256 = "10wl7c8vmylrn63md13024skikz2yx3361ddqrhciy2px0v1hrbr";
       };
       "win32-x64" = fetchurl {
         url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-win32-x64.zip";
         sha256 = "0xwhvm2z7d6qd0724dp7hj0vb3iicxkrmm4fx91kdz3sgsaddcaj";
       };
+      "win32-ia32" = fetchurl {
+        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-win32-ia32.zip";
+        sha256 = "0pdfikcmwl7amm0gij0asn61widfdrqrb8f4gy53h2a75zh4j7nj";
+      };
       "darwin-x64" = fetchurl {
         url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-darwin-x64.zip";
         sha256 = "1hmglyq9ndw18s90b8kwizh21f7vhny00bkng6kd2qyc1vn6sm0q";
+      };
+      "darwin-arm64" = fetchurl {
+        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-darwin-arm64.zip";
+        sha256 = "17nn5rg4rf1y9rn7hf1bmmlr6dc9vqfd8ypv82kghh2lhm25hlf6";
       };
     };
   };
@@ -82,32 +90,24 @@ rec {
             path = electronBuild.linux-x64;
           }
           {
+            name = "${electronBuild.linux-ia32.name}";
+            path = electronBuild.linux-ia32;
+          }
+          {
             name = "${electronBuild.win32-x64.name}";
             path = electronBuild.win32-x64;
+          }
+          {
+            name = "${electronBuild.win32-ia32.name}";
+            path = electronBuild.win32-ia32;
           }
           {
             name = "${electronBuild.darwin-x64.name}";
             path = electronBuild.darwin-x64;
           }
+          {
+            name = "${electronBuild.darwin-arm64.name}";
+            path = electronBuild.darwin-arm64;
+          }
         ];
-  electronBuildsCache =
-    let
-      electronBuild = electronBuilds."${electronVersion}";
-    in
-      runCommandNoCC
-        "electron-builds-cache"
-        {}
-        ''
-        mkdir $out;
-        build="$(
-          printf 'https://github.com/electron/electron/releases/download/v${electronVersion}' \
-          | sha256sum \
-          | cut -d' ' -f1
-        )"
-        mkdir $out/$build
-        ln -s ${electronBuild.shasum256} $out/$build/${electronBuild.shasum256.name}
-        ln -s ${electronBuild.linux-x64} $out/$build/${electronBuild.linux-x64.name}
-        ln -s ${electronBuild.win32-x64} $out/$build/${electronBuild.win32-x64.name}
-        ln -s ${electronBuild.darwin-x64} $out/$build/${electronBuild.darwin-x64.name}
-        '';
 }
