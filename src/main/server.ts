@@ -17,7 +17,7 @@ async function getAgentClient(failOnNotInitialized = false) {
   console.log('starting....')
   console.log(polykeyPath)
 
-  await PolykeyAgent.startAgent(polykeyPath, false, failOnNotInitialized, true)
+  await PolykeyAgent.startAgent(polykeyPath, true, failOnNotInitialized, true)
 
   console.log('done starting agent..')
   client = PolykeyAgent.connectToAgent(polykeyPath)
@@ -82,7 +82,7 @@ async function setHandlers() {
       try {
         // agent is offline so we start it!
         console.log('startAgent')
-        const pid = await PolykeyAgent.startAgent(polykeyPath, false, true, true)
+        const pid = await PolykeyAgent.startAgent(polykeyPath, true, true, true)
         console.log('connectToAgent')
         const tempClient = PolykeyAgent.connectToAgent(polykeyPath)
         // we just confirm that the agent has actually been started
@@ -106,7 +106,7 @@ async function setHandlers() {
     const client = PolykeyAgent.connectToAgent(polykeyPath)
     await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage())
     const pid = <number>(
-      await PolykeyAgent.startAgent(polykeyPath, false, false, true)
+      await PolykeyAgent.startAgent(polykeyPath, true, false, true)
     )
     await getAgentClient()
     return pid

@@ -1,10 +1,12 @@
+const process = require('process');
 const path = require('path');
 const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 const electronMain = {
   target: 'electron-main',
   entry: { index: './src/main/index.ts'},
@@ -17,11 +19,15 @@ const electronMain = {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json'],
     plugins: [new TsConfigPathsPlugin()]
   },
+  node: {
+    // When in devmode, webpack needs to get it from node_modules
+    __dirname: process.env.NODE_ENV === 'development' ? true : false
+  },
   module: {
     rules: [
       {
         test: /\.ts?$/,
-        use: 'ts-loader',
+        loader: 'ts-loader',
       },
       {
         test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
@@ -59,7 +65,7 @@ const electronRenderer = {
   devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json'],
-    plugins: [new TsConfigPathsPlugin()],
+    plugins: [new TsConfigPathsPlugin()]
   },
   module: {
     rules: [
@@ -77,10 +83,7 @@ const electronRenderer = {
       {
         test: /\.css$/,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            // options: { hmr: !process.env.production }
-          },
+          MiniCssExtractPlugin.loader,
           'css-loader',
           'postcss-loader'
         ]
@@ -109,17 +112,15 @@ const electronRenderer = {
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html'
     }),
+    new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
-      filename: 'index.css'
-    }),
-    new webpack.DefinePlugin({
-      __static: `"${path.resolve(__dirname, 'dist', 'static')}"`
+      filename: '[name].css'
     }),
     new CopyWebpackPlugin({
       patterns: [{ from: 'static', to: 'static' }]
     }),
-    new VueLoaderPlugin(),
     new webpack.DefinePlugin({
+      __static: `"${path.resolve(__dirname, 'dist', 'static')}"`,
       // configure global feature flags for vue esm-bundler
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
