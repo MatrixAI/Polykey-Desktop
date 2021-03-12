@@ -3,6 +3,7 @@
 .env*
 !.env.example
 /result*
+/out
 
 # Logs
 logs
