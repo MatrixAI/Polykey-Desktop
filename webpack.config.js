@@ -18,7 +18,8 @@ const electronMain = {
     plugins: [new TsConfigPathsPlugin()]
   },
   node: {
-    __dirname: true
+    // When in devmode, webpack needs to get it from node_modules
+    __dirname: process.env.NODE_ENV === 'development' ? true : false
   },
   module: {
     rules: [
@@ -37,10 +38,6 @@ const electronMain = {
         test: /\.js$/,
         loader: "source-map-loader"
       },
-      {
-        test: /\.svg$/,
-        loader: 'vue-svg-loader'
-      }
     ]
   },
   watchOptions: {
@@ -72,7 +69,7 @@ const electronRenderer = {
     rules: [
       {
         test: /\.vue$/,
-        use: 'vue-loader'
+        loader: 'vue-loader'
       },
       {
         test: /\.ts?$/,
