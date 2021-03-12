@@ -48,16 +48,16 @@ import { defineComponent, ref } from 'vue';
 import { useStore } from 'vuex';
 
 /** Components */
-import Input from '@renderer/atoms/input/Input.vue';
-import PrimaryButton from '@renderer/atoms/button/PrimaryButton.vue';
+import Input from '@/renderer/atoms/input/Input.vue';
+import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
 
 /** Store */
-import { actions } from '@renderer/store/modules/User';
+import { actions } from '@/renderer/store/modules/User';
 
 /** Assets */
-import Action from '@renderer/assets/action.svg';
-import Logo from '@renderer/assets/logo2.svg';
-import Helper from '@renderer/assets/helper.svg';
+import Action from '@/renderer/assets/action.svg';
+import Logo from '@/renderer/assets/logo2.svg';
+import Helper from '@/renderer/assets/helper.svg';
 
 export default defineComponent({
   components: {

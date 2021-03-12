@@ -1,6 +1,6 @@
-import PolykeyClient from '@renderer/resources/client';
-import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
-import { makeIdentifiers } from '@renderer/store/utils';
+import PolykeyClient from '@/renderer/resources/client';
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+import { makeIdentifiers } from '@/renderer/store/utils';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Gestalt', [
   'SearchMode',
@@ -201,7 +201,10 @@ export default {
           }
         }
       }
-      commit(mutations.SetActiveKeynodeVaults, { activeVaults, activeKeynode: keynodeId });
+      commit(mutations.SetActiveKeynodeVaults, {
+        activeVaults,
+        activeKeynode: keynodeId
+      });
     },
     async [actionsInt.SearchDI]({ commit, state }, searchQueryDI: string) {
       console.log('--- searching ---');
@@ -278,6 +281,7 @@ export default {
                 publicKeyOrHandle: keynode.id,
                 timeout: 300
               });
+              keynode.online = true;
             } catch (e) {
               if (e.message.match('Cannot connect to self')) {
                 keynode.online = true;

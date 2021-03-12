@@ -1,32 +1,27 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
     "sourceMap": true,
-    "declaration": true,
+    "declaration": false,
+    "allowJs": true,
     "strictNullChecks": true,
     "noImplicitAny": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "module": "CommonJS",
     "target": "ES2016",
-    "strict": true,
-    "jsx": "preserve",
-    "importHelpers": true,
-    "experimentalDecorators": true,
     "baseUrl": "./src",
     "paths": {
       "@": ["index"],
-      "@*": ["*"],
+      "@/*": ["*"],
       "@pages/*" : ["renderer/pages/*"],
       "@organisms/*" : ["renderer/organisms/*"]
-    },
-    "outDir": "./dist"
+    }
   },
   "include": [
     "src/**/*",
-    "tests/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
+    "types/**/*"
   ]
 }

@@ -38,15 +38,15 @@
 </template>
 <script>
 /** Libs */
-import PolykeyClient from '@renderer/resources/client';
+import PolykeyClient from '@/renderer/resources/client';
 import { toSvg } from 'jdenticon';
 import { defineComponent, computed, reactive, watchEffect, ref } from 'vue';
 import { MoreOutlined } from '@ant-design/icons-vue';
 import { useStore } from 'vuex';
 
 /** Components */
-import PrimaryButton from '@renderer/atoms/button/PrimaryButton.vue';
-import ClearButton from '@renderer/atoms/button/ClearButton.vue';
+import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
+import ClearButton from '@/renderer/atoms/button/ClearButton.vue';
 import Search from '@/renderer/molecules/search/Search.vue';
 
 /** Assets */

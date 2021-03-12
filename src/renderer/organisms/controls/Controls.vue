@@ -30,11 +30,11 @@ import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 
 /** Components */
-import Search from '@renderer/molecules/search/Search.vue';
-import CreateVault from '@renderer/molecules/create-vault/CreateVault.vue';
+import Search from '@/renderer/molecules/search/Search.vue';
+import CreateVault from '@/renderer/molecules/create-vault/CreateVault.vue';
 
 /** Store */
-import { actions } from '@renderer/store/modules/Vaults';
+import { actions } from '@/renderer/store/modules/Vaults';
 
 export default defineComponent({
   components: {

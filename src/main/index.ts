@@ -1,5 +1,5 @@
 // import server from './server';
-// import * as pb from '@matrixai/polykey/proto/compiled/Agent_pb';
+// import * as pb from '@matrixai/polykey/dist/proto/compiled/Agent_pb';
 // import { app } from 'electron';
 // import WindowApp from './window';
 // import TrayComponent from './tray';
@@ -47,7 +47,7 @@
 //   }
 // });
 import server from './server';
-import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 
@@ -64,7 +64,8 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false
     }
   });
 

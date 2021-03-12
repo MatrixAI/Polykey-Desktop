@@ -20,9 +20,9 @@ import { defineComponent, onBeforeUnmount, onMounted } from 'vue';
 import { useStore, ref } from 'vuex';
 
 /** Components */
-import Search from '@renderer/molecules/search/Search.vue';
-import PrimaryButton from '@renderer/atoms/button/PrimaryButton.vue';
-import DefaultButton from '@renderer/atoms/button/DefaultButton.vue';
+import Search from '@/renderer/molecules/search/Search.vue';
+import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
+import DefaultButton from '@/renderer/atoms/button/DefaultButton.vue';
 import Shake from '@/renderer/assets/shake.svg';
 
 /** Store */

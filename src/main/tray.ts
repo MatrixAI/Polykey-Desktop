@@ -1,83 +1,85 @@
-import fs from 'fs';
-import path from 'path';
-import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
-import * as pb from '@matrixai/polykey/proto/js/Agent_pb';
-import { app, Menu, BrowserWindow, Tray } from 'electron';
+import fs from 'fs'
+import path from 'path'
+import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey'
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
+import { app, Menu, BrowserWindow, Tray } from 'electron'
 
-import { polykeyPath } from './server';
+import { polykeyPath } from './server'
 
-type CreateWinow = () => BrowserWindow;
+type CreateWinow = () => BrowserWindow
 
 export default class TrayComponent {
-  public mainWindow: BrowserWindow | null = null;
-  public createWindow!: CreateWinow;
-  public tray!: Tray;
+  public mainWindow: BrowserWindow | null = null
+  public createWindow!: CreateWinow
+  public tray!: Tray
 
   setMainWindow(mainWindow) {
-    this.mainWindow = mainWindow;
+    this.mainWindow = mainWindow
   }
 
   attachRecreateWindow(createWindow) {
-    this.createWindow = createWindow;
+    this.createWindow = createWindow
   }
 
   createMenu() {
-    const dirname = path.dirname(__filename);
-    const prodPath = path.join(dirname, 'static', 'logo.png');
-    const devPath = path.join('..', '..', 'static', 'logo.png');
+    const dirname = path.dirname(__filename)
+    const prodPath = path.join(dirname, 'static', 'logo.png')
+    const devPath = path.join('..', '..', 'static', 'logo.png')
     if (fs.existsSync(prodPath)) {
-      this.tray = new Tray(prodPath);
+      this.tray = new Tray(prodPath)
     } else if (fs.existsSync(devPath)) {
-      this.tray = new Tray(devPath);
+      this.tray = new Tray(devPath)
     } else {
-      throw Error('logo not found');
+      throw Error('logo not found')
     }
 
     const contextMenu = Menu.buildFromTemplate([
       {
         label: 'Show App',
-        click: this.showApp.bind(this)
+        click: this.showApp.bind(this),
       },
       {
         label: 'Kill Agent',
-        click: this.killAgent.bind(this)
+        click: this.killAgent.bind(this),
       },
       {
         label: 'Quit App',
-        click: this.quitApp.bind(this)
-      }
-    ]);
+        click: this.quitApp.bind(this),
+      },
+    ])
 
-    this.tray.setContextMenu(contextMenu);
+    this.tray.setContextMenu(contextMenu)
 
-    return this.tray;
+    return this.tray
   }
 
   showApp() {
     if (this.mainWindow !== null) {
-      this.createWindow();
+      this.createWindow()
     }
   }
 
   async killAgent() {
     // kill polykey-agent process
     try {
-      const client = PolykeyAgent.connectToAgent(polykeyPath);
-      const successful = await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
+      const client = PolykeyAgent.connectToAgent(polykeyPath)
+      const successful = await promisifyGrpc(client.stopAgent.bind(client))(
+        new pb.EmptyMessage(),
+      )
       if (successful) {
-        console.log('agent has been stopped');
+        console.log('agent has been stopped')
       } else {
-        console.log('agent could not be stopped');
+        console.log('agent could not be stopped')
       }
     } catch (error) {
-      console.log('agent could not be stopped');
+      console.log('agent could not be stopped')
     }
-    app.quit();
-    this.tray.destroy();
+    app.quit()
+    this.tray.destroy()
   }
 
   quitApp() {
-    app.quit();
-    this.tray.destroy();
+    app.quit()
+    this.tray.destroy()
   }
 }
