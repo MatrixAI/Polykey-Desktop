@@ -8,8 +8,8 @@
 </template>
 <script>
 import { toSvg } from 'jdenticon';
-import CarretDown from '@renderer/assets/carret-down.svg';
-import CarretUp from '@renderer/assets/carret-up.svg';
+import CarretDown from '@/renderer/assets/carret-down.svg';
+import CarretUp from '@/renderer/assets/carret-up.svg';
 import { defineComponent, toRefs, computed } from 'vue';
 
 export default defineComponent({

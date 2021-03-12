@@ -36,13 +36,13 @@ import { defineComponent, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 /** Components */
-import Search from '@renderer/molecules/search/Search.vue';
+import Search from '@/renderer/molecules/search/Search.vue';
 
 /** Store */
-import { actions } from '@renderer/store/modules/Gestalt';
+import { actions } from '@/renderer/store/modules/Gestalt';
 
 /** Assets */
-import Github from '@renderer/assets/github.svg';
+import Github from '@/renderer/assets/github.svg';
 
 export default defineComponent({
   components: {

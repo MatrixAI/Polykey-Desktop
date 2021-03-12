@@ -81,7 +81,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 /** Components */
-import DefaultButton from '@renderer/atoms/button/SmallDefaultButton.vue';
+import DefaultButton from '@/renderer/atoms/button/SmallDefaultButton.vue';
 
 /** Assets */
 import Twitter from '@/renderer/assets/twitter.svg';
@@ -92,7 +92,7 @@ import Online from '@/renderer/assets/online.svg';
 import Offline from '@/renderer/assets/offline.svg';
 
 /** Store */
-import { actions } from '@renderer/store/modules/Gestalt';
+import { actions } from '@/renderer/store/modules/Gestalt';
 
 export default defineComponent({
   components: {

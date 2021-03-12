@@ -1,38 +1,47 @@
-const isWin = process.platform === 'win32' || 'linux';
+const process = require('process');
+
+const isWin = process.platform === 'win32';
 const isDarwin = process.platform === 'darwin';
 
-let packagerConfig = {};
-const makers = [];
+const packagerConfig = {
+  electronZipDir: process.env.electron_zip_dir
+};
+
+const makers = [
+  {
+    name: '@electron-forge/maker-deb',
+  },
+  {
+    name: '@electron-forge/maker-rpm',
+  },
+  {
+    name: '@electron-forge/maker-zip',
+  },
+  {
+    name: '@electron-forge/maker-squirrel',
+    config: {
+      authors: "Matrix AI"
+    }
+  }
+];
 
 if (isWin) {
-  packagerConfig = {
-    asar: true,
-    icon: 'icons/icons/win/icon.ico'
-  };
-  makers.push({
-    name: '@electron-forge/maker-squirrel',
-    config: {}
-  });
+  packagerConfig['icon'] = 'icons/icons/win/icon.ico';
 }
 
 if (isDarwin) {
-  const { OSX_IDENTITY, OSX_APPLE_ID, OSX_APPLE_ID_PASSWORD } = process.env;
-
-  packagerConfig = {
-    osxSign: {
-      identity: OSX_IDENTITY,
-      'hardened-runtime': true,
-      entitlements: 'entitlements.plist',
-      'entitlements-inherit': 'entitlements.plist',
-      'signature-flags': 'library'
-    },
-    osxNotarize: {
-      appleId: OSX_APPLE_ID,
-      appleIdPassword: OSX_APPLE_ID_PASSWORD
-    },
-    icon: 'icons/icons/mac/icon.icns'
+  packagerConfig['osxSign'] = {
+    identity: process.env.OSX_IDENTITY,
+    'hardened-runtime': true,
+    entitlements: 'entitlements.plist',
+    'entitlements-inherit': 'entitlements.plist',
+    'signature-flags': 'library'
   };
-
+  packagerConfig['osxNotarize'] = {
+    appleId: process.env.OSX_APPLE_ID,
+    appleIdPassword: process.env.OSX_APPLE_ID_PASSWORD
+  };
+  packagerConfig['icon'] = 'icons/icons/mac/icon.icns';
   makers.push({
     name: '@electron-forge/maker-dmg',
     config: {
