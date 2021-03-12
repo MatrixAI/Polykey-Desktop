@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const WebpackBar = require('webpackbar');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -128,7 +127,6 @@ const electronRenderer = {
     new CopyWebpackPlugin({
       patterns: [{ from: 'static', to: 'static' }]
     }),
-    new WebpackBar(),
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
       // configure global feature flags for vue esm-bundler
