@@ -125,6 +125,12 @@ nix-build ./release.nix --attr package.darwin.x64.zip
 nix-env -f ./release.nix --install --attr application
 ```
 
+### Building for OsX
+```
+npm install @electron-forge/maker-dmg
+npm run build
+npx electron-forge make --platform=darwin
+```
 
 
 ### Building - old
