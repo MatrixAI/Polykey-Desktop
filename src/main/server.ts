@@ -1,33 +1,44 @@
 import os from 'os';
 import fixPath from 'fix-path';
 import { ipcMain, clipboard } from 'electron';
-import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
-import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb';
-import { getDefaultNodePath } from './utils';
+// import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
+// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+// import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb';
+import { PolykeyClient } from '@matrixai/polykey/dist/index'
+import { GRPCClientClient } from '@matrixai/polykey/dist/client';
+import { getDefaultNodePath } from '@matrixai/polykey/dist/utils';
+import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
+import { clientPB } from '@matrixai/polykey/dist/client';
+import { KeyMessage } from '../../../js-polykey/dist/proto/js/Client_pb';
+
+
 
 fixPath();
 
 /** This will default for now */
 const polykeyPath = getDefaultNodePath();
-let client: AgentClient;
+let client: PolykeyClient;
+let grpcClient: GRPCClientClient
 
 async function getAgentClient(failOnNotInitialized = false) {
   // make sure agent is running
   console.log('starting....');
   console.log(polykeyPath);
 
-  await PolykeyAgent.startAgent(polykeyPath, true, failOnNotInitialized, true);
+  const clientConfig = {};
+  clientConfig['logger'] = new Logger('CLI Logger', LogLevel.WARN, [
+    new StreamHandler(),
+  ]);
+  clientConfig['logger'].setLevel(LogLevel.DEBUG);
+  clientConfig['nodePath'] = polykeyPath;
+
+  client = new PolykeyClient(clientConfig);
 
   console.log('done starting agent..');
-  client = PolykeyAgent.connectToAgent(polykeyPath);
+  await client.start({});
+  grpcClient = client.grpcClient;
 
-  const res = (await promisifyGrpc(client.getStatus.bind(client))(
-    new pb.EmptyMessage(),
-  )) as pb.AgentStatusMessage;
-  console.log(res.getStatus());
-
-  if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
+  if (!grpcClient.started) {
     throw Error('agent is not running and could not be restarted');
   }
 }
@@ -67,16 +78,11 @@ async function setHandlers() {
       // so check status and if it throws we know its offline, if not we assume its online
       console.log('connectToAgent');
       console.log(polykeyPath);
-      const tempClient = PolykeyAgent.connectToAgent(
-        polykeyPath,
-      ) as AgentClient;
+
+      const tempClient = client.grpcClient;
 
       console.log('getStatus');
-      const res = (await promisifyGrpc(tempClient.getStatus.bind(tempClient))(
-        new pb.EmptyMessage(),
-      )) as pb.AgentStatusMessage;
-      console.log('done2');
-      if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
+      if (!tempClient.started) {
         throw Error('agent is not running');
       }
       // it is here that we know that the agent is running and client is initialize
@@ -84,24 +90,19 @@ async function setHandlers() {
       try {
         // agent is offline so we start it!
         console.log('startAgent');
-        const pid = await PolykeyAgent.startAgent(
-          polykeyPath,
-          true,
-          true,
-          true,
-        );
+        const pid = 0; //FIXME: Return a pid or not? work out if this is used anywhere.
+        await client.start({});
+
         console.log('connectToAgent');
-        const tempClient = PolykeyAgent.connectToAgent(polykeyPath);
+        const tempClient = client.grpcClient;
         // we just confirm that the agent has actually been started
         // if not, it is most likely not initalize so we just throw the error for the frontend to handle
         console.log('getStatus');
-        const res = (await promisifyGrpc(tempClient.getStatus.bind(tempClient))(
-          new pb.EmptyMessage(),
-        )) as pb.AgentStatusMessage;
         console.log('done');
-        if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
+        if (!tempClient.started) {
           throw Error('agent could not be started');
         }
+
         return pid;
       } catch (error) {
         throw Error(error.message);
@@ -110,12 +111,9 @@ async function setHandlers() {
   });
 
   ipcMain.handle('agent-restart', async (event, request) => {
-    const client = PolykeyAgent.connectToAgent(polykeyPath);
-    await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
-    const pid = <number>(
-      await PolykeyAgent.startAgent(polykeyPath, true, false, true)
-    );
-    await getAgentClient();
+    await client.stop();
+    await client.start({});
+    const pid = 0; //FIXME: return pid or not?
     return pid;
   });
 
@@ -156,9 +154,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.decryptFile.bind(client))(
-      pb.DecryptFileMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysDecrypt(cryptoMessage);
     return res.serializeBinary();
   });
 
@@ -166,9 +163,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.deleteKey.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    );
+    const keyMessage = clientPB.KeyMessage.deserializeBinary(request);
+    await grpcClient.keysDelete(keyMessage);
     return;
   });
 
@@ -176,9 +172,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.deleteSecret.bind(client))(
-      pb.SecretPathMessage.deserializeBinary(request),
-    );
+    const vaultMessge = clientPB.VaultSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsDeleteSecret(vaultMessge);
     return;
   });
 
@@ -186,10 +181,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.deleteVault.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    );
-    return;
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsDelete(vaultMessage)
+    return res.serializeBinary();
   });
 
   ipcMain.handle('DeriveKey', async (event, request) => {
@@ -206,9 +200,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.encryptFile.bind(client))(
-      pb.EncryptFileMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysEncrypt(cryptoMessage);
     return res.serializeBinary();
   });
 
@@ -353,9 +346,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getKey.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const keyMessage = clientPB.KeyMessage.deserializeBinary(request);
+    const res = await grpcClient.keysGet(keyMessage);
     return res.serializeBinary();
   });
 
@@ -383,9 +375,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getPrimaryKeyPair.bind(client))(
-      pb.BooleanMessage.deserializeBinary(request),
-    )) as pb.KeyPairMessage;
+    const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
+    const res = await grpcClient.keysRootKeyPair(emptyMessage);
     return res.serializeBinary();
   });
 
@@ -403,9 +394,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getSecret.bind(client))(
-      pb.SecretPathMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const secretMessage = clientPB.SecretSpecificMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsGetSecret(secretMessage);
     return res.serializeBinary();
   });
 
@@ -463,10 +453,11 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.listVaults.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.StringListMessage;
-    return res.serializeBinary();
+    const test = await grpcClient.vaultsList();
+    return;
+    /*TODO: Need to convert the stream or generator to a list of vault messages
+      Might need listVaultMessage in clientPB so I can use serializeBinary()
+     */
   });
 
   ipcMain.handle('LockNode', async (event, request) => {
@@ -500,9 +491,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.newSecret.bind(client))(
-      pb.SecretContentMessage.deserializeBinary(request),
-    );
+    const vaultMessage = clientPB.VaultSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsNewSecret(vaultMessage); //NOTE: not returning success?
     return;
   });
 
@@ -520,10 +510,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.newVault.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    );
-    return;
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsCreate(vaultMessage);
+    return res.serializeBinary()
   });
 
   ipcMain.handle('PingPeer', async (event, request) => {
@@ -570,9 +559,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.signFile.bind(client))(
-      pb.SignFileMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysSign(cryptoMessage);
     return res.serializeBinary();
   });
 
@@ -628,9 +616,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.updateSecret.bind(client))(
-      pb.SecretContentMessage.deserializeBinary(request),
-    );
+    const secretMessage = clientPB.SecretMessage.deserializeBinary(request);
+    await grpcClient.vaultsEditSecret(secretMessage);
     return;
   });
 
@@ -638,10 +625,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.verifyFile.bind(client))(
-      pb.VerifyFileMessage.deserializeBinary(request),
-    );
-    return;
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysVerify(cryptoMessage);
+    return res.serializeBinary();
   });
 
   /** Test handlers */

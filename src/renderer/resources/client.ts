@@ -1,4 +1,7 @@
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+// import * as pb from '@matrixai/polykey/dist/proto/js/Client_pb'
+import { clientPB } from '@matrixai/polykey/dist/client'
+import commandSecretEnv from '../../../../js-polykey/dist/bin/secrets/commandSecretEnv';
 const ipcRenderer = window.require('electron').ipcRenderer;
 // import { ipcRenderer } from 'electron';
 
@@ -78,39 +81,35 @@ class PolykeyClient {
   }
 
   static async DecryptFile(
-    request: pb.DecryptFileMessage.AsObject,
+    request: clientPB.CryptoMessage,
   ): Promise<string> {
-    const encodedRequest = new pb.DecryptFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPrivateKeyPath(request.privateKeyPath);
-    encodedRequest.setPassphrase(request.passphrase);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('DecryptFile', encodedRequest.serializeBinary()),
+    const res = clientPB.CryptoMessage.deserializeBinary(
+      await ipcRenderer.invoke('DecryptFile', request.serializeBinary()),
     );
-    return res.getS();
+    return res.getData();
   }
 
   static async DeleteKey(keyName: string): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(keyName);
-    await ipcRenderer.invoke('DeleteKey', encodedRequest.serializeBinary());
+    const keyMessage = new clientPB.KeyMessage();
+    keyMessage.setName(keyName);
+
+    await ipcRenderer.invoke('DeleteKey', keyMessage.serializeBinary());
     return;
   }
 
   static async DeleteSecret(
-    request: pb.SecretPathMessage.AsObject,
+    request: clientPB.VaultSpecificMessage,
   ): Promise<void> {
-    const encodedRequest = new pb.SecretPathMessage();
-    encodedRequest.setVaultName(request.vaultName);
-    encodedRequest.setSecretName(request.secretName);
-    await ipcRenderer.invoke('DeleteSecret', encodedRequest.serializeBinary());
+
+    await ipcRenderer.invoke('DeleteSecret', request.serializeBinary());
     return;
   }
 
   static async DeleteVault(vaultName: string): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(vaultName);
-    await ipcRenderer.invoke('DeleteVault', encodedRequest.serializeBinary());
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setName(vaultName);
+    // vaultMessage.setId("PLACEHOLDER") //FIXME
+    await ipcRenderer.invoke('DeleteVault', vaultMessage.serializeBinary());
     return;
   }
 
@@ -123,15 +122,12 @@ class PolykeyClient {
   }
 
   static async EncryptFile(
-    request: pb.EncryptFileMessage.AsObject,
+    request: clientPB.CryptoMessage,
   ): Promise<string> {
-    const encodedRequest = new pb.EncryptFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPublicKeyPath(request.publicKeyPath);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('EncryptFile', encodedRequest.serializeBinary()),
+    const res = clientPB.CryptoMessage.deserializeBinary(
+      await ipcRenderer.invoke('EncryptFile', request.serializeBinary()),
     );
-    return res.getS();
+    return res.getData();
   }
 
   static async FindPeer(
@@ -164,12 +160,12 @@ class PolykeyClient {
   }
 
   static async GetKey(keyName: string): Promise<string> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(keyName);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetKey', encodedRequest.serializeBinary()),
-    );
-    return res.getS();
+    const keyMessage = new clientPB.KeyMessage();
+    keyMessage.setName(keyName);
+
+    const res = await ipcRenderer.invoke('GetKey', keyMessage.serializeBinary());
+    const returnKeyMessage = clientPB.KeyMessage.deserializeBinary(res);
+    return returnKeyMessage.getKey();
   }
 
   static async GetLocalPeerInfo(): Promise<pb.NodeInfoMessage.AsObject> {
@@ -190,15 +186,12 @@ class PolykeyClient {
     return res.toObject();
   }
 
-  static async GetPrimaryKeyPair(
-    includePrivateKey: boolean,
-  ): Promise<pb.KeyPairMessage.AsObject> {
-    const encodedRequest = new pb.BooleanMessage();
-    encodedRequest.setB(includePrivateKey);
-    const res = pb.KeyPairMessage.deserializeBinary(
+  static async GetPrimaryKeyPair(): Promise<clientPB.KeyPairMessage.AsObject> {
+    const emptyMessage = new clientPB.EmptyMessage;
+    const res = clientPB.KeyPairMessage.deserializeBinary(
       await ipcRenderer.invoke(
         'GetPrimaryKeyPair',
-        encodedRequest.serializeBinary(),
+        emptyMessage.serializeBinary(),
       ),
     );
     return res.toObject();
@@ -209,15 +202,14 @@ class PolykeyClient {
   }
 
   static async GetSecret(
-    request: pb.SecretPathMessage.AsObject,
+    request: clientPB.SecretSpecificMessage,
   ): Promise<string> {
-    const encodedRequest = new pb.SecretPathMessage();
-    encodedRequest.setVaultName(request.vaultName);
-    encodedRequest.setSecretName(request.secretName);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetSecret', encodedRequest.serializeBinary()),
-    );
-    return res.getS();
+    const secretMessage = new clientPB.SecretSpecificMessage();
+    secretMessage.setVault(request.getVault());
+    secretMessage.setContent(request.getContent());
+    const res = await ipcRenderer.invoke('GetSecret', secretMessage.serializeBinary())
+    const test = clientPB.SecretMessage.deserializeBinary(res);
+    return test.getName();
   }
 
   static async GetStatus(): Promise<string> {
@@ -478,7 +470,7 @@ class PolykeyClient {
     return res.getSList();
   }
 
-  static async ListVaults(): Promise<string[]> {
+  static async ListVaults(): Promise<string[]> { // TODO: come back to this later, work out how to handle streams/generators
     const res = pb.StringListMessage.deserializeBinary(
       await ipcRenderer.invoke('ListVaults'),
     );
@@ -520,19 +512,9 @@ class PolykeyClient {
   }
 
   static async NewSecret(
-    request: pb.SecretContentMessage.AsObject,
+    request: clientPB.VaultSpecificMessage,
   ): Promise<void> {
-    const encodedRequest = new pb.SecretContentMessage();
-    const secretPathMessage = new pb.SecretPathMessage();
-    secretPathMessage.setVaultName(request.secretPath!.vaultName);
-    secretPathMessage.setSecretName(request.secretPath!.secretName);
-    encodedRequest.setSecretPath(secretPathMessage);
-    if (request.secretFilePath !== '') {
-      encodedRequest.setSecretFilePath(request.secretFilePath);
-    } else {
-      encodedRequest.setSecretContent(request.secretContent);
-    }
-    await ipcRenderer.invoke('NewSecret', encodedRequest.serializeBinary());
+    await ipcRenderer.invoke('NewSecret', request.serializeBinary());
     return;
   }
 
@@ -552,9 +534,10 @@ class PolykeyClient {
   }
 
   static async NewVault(vaultName: string): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(vaultName);
-    await ipcRenderer.invoke('NewVault', encodedRequest.serializeBinary());
+    const vaultMessage = new clientPB.VaultMessage;
+    vaultMessage.setName(vaultName);
+    // vaultMessage.setId("PLACEHOLDER")// FIXME: this should be an actual ID or something.
+    await ipcRenderer.invoke('NewVault', vaultMessage.serializeBinary());
     return;
   }
 
@@ -598,15 +581,11 @@ class PolykeyClient {
     return res.getSList();
   }
 
-  static async SignFile(request: pb.SignFileMessage.AsObject): Promise<string> {
-    const encodedRequest = new pb.SignFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPrivateKeyPath(request.privateKeyPath);
-    encodedRequest.setPassphrase(request.passphrase);
-    const response = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('SignFile', encodedRequest.serializeBinary()),
+  static async SignFile(request: clientPB.CryptoMessage): Promise<string> {
+    const response = clientPB.CryptoMessage.deserializeBinary(
+      await ipcRenderer.invoke('SignFile', request.serializeBinary()),
     );
-    return response.getS();
+    return response.getSignature();
   }
 
   static async StopAgent(): Promise<void> {
@@ -670,30 +649,17 @@ class PolykeyClient {
   }
 
   static async UpdateSecret(
-    request: pb.SecretContentMessage.AsObject,
+    request: clientPB.SecretMessage,
   ): Promise<void> {
-    const encodedRequest = new pb.SecretContentMessage();
-    const secretPathMessage = new pb.SecretPathMessage();
-    secretPathMessage.setVaultName(request.secretPath!.vaultName);
-    secretPathMessage.setSecretName(request.secretPath!.secretName);
-    encodedRequest.setSecretPath(secretPathMessage);
-    if (request.secretFilePath !== '') {
-      encodedRequest.setSecretFilePath(request.secretFilePath);
-    } else {
-      encodedRequest.setSecretContent(request.secretContent);
-    }
-    await ipcRenderer.invoke('UpdateSecret', encodedRequest.serializeBinary());
+    await ipcRenderer.invoke('UpdateSecret', request.serializeBinary());
     return;
   }
 
   static async VerifyFile(
-    request: pb.VerifyFileMessage.AsObject,
-  ): Promise<void> {
-    const encodedRequest = new pb.VerifyFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPublicKeyPath(request.publicKeyPath);
-    await ipcRenderer.invoke('VerifyFile', encodedRequest.serializeBinary());
-    return;
+    request: clientPB.CryptoMessage,
+  ): Promise<boolean> {
+    const res = await ipcRenderer.invoke('VerifyFile', request.serializeBinary());
+    return clientPB.StatusMessage.deserializeBinary(res).getSuccess();
   }
 
   static async SetIdentity(request: pb.StringMessage.AsObject): Promise<void> {
