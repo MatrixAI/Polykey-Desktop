@@ -1,4 +1,3 @@
-
 import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
 const ipcRenderer = window.require('electron').ipcRenderer
 // import { ipcRenderer } from 'electron';
@@ -210,17 +209,19 @@ class PolykeyClient {
   }
 
   static async GetIdentity(request: pb.EmptyMessage.AsObject): Promise<string> {
-    const encodedRequest = new pb.EmptyMessage();
+    const encodedRequest = new pb.EmptyMessage()
     const res = pb.IdentityInfo.deserializeBinary(
-      await ipcRenderer.invoke('GetIdentity', encodedRequest.serializeBinary())
-    );
-    return res.getKey();
+      await ipcRenderer.invoke('GetIdentity', encodedRequest.serializeBinary()),
+    )
+    return res.getKey()
   }
 
-  static async GetSecret(request: pb.SecretPathMessage.AsObject): Promise<string> {
-    const encodedRequest = new pb.SecretPathMessage();
-    encodedRequest.setVaultName(request.vaultName);
-    encodedRequest.setSecretName(request.secretName);
+  static async GetSecret(
+    request: pb.SecretPathMessage.AsObject,
+  ): Promise<string> {
+    const encodedRequest = new pb.SecretPathMessage()
+    encodedRequest.setVaultName(request.vaultName)
+    encodedRequest.setSecretName(request.secretName)
     const res = pb.StringMessage.deserializeBinary(
       await ipcRenderer.invoke('GetSecret', encodedRequest.serializeBinary()),
     )
@@ -515,9 +516,14 @@ class PolykeyClient {
   static async InitializeKeyNode(
     request: pb.NewKeyPairMessage.AsObject,
   ): Promise<void> {
+    const bootstrapPemList = request.bootstrapPemList.map((bootstrapPem) => {
+      const bootstrap = new pb.BootstrapPem()
+      return bootstrap.setBootstrapPem(bootstrapPem.bootstrapPem)
+    })
     const encodedRequest = new pb.NewKeyPairMessage()
     encodedRequest.setPassphrase(request.passphrase)
-    const res = pb.EmptyMessage.deserializeBinary(
+    encodedRequest.setBootstrapPemList(bootstrapPemList)
+    pb.EmptyMessage.deserializeBinary(
       await ipcRenderer.invoke(
         'InitializeKeyNode',
         encodedRequest.serializeBinary(),
@@ -634,8 +640,13 @@ class PolykeyClient {
     request: pb.UnlockNodeMessage.AsObject,
   ): Promise<void> {
     const encodedRequest = new pb.UnlockNodeMessage()
+    const bootstrapPemList = request.bootstrapPemList.map((bootstrapPem) => {
+      const bootstrap = new pb.BootstrapPem()
+      return bootstrap.setBootstrapPem(bootstrapPem.bootstrapPem)
+    })
     encodedRequest.setPassphrase(request.passphrase)
     encodedRequest.setTimeout(request.timeout)
+    encodedRequest.setBootstrapPemList(bootstrapPemList)
     await ipcRenderer.invoke('UnlockNode', encodedRequest.serializeBinary())
     return
   }

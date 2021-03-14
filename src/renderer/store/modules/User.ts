@@ -1,6 +1,7 @@
 import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
 import PolykeyClient from '@/renderer/resources/client'
 import { makeIdentifiers } from '@/renderer/store/utils'
+import bootstrapPems from '@/renderer/resources/bootstrap';
 
 const DELAY = 0
 
@@ -72,7 +73,18 @@ export default {
     async [actionsInt.CreateNewNode]({ commit }, node) {
       try {
         console.log('Starting to InitializeKeyNode')
-        const result = await PolykeyClient.InitializeKeyNode(node)
+        const bootstrapPemList = bootstrapPems.map((bootstrapPem) => {
+          const bootstrap = new pb.BootstrapPem()
+          bootstrap.setBootstrapPem(bootstrapPem)
+          return bootstrap.toObject()
+        })
+
+        const result = await PolykeyClient.InitializeKeyNode({
+          passphrase: node.passphrase,
+          bootstrapPemList,
+          nbits: 0,
+        })
+
         console.log(result)
         if (result === undefined) {
           commit(mutations.SetIsUnlocked, true)
@@ -83,9 +95,16 @@ export default {
       }
     },
     async [actionsInt.UnlockKeyNode]({ commit }, passphrase: string) {
+      const bootstrapPemList = bootstrapPems.map((bootstrapPem) => {
+        const bootstrap = new pb.BootstrapPem()
+        bootstrap.setBootstrapPem(bootstrapPem)
+        return bootstrap.toObject()
+      })
+
       const result = await PolykeyClient.UnlockNode({
         timeout: 0,
         passphrase,
+        bootstrapPemList,
       })
       if (result !== null) {
         commit(mutations.SetIsUnlocked, true)

@@ -440,15 +440,15 @@ async function setHandlers() {
     return res.serializeBinary()
   })
 
-  ipcMain.handle('ListPeers', async (event, request) => {
-    if (!client) {
-      await getAgentClient()
-    }
-    const res = (await promisifyGrpc(client.listNodes.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.StringListMessage
-    return res.serializeBinary()
-  })
+  // ipcMain.handle('ListPeers', async (event, request) => {
+  //   if (!client) {
+  //     await getAgentClient()
+  //   }
+  //   const res = (await promisifyGrpc(client.listNodes.bind(client))(
+  //     new pb.EmptyMessage(),
+  //   )) as pb.StringListMessage
+  //   return res.serializeBinary()
+  // })
 
   ipcMain.handle('ListSecrets', async (event, request) => {
     if (!client) {
