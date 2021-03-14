@@ -111,7 +111,13 @@ const electronRenderer = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/renderer/index.html'
+      template: 'src/renderer/index.ejs',
+      inject: 'body',
+      xhtml: true,
+      filename: 'index.html',
+      templateParameters: {
+        title: 'Polykey'
+      }
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
