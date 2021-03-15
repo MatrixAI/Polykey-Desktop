@@ -11,7 +11,6 @@ import Identities from '@pages/identities/Identities.vue';
 import GestaltProfile from '@pages/gestalt/GestaltProfile.vue';
 
 function createRouter(config: Config) {
-
   const routes: Array<vueRouter.RouteRecordRaw> = [
     {
       path: '/installation',
