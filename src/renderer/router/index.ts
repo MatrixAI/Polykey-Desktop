@@ -1,13 +1,13 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 
-import Vaults from '@pages/vault/VaultList.vue'
-import Vault from '@pages/vault/Vault.vue'
-import SharedWithMe from '@pages/vault/SharedVaultList.vue'
-import Installation from '@pages/installation/Installation.vue'
-import SelectKeyNode from '@pages/bootstrap/SelectKeyNode.vue'
-import SelectExistingKeyNode from '@pages/bootstrap/SelectExistingKeyNode.vue'
-import Identities from '@pages/identities/Identities.vue'
-import GestaltProfile from '@pages/gestalt/GestaltProfile.vue'
+import Vaults from '@pages/vault/VaultList.vue';
+import Vault from '@pages/vault/Vault.vue';
+import SharedWithMe from '@pages/vault/SharedVaultList.vue';
+import Installation from '@pages/installation/Installation.vue';
+import SelectKeyNode from '@pages/bootstrap/SelectKeyNode.vue';
+import SelectExistingKeyNode from '@pages/bootstrap/SelectExistingKeyNode.vue';
+import Identities from '@pages/identities/Identities.vue';
+import GestaltProfile from '@pages/gestalt/GestaltProfile.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -52,15 +52,15 @@ const routes: Array<RouteRecordRaw> = [
     path: '/gestalt-profile/:id',
     component: GestaltProfile,
   },
-]
+];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
-})
+});
 
 router.beforeEach((to, from, next) => {
-  next()
-})
+  next();
+});
 
-export default router
+export default router;

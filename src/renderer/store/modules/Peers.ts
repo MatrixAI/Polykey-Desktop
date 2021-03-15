@@ -1,13 +1,13 @@
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
-import PolykeyClient from '@/renderer/resources/client'
-import { makeIdentifiers } from '@/renderer/store/utils'
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+import PolykeyClient from '@/renderer/resources/client';
+import { makeIdentifiers } from '@/renderer/store/utils';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Peers', [
   'ListPeers',
   'ScanPeer',
   'PullVaults',
   'PingPeer',
-])
+]);
 
 const enum mutations {
   SetListPeers = 'SetListPeers',
@@ -15,20 +15,20 @@ const enum mutations {
 }
 
 type State = {
-  peers: string[]
-}
+  peers: string[];
+};
 
 const state: State = {
   peers: [],
-}
+};
 export default {
   namespaced: true,
   state,
   actions: {
     async [actionsInt.ListPeers]({ commit }) {
-      const peerIds = await PolykeyClient.ListPeers()
-      console.log(peerIds)
-      commit(mutations.SetListPeers)
+      const peerIds = await PolykeyClient.ListPeers();
+      console.log(peerIds);
+      commit(mutations.SetListPeers);
     },
     async [actionsInt.PullVaults]({ commit }, peerId: string) {
       //commit(mutations.PullVaults, searchMode);
@@ -39,8 +39,8 @@ export default {
   },
   mutations: {
     [mutations.SetListPeers]: function (state: State, peers: string[]) {
-      state.peers = peers
+      state.peers = peers;
     },
   },
   getters: {},
-}
+};

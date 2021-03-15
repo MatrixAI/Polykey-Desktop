@@ -6,18 +6,18 @@ export default {
   },
   actions: {
     selectNodePath: function (context, activeNodePath) {
-      context.commit('selectNodePath', activeNodePath)
+      context.commit('selectNodePath', activeNodePath);
     },
     loadNodePathList: function (context) {
-      context.commit('loadNodePathList')
+      context.commit('loadNodePathList');
     },
   },
   mutations: {
     selectNodePath: function (state, activeNodePath) {
-      state.activeNodePath = activeNodePath
+      state.activeNodePath = activeNodePath;
     },
     loadNodePathList: function (state) {
-      state.nodePathList = [state.activeNodePath]
+      state.nodePathList = [state.activeNodePath];
     },
   },
-}
+};

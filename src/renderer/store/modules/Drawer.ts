@@ -6,19 +6,19 @@ export default {
   },
   actions: {
     toggleDrawer: function ({ commit, state }, isOpen?: boolean) {
-      commit('setDrawer', isOpen ?? !state.isOpen)
+      commit('setDrawer', isOpen ?? !state.isOpen);
     },
     selectRoute: function ({ commit }, route: string) {
-      commit('setSelectedRoute', route)
+      commit('setSelectedRoute', route);
     },
   },
   mutations: {
     setDrawer: function (state, open) {
-      state.open = open
+      state.open = open;
     },
     setSelectedRoute: function (state, route) {
-      state.selectedRoute = route
+      state.selectedRoute = route;
     },
   },
   getters: {},
-}
+};

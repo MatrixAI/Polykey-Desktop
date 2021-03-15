@@ -1,6 +1,6 @@
-import PolykeyClient from '@/renderer/resources/client'
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
-import { makeIdentifiers } from '@/renderer/store/utils'
+import PolykeyClient from '@/renderer/resources/client';
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+import { makeIdentifiers } from '@/renderer/store/utils';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Gestalt', [
   'SearchMode',
@@ -12,7 +12,7 @@ const [actionsInt, actionsExt] = makeIdentifiers('Gestalt', [
 
   'GetGestalts',
   'DiscoverGestaltIdentity',
-])
+]);
 
 const enum mutations {
   SetSearchMode = 'SetSearchMode',
@@ -25,53 +25,53 @@ const enum mutations {
 }
 
 type ActiveKeynode = {
-  activeVaults: string[]
-  activeKeynode: string
-}
+  activeVaults: string[];
+  activeKeynode: string;
+};
 
 /** this can still be updated */
 type DigitalIdentity = {
-  type: string
-  username: string
-}
+  type: string;
+  username: string;
+};
 
 type FoundKeynode = {
-  key: string
-  identity: string
-  provider: string
-}
+  key: string;
+  identity: string;
+  provider: string;
+};
 
 type FoundDigitalIdentity = {
-  provider: string
-  key: string
-  keynodes: FoundKeynode[]
-}
+  provider: string;
+  key: string;
+  keynodes: FoundKeynode[];
+};
 
 type Keynode = {
-  id: string
-  name: string
-  digitalIdentity: DigitalIdentity[]
-  vaults?: string[]
-  online?: boolean
-}
+  id: string;
+  name: string;
+  digitalIdentity: DigitalIdentity[];
+  vaults?: string[];
+  online?: boolean;
+};
 
 type Gestalt = {
-  id: string
-  digitalIdentities: string[]
-  trusted: boolean
-  keynodes: Keynode[]
-}
+  id: string;
+  digitalIdentities: string[];
+  trusted: boolean;
+  keynodes: Keynode[];
+};
 
 type State = {
-  searchMode: boolean
-  pullVaultDrawer: boolean
-  addKeynodeDrawer: boolean
-  activeVaults: string[]
-  activeKeynode: string
-  gestalts: Gestalt[]
-  searchQueryDI: string
-  foundDI: FoundDigitalIdentity[]
-}
+  searchMode: boolean;
+  pullVaultDrawer: boolean;
+  addKeynodeDrawer: boolean;
+  activeVaults: string[];
+  activeKeynode: string;
+  gestalts: Gestalt[];
+  searchQueryDI: string;
+  foundDI: FoundDigitalIdentity[];
+};
 
 const state: State = {
   searchMode: false,
@@ -155,9 +155,9 @@ const state: State = {
   //     ]
   //   }
   // ]
-}
+};
 
-export { actionsExt as actions }
+export { actionsExt as actions };
 
 export default {
   namespaced: true,
@@ -173,50 +173,50 @@ export default {
           providerKey: 'github.com',
         },
         (error, result) => {
-          console.log('--- discovery --- ')
-          console.log(result)
+          console.log('--- discovery --- ');
+          console.log(result);
         },
-      )
+      );
       // setInterval(()=>{
       //   dispatch(actionsInt.GetGestalts)
       // }, 2000 )
     },
     async [actionsInt.SearchMode]({ commit }, searchMode: boolean) {
-      commit(mutations.SetSearchMode, searchMode)
+      commit(mutations.SetSearchMode, searchMode);
     },
     async [actionsInt.ToggleAddKeyNode]({ commit }, close?: boolean) {
-      commit(mutations.SetAddKeynode, close)
+      commit(mutations.SetAddKeynode, close);
     },
     async [actionsInt.PullVaultDrawer]({ commit }, pullVaultDrawer: boolean) {
       if (pullVaultDrawer) {
-        commit(mutations.SetAddKeynode, false)
+        commit(mutations.SetAddKeynode, false);
       }
-      commit(mutations.SetPullVaultDrawer, pullVaultDrawer)
+      commit(mutations.SetPullVaultDrawer, pullVaultDrawer);
     },
     async [actionsInt.ActiveKeynodeVaults](
       { commit, state },
       keynodeId: number,
     ) {
-      let activeVaults = []
+      let activeVaults = [];
       for (let i = 0; i < state.gestalts.length; ++i) {
-        const gestalt = state.gestalts[i]
+        const gestalt = state.gestalts[i];
         for (let k = 0; k < gestalt.keynodes.length; ++k) {
-          const currentKeynode = gestalt.keynodes[k]
+          const currentKeynode = gestalt.keynodes[k];
           if (currentKeynode.id === keynodeId) {
-            activeVaults = currentKeynode.vaults
+            activeVaults = currentKeynode.vaults;
           }
         }
       }
       commit(mutations.SetActiveKeynodeVaults, {
         activeVaults,
         activeKeynode: keynodeId,
-      })
+      });
     },
     async [actionsInt.SearchDI]({ commit, state }, searchQueryDI: string) {
-      console.log('--- searching ---')
+      console.log('--- searching ---');
       /** Reset everytime there is new search */
-      commit(mutations.SetFoundDI, [])
-      commit(mutations.SetSearchDI, searchQueryDI)
+      commit(mutations.SetFoundDI, []);
+      commit(mutations.SetSearchDI, searchQueryDI);
 
       await PolykeyClient.GetConnectedIdentityInfos(
         {
@@ -224,17 +224,17 @@ export default {
           searchTermList: [searchQueryDI],
         },
         (error, key) => {
-          console.log('key:', key)
-          const foundDI = state.foundDI
-          let newFoundDI = [...foundDI]
+          console.log('key:', key);
+          const foundDI = state.foundDI;
+          let newFoundDI = [...foundDI];
           if (newFoundDI.indexOf(key) < 0) {
             //if (key.toLowerCase().match(searchQueryDI.toLowerCase())) {
-            newFoundDI = [...newFoundDI, key]
+            newFoundDI = [...newFoundDI, key];
             //}
-            commit(mutations.SetFoundDI, newFoundDI)
+            commit(mutations.SetFoundDI, newFoundDI);
           }
         },
-      )
+      );
 
       // try {
       //   const gestaltsByIdentity = await PolykeyClient.GetGestaltByIdentity({
@@ -286,24 +286,24 @@ export default {
               await PolykeyClient.PingPeer({
                 publicKeyOrHandle: keynode.id,
                 timeout: 300,
-              })
-              keynode.online = true
+              });
+              keynode.online = true;
             } catch (e) {
-              keynode.online = false
+              keynode.online = false;
             }
           }
-        })
-      })
-      commit(mutations.SetGestalt, state.gestalts)
+        });
+      });
+      commit(mutations.SetGestalt, state.gestalts);
     },
     /**
      * GetGestalts
      */
     async [actionsInt.GetGestalts]({ commit }) {
-      const gestalts = await PolykeyClient.GetGestalts({})
+      const gestalts = await PolykeyClient.GetGestalts({});
       const toArrayGestalts = Object.keys(gestalts).map((gestaltId) => {
-        return gestalts[gestaltId]
-      })
+        return gestalts[gestaltId];
+      });
       //     peers.push({
       //       id: node.id,
       //       digitalIdentities: [identity.key],
@@ -322,50 +322,50 @@ export default {
       //         }
       //       ]
       //     });
-      commit(mutations.SetGestalt, toArrayGestalts)
+      commit(mutations.SetGestalt, toArrayGestalts);
     },
   },
   mutations: {
     [mutations.SetSearchMode]: function (state: State, searchMode: boolean) {
-      state.searchMode = searchMode
+      state.searchMode = searchMode;
     },
     [mutations.SetPullVaultDrawer]: function (
       state: State,
       pullVaultDrawer: boolean,
     ) {
-      state.pullVaultDrawer = pullVaultDrawer
+      state.pullVaultDrawer = pullVaultDrawer;
     },
     [mutations.SetAddKeynode](state, close?: boolean) {
-      console.log('toggle', state.addKeynodeDrawer)
-      state.pullVaultDrawer = false
+      console.log('toggle', state.addKeynodeDrawer);
+      state.pullVaultDrawer = false;
       if (close === false || close === true) {
-        state.addKeynodeDrawer = close
+        state.addKeynodeDrawer = close;
       } else {
-        state.addKeynodeDrawer = !state.addKeynodeDrawer
+        state.addKeynodeDrawer = !state.addKeynodeDrawer;
       }
     },
     [mutations.SetActiveKeynodeVaults]: function (
       state: State,
       activeKeynode: ActiveKeynode,
     ) {
-      state.activeVaults = activeKeynode.activeVaults
-      state.activeKeynode = activeKeynode.activeKeynode
+      state.activeVaults = activeKeynode.activeVaults;
+      state.activeKeynode = activeKeynode.activeKeynode;
     },
     [mutations.SetSearchDI]: function (state: State, searchQueryDI: string) {
-      state.searchQueryDI = searchQueryDI
+      state.searchQueryDI = searchQueryDI;
     },
     [mutations.SetFoundDI]: function (
       state: State,
       foundDI: FoundDigitalIdentity[],
     ) {
-      state.foundDI = foundDI
+      state.foundDI = foundDI;
     },
     /**
      * Temporary
      */
     [mutations.SetGestalt]: function (state: State, gestalts: Gestalt[]) {
-      state.gestalts = gestalts
+      state.gestalts = gestalts;
     },
   },
   getters: {},
-}
+};

@@ -1,7 +1,7 @@
-import PolykeyClient from '@/renderer/resources/client'
-import { makeIdentifiers } from '@/renderer/store/utils'
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb'
-import FileSaver from 'file-saver'
+import PolykeyClient from '@/renderer/resources/client';
+import { makeIdentifiers } from '@/renderer/store/utils';
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+import FileSaver from 'file-saver';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Secrets', [
   'LoadSecretNames',
@@ -10,7 +10,7 @@ const [actionsInt, actionsExt] = makeIdentifiers('Secrets', [
   'SelectSecret',
   'UpdateSecret',
   'DeleteSecret',
-])
+]);
 
 const enum mutations {
   SetSecretNames = 'SetSecretNames',
@@ -19,12 +19,12 @@ const enum mutations {
 }
 
 type State = {
-  selectedVaultName: string
-  selectedSecretName: string
-  selectedSecretContent: string
-  secretNames: Array<string>
-  uploadCount: number
-}
+  selectedVaultName: string;
+  selectedSecretName: string;
+  selectedSecretContent: string;
+  secretNames: Array<string>;
+  uploadCount: number;
+};
 
 const state: State = {
   selectedVaultName: '',
@@ -32,51 +32,51 @@ const state: State = {
   selectedSecretContent: '',
   secretNames: [],
   uploadCount: 0,
-}
+};
 
-export { actionsExt as actions }
+export { actionsExt as actions };
 
 export default {
   namespaced: true,
   state,
   actions: {
     async [actionsInt.LoadSecretNames]({ commit }, vaultName: string) {
-      const secretNames = await PolykeyClient.ListSecrets(vaultName)
-      commit(mutations.SetSecretNames, { vaultName, secretNames })
+      const secretNames = await PolykeyClient.ListSecrets(vaultName);
+      commit(mutations.SetSecretNames, { vaultName, secretNames });
     },
     async [actionsInt.GetSecret](
       { commit },
       { secretName = '', vaultName = '', copy = false },
     ) {
-      const secret = await PolykeyClient.GetSecret({ vaultName, secretName })
+      const secret = await PolykeyClient.GetSecret({ vaultName, secretName });
       if (copy) {
         navigator.clipboard.writeText(secret).then(
           function () {
-            console.log('Async: Copying to clipboard was successful!')
+            console.log('Async: Copying to clipboard was successful!');
           },
           function (err) {
-            console.error('Async: Could not copy text: ', err)
+            console.error('Async: Could not copy text: ', err);
           },
-        )
-        return
+        );
+        return;
       }
       const file = new File([secret], secretName, {
         type: 'text/plain;charset=utf-8',
-      })
-      FileSaver.saveAs(file)
+      });
+      FileSaver.saveAs(file);
     },
     async [actionsInt.SelectSecret]({ commit, state }, secretName?: string) {
       if (secretName) {
         const secretContent = await PolykeyClient.GetSecret({
           vaultName: state.selectedVaultName,
           secretName,
-        })
-        commit(mutations.SetSelectedSecret, { secretName, secretContent })
+        });
+        commit(mutations.SetSelectedSecret, { secretName, secretContent });
       } else {
         commit(mutations.SetSelectedSecret, {
           secretName: '',
           secretContent: '',
-        })
+        });
       }
     },
     async [actionsInt.UpdateSecret](
@@ -93,30 +93,30 @@ export default {
         },
         secretContent: secretContent,
         secretFilePath: '',
-      })
+      });
       if (successful !== null || successful !== undefined) {
         commit(mutations.SetSelectedSecret, {
           secretName: secretName,
           secretContent: secretContent,
-        })
+        });
       }
     },
     async [actionsInt.DeleteSecret]({ state }, secretName: string) {
       await PolykeyClient.DeleteSecret({
         vaultName: state.selectedVaultName,
         secretName,
-      })
+      });
     },
     async [actionsInt.NewSecret](
       { dispatch, commit },
       secret: pb.SecretContentMessage.AsObject,
     ) {
       /** Add error checking here */
-      await PolykeyClient.NewSecret(secret)
+      await PolykeyClient.NewSecret(secret);
 
       /** dispatch and reload the page */
-      commit(mutations.SetUploadCount)
-      dispatch(actionsInt.LoadSecretNames, secret.secretPath!.vaultName)
+      commit(mutations.SetUploadCount);
+      dispatch(actionsInt.LoadSecretNames, secret.secretPath!.vaultName);
     },
   },
   mutations: {
@@ -124,8 +124,8 @@ export default {
       state,
       { vaultName, secretNames }: { vaultName: string; secretNames: string[] },
     ) {
-      state.selectedVaultName = vaultName
-      state.secretNames = secretNames
+      state.selectedVaultName = vaultName;
+      state.secretNames = secretNames;
     },
     [mutations.SetSelectedSecret]: function (
       state,
@@ -134,12 +134,12 @@ export default {
         secretContent,
       }: { secretName: string; secretContent: string },
     ) {
-      state.selectedSecretName = secretName
-      state.selectedSecretContent = secretContent
+      state.selectedSecretName = secretName;
+      state.selectedSecretContent = secretContent;
     },
     [mutations.SetUploadCount]: function (state) {
-      state.uploadCount = ++state.uploadCount
+      state.uploadCount = ++state.uploadCount;
     },
   },
   getters: {},
-}
+};
