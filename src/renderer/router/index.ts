@@ -1,5 +1,6 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
+import type { Config } from '@/renderer/config';
 
+import * as vueRouter from 'vue-router';
 import Vaults from '@pages/vault/VaultList.vue';
 import Vault from '@pages/vault/Vault.vue';
 import SharedWithMe from '@pages/vault/SharedVaultList.vue';
@@ -9,58 +10,63 @@ import SelectExistingKeyNode from '@pages/bootstrap/SelectExistingKeyNode.vue';
 import Identities from '@pages/identities/Identities.vue';
 import GestaltProfile from '@pages/gestalt/GestaltProfile.vue';
 
-const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/installation',
-    component: Installation,
-  },
-  {
-    path: '/selectKeyNode',
-    component: SelectKeyNode,
-  },
-  {
-    path: '/selectExistingKeyNode',
-    component: SelectExistingKeyNode,
-  },
-  // Vaults
-  {
-    path: '/vaults',
-    component: Vaults,
-  },
-  {
-    path: '/vaults/:id',
-    component: Vault,
-  },
-  // Sharing
-  {
-    path: '/sharing',
-    component: SharedWithMe,
-  },
+function createRouter(config: Config) {
 
-  // Identities
-  {
-    path: '/identities',
-    component: Identities,
-  },
+  const routes: Array<vueRouter.RouteRecordRaw> = [
+    {
+      path: '/installation',
+      component: Installation,
+    },
+    {
+      path: '/selectKeyNode',
+      component: SelectKeyNode,
+    },
+    {
+      path: '/selectExistingKeyNode',
+      component: SelectExistingKeyNode,
+    },
+    // Vaults
+    {
+      path: '/vaults',
+      component: Vaults,
+    },
+    {
+      path: '/vaults/:id',
+      component: Vault,
+    },
+    // Sharing
+    {
+      path: '/sharing',
+      component: SharedWithMe,
+    },
 
-  /** Gestalt Profile */
-  {
-    path: '/gestalt-profile',
-    component: GestaltProfile,
-  },
-  {
-    path: '/gestalt-profile/:id',
-    component: GestaltProfile,
-  },
-];
+    // Identities
+    {
+      path: '/identities',
+      component: Identities,
+    },
 
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes,
-});
+    /** Gestalt Profile */
+    {
+      path: '/gestalt-profile',
+      component: GestaltProfile,
+    },
+    {
+      path: '/gestalt-profile/:id',
+      component: GestaltProfile,
+    },
+  ];
 
-router.beforeEach((to, from, next) => {
-  next();
-});
+  const router = vueRouter.createRouter({
+    history: vueRouter.createWebHashHistory(config.BASE_PATH),
+    routes,
+  });
 
-export default router;
+  router.beforeEach((to, from, next) => {
+    next();
+  });
+
+  return router;
+}
+
+export default createRouter;
