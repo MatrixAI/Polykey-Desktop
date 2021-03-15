@@ -26,7 +26,7 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(config.BASE_PATH, {
     query: filterByKeys(config, ['BASE_PATH']),
-  })
+  });
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
