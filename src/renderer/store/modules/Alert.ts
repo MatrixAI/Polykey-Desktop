@@ -8,12 +8,12 @@ export default {
     toggleAlert: function (
       context,
       props: {
-        visible: boolean
-        type: 'success' | 'warning' | 'error' | 'info'
-        message?: string
+        visible: boolean;
+        type: 'success' | 'warning' | 'error' | 'info';
+        message?: string;
       },
     ) {
-      context.commit('setVisible', props)
+      context.commit('setVisible', props);
     },
   },
   mutations: {
@@ -24,14 +24,14 @@ export default {
         type,
         message,
       }: {
-        visible: boolean
-        type: 'success' | 'warning' | 'error' | 'info'
-        message?: string
+        visible: boolean;
+        type: 'success' | 'warning' | 'error' | 'info';
+        message?: string;
       },
     ): void {
-      state.visible = visible
-      state.color = type
-      state.message = message ?? ''
+      state.visible = visible;
+      state.color = type;
+      state.message = message ?? '';
     },
   },
-}
+};
