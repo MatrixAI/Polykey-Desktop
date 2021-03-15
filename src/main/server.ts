@@ -4,7 +4,7 @@ import { ipcMain, clipboard } from 'electron';
 import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
 import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb';
-import { getDefaultNodePath } from './utils';
+import { getDefaultNodePath } from '@matrixai/polykey/dist/utils';
 
 fixPath();
 

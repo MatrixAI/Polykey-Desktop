@@ -6,7 +6,7 @@ stages:
   - build
   - release
 
-image: registry.gitlab.com/matrixai/engineering/maintenance/gitlab-runner:px8v6d44kawsa8vli611a3brfrrabx3g
+image: registry.gitlab.com/matrixai/engineering/maintenance/gitlab-runner
 
 lint:
   stage: check
