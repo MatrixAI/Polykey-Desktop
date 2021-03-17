@@ -21,7 +21,7 @@ const electronMain = {
   },
   node: {
     // When in devmode, webpack needs to get it from node_modules
-    __dirname: process.env.NODE_ENV === 'development' ? true : false
+    __dirname: true
   },
   module: {
     rules: [

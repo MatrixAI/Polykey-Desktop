@@ -57,7 +57,7 @@ function createRouter(config: Config) {
   ];
 
   const router = vueRouter.createRouter({
-    history: vueRouter.createWebHashHistory(config.BASE_PATH),
+    history: vueRouter.createWebHistory(config.BASE_PATH),
     routes,
   });
 
