@@ -39,6 +39,9 @@
     "lint": "eslint '{src,tests}/**/*.{js,ts}'",
     "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix"
   },
+  "dependencies": {
+    "@matrixai/polykey": "0.0.41"
+  },
   "devDependencies": {
     "@ant-design/icons-vue": "^5.1.9",
     "@electron-forge/cli": "6.0.0-beta.54",
@@ -47,7 +50,6 @@
     "@electron-forge/maker-squirrel": "6.0.0-beta.54",
     "@electron-forge/maker-zip": "6.0.0-beta.54",
     "@grpc/grpc-js": "^1.2.5",
-    "@matrixai/polykey": "0.0.41",
     "@types/jest": "^26.0.20",
     "@types/node": "^13.13.1",
     "@typescript-eslint/eslint-plugin": "^4.12.0",
