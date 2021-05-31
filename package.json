@@ -34,6 +34,7 @@
   "scripts": {
     "watch": "webpack-cli --watch --mode='development'",
     "build": "webpack-cli --mode='production'",
+    "start": "electron . --no-sandbox",
     "ts-node": "ts-node -r tsconfig-paths/register",
     "test": "jest",
     "lint": "eslint '{src,tests}/**/*.{js,ts}'",
@@ -50,6 +51,7 @@
     "@electron-forge/maker-squirrel": "6.0.0-beta.54",
     "@electron-forge/maker-zip": "6.0.0-beta.54",
     "@grpc/grpc-js": "^1.2.5",
+    "@matrixai/polykey": "file:/home/brian/matrixworkspace/polykeyCode/js-polykey",
     "@types/jest": "^26.0.20",
     "@types/node": "^13.13.1",
     "@typescript-eslint/eslint-plugin": "^4.12.0",
