@@ -1,6 +1,6 @@
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
+import { clientPB } from '@matrixai/polykey/src/client';
 
 const DELAY = 0;
 
@@ -32,7 +32,7 @@ type State = {
   isUnlocked: boolean;
   isInitialized: boolean;
   status: STATUS;
-  localPeerInfo: pb.NodeInfoMessage.AsObject;
+  localPeerInfo: clientPB.EmptyMessage.AsObject/*pb.NodeInfoMessage.AsObject*/;
 };
 
 const state: State = {

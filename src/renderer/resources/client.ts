@@ -1,7 +1,7 @@
 // import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 // import * as pb from '@matrixai/polykey/dist/proto/js/Client_pb'
-import { clientPB } from '@matrixai/polykey/dist/client';
-import commandSecretEnv from '../../../../js-polykey/dist/bin/secrets/commandSecretEnv';
+import { clientPB } from '@matrixai/polykey/src/client';
+import commandSecretEnv from '@matrixai/polykey/src/bin/secrets/commandSecretEnv';
 import client from '@/renderer/resources/client';
 const ipcRenderer = window.require('electron').ipcRenderer;
 // import { ipcRenderer } from 'electron';git
@@ -101,10 +101,11 @@ class PolykeyClient {
   }
 
   static async DeleteSecret(
-    request: clientPB.VaultSpecificMessage,
+    request: clientPB.EmptyMessage.AsObject,//clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
-    await ipcRenderer.invoke('DeleteSecret', request.serializeBinary());
-    return;
+    throw new Error("Not implemented");
+    // await ipcRenderer.invoke('DeleteSecret', request.serializeBinary());
+    // return;
   }
 
   static async DeleteVault(vaultName: string): Promise<void> {
@@ -210,17 +211,18 @@ class PolykeyClient {
   }
 
   static async GetSecret(
-    request: clientPB.SecretSpecificMessage,
+    request: clientPB.EmptyMessage.AsObject,//clientPB.SecretSpecificMessage.AsObject,
   ): Promise<string> {
-    const secretMessage = new clientPB.SecretSpecificMessage();
-    secretMessage.setVault(request.getVault());
-    secretMessage.setContent(request.getContent());
-    const res = await ipcRenderer.invoke(
-      'GetSecret',
-      secretMessage.serializeBinary(),
-    );
-    const test = clientPB.SecretMessage.deserializeBinary(res);
-    return test.getName();
+    throw new Error("Not implemented");
+  //   const secretMessage = new clientPB.SecretSpecificMessage();
+  //   secretMessage.setVault(request.getVault());
+  //   secretMessage.setContent(request.getContent());
+  //   const res = await ipcRenderer.invoke(
+  //     'GetSecret',
+  //     secretMessage.serializeBinary(),
+  //   );
+  //   const test = clientPB.SecretMessage.deserializeBinary(res);
+  //   return test.getName();
   }
 
   static async GetStatus(): Promise<string> {
@@ -232,7 +234,7 @@ class PolykeyClient {
   }
 
   static async GetConnectedIdentityInfos(
-    request: clientPB.ProviderMessage,
+    request: clientPB.EmptyMessage.AsObject,//clientPB.ProviderMessage.AsObject,
     callback,
   ): Promise<void> {
     throw new Error("Not implemented.");
@@ -254,7 +256,7 @@ class PolykeyClient {
   }
 
   static async DiscoverGestaltIdentity(
-    request: clientPB.ProviderMessage,
+    request: clientPB.EmptyMessage.AsObject,//clientPB.ProviderMessage,
     callback,
   ): Promise<void> {
     throw new Error("Not implemented.");
@@ -284,7 +286,7 @@ class PolykeyClient {
   //   ipcRenderer.on('DiscoverGestaltNode', async (event, arg) => {});
   // }
 
-  static async GetGestalts(request: clientPB.EmptyMessage): Promise<any> {
+  static async GetGestalts(request: clientPB.EmptyMessage.AsObject): Promise<any> {
     throw new Error("Not implemented.");
     // const encodedRequest = new pb.EmptyMessage();
     // const res = pb.GestaltListMessage.deserializeBinary(
@@ -540,10 +542,11 @@ class PolykeyClient {
   }
 
   static async NewSecret(
-    request: clientPB.VaultSpecificMessage,
+    request: clientPB.EmptyMessage.AsObject,//clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
-    await ipcRenderer.invoke('NewSecret', request.serializeBinary());
-    return;
+    throw new Error("Not Implemented");
+    // await ipcRenderer.invoke('NewSecret', request.serializeBinary());
+    // return;
   }
 
   static async NewOAuthToken(
@@ -571,7 +574,7 @@ class PolykeyClient {
   }
 
   static async PingPeer(
-    request: clientPB.NodeMessage,
+    request: clientPB.EmptyMessage.AsObject,//clientPB.NodeMessage.AsObject,
   ): Promise<void> {
     throw new Error("Not implemented.");
     // const encodedRequest = new pb.ContactNodeMessage();
@@ -637,7 +640,7 @@ class PolykeyClient {
   }
 
   static async UnlockNode(
-    request: clientPB.NodeMessage,
+    request: clientPB.EmptyMessage.AsObject,//clientPB.NodeMessage.AsObject,
   ): Promise<void> {
     throw new Error("Not implemented.");
     // const encodedRequest = new pb.UnlockNodeMessage();
@@ -685,9 +688,10 @@ class PolykeyClient {
     // return;
   }
 
-  static async UpdateSecret(request: clientPB.SecretMessage): Promise<void> {
-    await ipcRenderer.invoke('UpdateSecret', request.serializeBinary());
-    return;
+  static async UpdateSecret(request: clientPB.EmptyMessage.AsObject/*clientPB.SecretMessage.AsObject*/): Promise<void> {
+    throw new Error("Not implemented");
+    // await ipcRenderer.invoke('UpdateSecret', request.serializeBinary());
+    // return;
   }
 
   static async VerifyFile(request: clientPB.CryptoMessage): Promise<boolean> {

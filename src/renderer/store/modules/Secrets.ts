@@ -1,7 +1,8 @@
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import FileSaver from 'file-saver';
+import { clientPB } from '@matrixai/polykey/src/client';
+
 
 const [actionsInt, actionsExt] = makeIdentifiers('Secrets', [
   'LoadSecretNames',
@@ -109,14 +110,14 @@ export default {
     },
     async [actionsInt.NewSecret](
       { dispatch, commit },
-      secret: pb.SecretContentMessage.AsObject,
+      secret: clientPB.EmptyMessage.AsObject,//pb.SecretContentMessage.AsObject,
     ) {
       /** Add error checking here */
       await PolykeyClient.NewSecret(secret);
 
       /** dispatch and reload the page */
       commit(mutations.SetUploadCount);
-      dispatch(actionsInt.LoadSecretNames, secret.secretPath!.vaultName);
+      dispatch(actionsInt.LoadSecretNames, ""/*secret.secretPath!.vaultName*/);
     },
   },
   mutations: {

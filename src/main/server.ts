@@ -1,15 +1,11 @@
 import os from 'os';
 import fixPath from 'fix-path';
 import { ipcMain, clipboard } from 'electron';
-// import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
-// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
-// import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb';
-import { PolykeyClient } from '@matrixai/polykey/dist/index';
-import { GRPCClientClient } from '@matrixai/polykey/dist/client';
-import { getDefaultNodePath } from '@matrixai/polykey/dist/utils';
+import { PolykeyClient } from '@matrixai/polykey/src/index';
+import { GRPCClientClient } from '@matrixai/polykey/src/client';
+import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
 import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
-import { clientPB } from '@matrixai/polykey/dist/client';
-// import { KeyMessage } from '../../../js-polykey/dist/proto/js/Client_pb';
+import { clientPB } from '@matrixai/polykey/src/client';
 
 fixPath();
 
