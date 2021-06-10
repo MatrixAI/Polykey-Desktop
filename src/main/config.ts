@@ -8,7 +8,7 @@ type Config = {
 
 const config = {};
 
-config['BASE_PATH'] = path.join(__dirname, 'index.html');
+config['BASE_PATH'] = './dist/index.html';//path.join(__dirname, 'index.html');
 config['TMPDIR'] = process.env.TMPDIR ?? '/tmp';
 
 export default config as Config;

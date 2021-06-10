@@ -18,6 +18,7 @@ const createWindow = () => {
   });
 
   // and load the index.html of the app.
+  console.log('config: ', config);
   mainWindow.loadFile(config.BASE_PATH, {
     query: filterByKeys(config, ['BASE_PATH']),
   });

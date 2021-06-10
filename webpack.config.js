@@ -21,7 +21,8 @@ const electronMain = {
   },
   node: {
     // When in devmode, webpack needs to get it from node_modules
-    __dirname: process.env.NODE_ENV === 'development' ? true : false
+    __dirname: true,
+    __filename: true,
   },
   module: {
     rules: [
@@ -57,7 +58,10 @@ const electronMain = {
     new CopyWebpackPlugin({
       patterns: [{ from: 'static', to: 'static' }]
     })
-  ]
+  ],
+  externals: {
+    "pouchdb": "require('pouchdb')"
+  }
 };
 
 const electronRenderer = {

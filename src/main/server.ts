@@ -12,6 +12,7 @@ import fs from "fs";
 import { ErrorClientClientNotStarted } from "../../../js-polykey/src/client/errors";
 import { Host, Port } from "../../../js-polykey/src/network/types";
 import { NodeId } from "../../../js-polykey/src/nodes/types";
+// import level from 'level';
 
 // fixPath();
 
@@ -32,38 +33,7 @@ async function getAgentClient(failOnNotInitialized = false) {
   clientConfig['logger'].setLevel(LogLevel.DEBUG);
   clientConfig['nodePath'] = polykeyPath;
 
-  const nodePath = './tmp/';
-  const lockPath = path.join(nodePath, Lockfile.LOCKFILE_NAME);
-  const logger = new Logger('PolykeyClient');
-
-  const status = await Lockfile.checkLock(fs, lockPath);
-  if (status === 'UNLOCKED') {
-    throw new ErrorClientClientNotStarted(
-      'Polykey Lockfile not locked. Is the PolykeyAgent started?',
-    );
-  } else if (status === 'DOESNOTEXIST') {
-    throw new ErrorClientClientNotStarted(
-      'Polykey Lockfile not found. Is the PolykeyAgent started?',
-    );
-  }
-
-  const lock = await Lockfile.parseLock(fs, lockPath);
-  console.log(lock);
-  const grpcHost = lock.host as Host;
-  const grpcPort = lock.port as Port;
-
-  console.log(grpcHost, grpcPort);
-  console.log(process.version);
-  const grpcClient = new GRPCClientClient({
-    nodeId: lock.nodeId as NodeId,
-    host: grpcHost as Host,
-    port: grpcPort as Port,
-    // logger,
-  });
-  // await grpcClient.start({ timeout: 30000 });
-
-
-  // client = new PolykeyClient(clientConfig);
+  client = new PolykeyClient(clientConfig);
 
 
 
@@ -84,7 +54,6 @@ async function getAgentClient(failOnNotInitialized = false) {
 // }
 
 async function setHandlers() {
-  getAgentClient();
   /// ////////////////////
   // Clipboard control //
   /// ////////////////////
