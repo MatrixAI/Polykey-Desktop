@@ -58,10 +58,7 @@ const electronMain = {
     new CopyWebpackPlugin({
       patterns: [{ from: 'static', to: 'static' }]
     })
-  ],
-  externals: {
-    "pouchdb": "require('pouchdb')"
-  }
+  ]
 };
 
 const electronRenderer = {

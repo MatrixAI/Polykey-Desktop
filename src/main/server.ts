@@ -12,7 +12,6 @@ import fs from "fs";
 import { ErrorClientClientNotStarted } from "../../../js-polykey/src/client/errors";
 import { Host, Port } from "../../../js-polykey/src/network/types";
 import { NodeId } from "../../../js-polykey/src/nodes/types";
-// import level from 'level';
 
 // fixPath();
 
