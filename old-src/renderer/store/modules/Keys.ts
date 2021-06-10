@@ -24,7 +24,7 @@ export default {
       }
     },
     loadKeyPair: async function ({ commit }) {
-      const keyPair = await PolykeyClient.GetPrimaryKeyPair(true);
+      const keyPair = await PolykeyClient.GetPrimaryKeyPair();
       console.log('keyPair', keyPair);
       // commit('loadKeyPair', { publicKey: keyPair.public, privateKey: keyPair.private })
     },

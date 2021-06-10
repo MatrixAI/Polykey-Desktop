@@ -3,6 +3,4 @@
  */
 type POJO = { [key: string]: any };
 
-export type {
-  POJO
-};
+export type { POJO };

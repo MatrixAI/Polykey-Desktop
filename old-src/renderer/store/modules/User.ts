@@ -1,4 +1,3 @@
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 
@@ -32,42 +31,42 @@ type State = {
   isUnlocked: boolean;
   isInitialized: boolean;
   status: STATUS;
-  localPeerInfo: pb.NodeInfoMessage.AsObject;
+  // localPeerInfo: pb.NodeInfoMessage.AsObject;
 };
 
-const state: State = {
-  isUnlocked: false,
-  isInitialized: false,
-  status: STATUS.PENDING,
-  localPeerInfo: {
-    pem: '',
-    alias: '',
-    publicKey: '',
-    nodeId: '',
-    rootPublicKey: '',
-    nodeAddress: '',
-    apiAddress: '',
-    linkInfoList: [
-      {
-        type: '',
-        node: '',
-        identity: '',
-        provider: '',
-        dateissued: '',
-        signature: '',
-        key: '',
-        url: '',
-      },
-    ],
-  },
-};
+// const state: State = {
+//   isUnlocked: false,
+//   isInitialized: false,
+//   status: STATUS.PENDING,
+//   localPeerInfo: {
+//     pem: '',
+//     alias: '',
+//     publicKey: '',
+//     nodeId: '',
+//     rootPublicKey: '',
+//     nodeAddress: '',
+//     apiAddress: '',
+//     linkInfoList: [
+//       {
+//         type: '',
+//         node: '',
+//         identity: '',
+//         provider: '',
+//         dateissued: '',
+//         signature: '',
+//         key: '',
+//         url: '',
+//       },
+//     ],
+//   },
+// };
 
 export { actionsExt as actions };
 export { STATUS };
 
 export default {
   namespaced: true,
-  state,
+  // state,
   actions: {
     async [actionsInt.CreateNewNode]({ commit }, node) {
       try {

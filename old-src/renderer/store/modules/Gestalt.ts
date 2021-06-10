@@ -1,5 +1,6 @@
 import PolykeyClient from '@/renderer/resources/client';
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+import { clientPB } from '@matrixai/polykey/src/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Gestalt', [
@@ -220,8 +221,8 @@ export default {
 
       await PolykeyClient.GetConnectedIdentityInfos(
         {
-          providerKey: 'github.com',
-          searchTermList: [searchQueryDI],
+          // providerKey: 'github.com',
+          // searchTermList: [searchQueryDI],
         },
         (error, key) => {
           console.log('key:', key);

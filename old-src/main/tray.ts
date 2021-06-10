@@ -1,7 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import { app, Menu, BrowserWindow, Tray } from 'electron';
 
 import { polykeyPath } from './server';
@@ -62,11 +60,12 @@ export default class TrayComponent {
   async killAgent() {
     // kill polykey-agent process
     try {
-      const client = PolykeyAgent.connectToAgent(polykeyPath);
-      const successful = await promisifyGrpc(client.stopAgent.bind(client))(
-        new pb.EmptyMessage(),
-      );
-      if (successful) {
+      // const client = PolykeyAgent.connectToAgent(polykeyPath);
+      // const successful = await promisifyGrpc(client.stopAgent.bind(client))(
+      //   new pb.EmptyMessage(),
+      // );
+      // eslint-disable-next-line no-constant-condition
+      if (true /*successful*/) {
         console.log('agent has been stopped');
       } else {
         console.log('agent could not be stopped');

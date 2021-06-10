@@ -9,7 +9,7 @@ function filterByKeys(obj: any, keys: Array<any>): any {
     }, {});
 }
 
-async function sleep(t) {
+async function sleep(t: number): Promise<void> {
   return await new Promise((r) => setTimeout(r, t));
 }
 
