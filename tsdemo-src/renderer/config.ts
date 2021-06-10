@@ -4,7 +4,6 @@ export class ErrorConfig extends CustomError {}
 
 type Config = {
   BASE_PATH: string;
-  TMPDIR: string;
 };
 
 function throwError(key: string): never {
@@ -14,7 +13,6 @@ function throwError(key: string): never {
 function configFromQueryParams(queryParams: URLSearchParams): Config {
   const config = {};
   config['BASE_PATH'] = queryParams.get('BASE_PATH') ?? throwError('BASE_PATH');
-  config['TMPDIR'] = queryParams.get('TMPDIR') ?? throwError('TMPDIR');
   return config as Config;
 }
 

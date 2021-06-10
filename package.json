@@ -92,7 +92,8 @@
     "vue-svg-loader": "^0.17.0-beta.2",
     "vuex": "^4.0.0-rc.2",
     "webpack": "^5.11.1",
-    "webpack-cli": "^4.7.2"
+    "webpack-cli": "^4.7.2",
+    "readable-stream": "^3.6.0"
   },
   "config": {
     "forge": "./forge.config.js"

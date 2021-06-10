@@ -3,14 +3,12 @@ import path from 'path';
 
 type Config = {
   BASE_PATH: string;
-  NODE_ENV: string;
   TMPDIR: string;
 };
 
 const config = {};
 
-config['BASE_PATH'] = './dist/index.html';//path.join(__dirname, 'index.html'); //FIXME LATER
-config['NODE_ENV'] = process.env.NODE_ENV ?? 'development';
+config['BASE_PATH'] = './dist/index.html';//path.join(__dirname, 'index.html');
 config['TMPDIR'] = process.env.TMPDIR ?? '/tmp';
 
 export default config as Config;

@@ -1,17 +1,19 @@
 import os from 'os';
-import fixPath from 'fix-path';
+// import fixPath from 'fix-path';
 import { ipcMain, clipboard } from 'electron';
-// import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
-// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
-// import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb';
-import { PolykeyClient } from '@matrixai/polykey/src/index';
 import { GRPCClientClient } from '@matrixai/polykey/src/client';
+import { PolykeyClient } from '@matrixai/polykey/src/index';
 import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
 import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 import { clientPB } from '@matrixai/polykey/src/client';
-// import { KeyMessage } from '../../../js-polykey/dist/proto/js/Client_pb';
+import path from "path";
+import { Lockfile } from "../../../js-polykey/src/lockfile";
+import fs from "fs";
+import { ErrorClientClientNotStarted } from "../../../js-polykey/src/client/errors";
+import { Host, Port } from "../../../js-polykey/src/network/types";
+import { NodeId } from "../../../js-polykey/src/nodes/types";
 
-fixPath();
+// fixPath();
 
 /** This will default for now */
 const polykeyPath = getDefaultNodePath();
@@ -32,6 +34,8 @@ async function getAgentClient(failOnNotInitialized = false) {
 
   client = new PolykeyClient(clientConfig);
 
+
+
   console.log('done starting agent..');
   await client.start({});
   grpcClient = client.grpcClient;
@@ -49,9 +53,9 @@ function resolveTilde(filePath: string) {
 }
 
 async function setHandlers() {
-  /// ////////////////////
-  // Clipboard control //
-  /// ////////////////////
+  //////////////////////
+  //Clipboard control //
+  //////////////////////
   ipcMain.handle('ClipboardCopy', async (event, secretContent: string) => {
     clipboard.writeText(secretContent);
     setTimeout(() => {
@@ -62,50 +66,51 @@ async function setHandlers() {
     }, 30000);
   });
 
-  /// ////////////////
+  ///////////////////
   // agent control //
-  /// ////////////////
+  ///////////////////
   ipcMain.handle('agent-start', async (event, request) => {
-    // this method has a 3 possible cases:
-    // case 1: polykey agent is not started and is started to return the pid
-    // case 2: polykey agent is already started and returns true
-    // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
-    try {
-      // phase 1: the first thing we ever do is check if the agent is running or not
-      // but we only know the agent is offline if getStatus returns an error (because its offline)
-      // so check status and if it throws we know its offline, if not we assume its online
-      console.log('connectToAgent');
-      console.log(polykeyPath);
-
-      const tempClient = client.grpcClient;
-
-      console.log('getStatus');
-      if (!tempClient.started) {
-        throw Error('agent is not running');
-      }
-      // it is here that we know that the agent is running and client is initialize
-    } catch (error) {
-      try {
-        // agent is offline so we start it!
-        console.log('startAgent');
-        const pid = 0; //FIXME: Return a pid or not? work out if this is used anywhere.
-        await client.start({});
-
-        console.log('connectToAgent');
-        const tempClient = client.grpcClient;
-        // we just confirm that the agent has actually been started
-        // if not, it is most likely not initalize so we just throw the error for the frontend to handle
-        console.log('getStatus');
-        console.log('done');
-        if (!tempClient.started) {
-          throw Error('agent could not be started');
-        }
-
-        return pid;
-      } catch (error) {
-        throw Error(error.message);
-      }
-    }
+    // // this method has a 3 possible cases:
+    // // case 1: polykey agent is not started and is started to return the pid
+    // // case 2: polykey agent is already started and returns true
+    // // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
+    // try {
+    //   // phase 1: the first thing we ever do is check if the agent is running or not
+    //   // but we only know the agent is offline if getStatus returns an error (because its offline)
+    //   // so check status and if it throws we know its offline, if not we assume its online
+    //   console.log('connectToAgent');
+    //   console.log(polykeyPath);
+    //
+    //   const tempClient = client.grpcClient;
+    //
+    //   console.log('getStatus');
+    //   if (!tempClient.started) {
+    //     throw Error('agent is not running');
+    //   }
+    //   // it is here that we know that the agent is running and client is initialize
+    // } catch (error) {
+    //   try {
+    //     // agent is offline so we start it!
+    //     console.log('startAgent');
+    //     const pid = 0; //FIXME: Return a pid or not? work out if this is used anywhere.
+    //     await client.start({});
+    //
+    //     console.log('connectToAgent');
+    //     const tempClient = client.grpcClient;
+    //     // we just confirm that the agent has actually been started
+    //     // if not, it is most likely not initalize so we just throw the error for the frontend to handle
+    //     console.log('getStatus');
+    //     console.log('done');
+    //     if (!tempClient.started) {
+    //       throw Error('agent could not be started');
+    //     }
+    //
+    //     return pid;
+    //   } catch (error) {
+    //     throw Error(error.message);
+    //   }
+    // }
+    return;
   });
 
   ipcMain.handle('agent-restart', async (event, request) => {
@@ -115,9 +120,9 @@ async function setHandlers() {
     return pid;
   });
 
-  /// /////////////////
-  // agent handlers //
-  /// /////////////////
+  ///////////////////
+  //agent handlers //
+  ///////////////////
   ipcMain.handle('AddPeer', async (event, request) => {
     if (!client) {
       await getAgentClient();
@@ -482,8 +487,8 @@ async function setHandlers() {
     const test = await grpcClient.vaultsList();
     return;
     /*TODO: Need to convert the stream or generator to a list of vault messages
-      Might need listVaultMessage in clientPB so I can use serializeBinary()
-     */
+        Might need listVaultMessage in clientPB so I can use serializeBinary()
+       */
   });
 
   ipcMain.handle('LockNode', async (event, request) => {

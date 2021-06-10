@@ -1,11 +1,11 @@
 import server from './server';
+
 import { app, BrowserWindow } from 'electron';
 import config from '@/main/config';
 import { filterByKeys } from '@/shared/utils';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
-  // eslint-disable-line global-require
   app.quit();
 }
 
@@ -15,15 +15,11 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
   });
 
   // and load the index.html of the app.
   mainWindow.loadFile(config.BASE_PATH, {
-    query: filterByKeys(config, ['BASE_PATH', 'TMPDIR']),
+    query: filterByKeys(config, ['BASE_PATH']),
   });
 
   // Open the DevTools.

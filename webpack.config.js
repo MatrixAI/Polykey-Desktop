@@ -104,7 +104,12 @@ const electronRenderer = {
       {
         enforce: "pre",
         test: /\.js$/,
-        loader: "source-map-loader"
+        loader: "source-map-loader",
+        options: { //Added to filter out source map warnings for node modules.
+          filterSourceMappingUrl: (url, resourcePath) => {
+            return !/.*\/node_modules\/.*/.test(resourcePath);
+          }
+        }
       },
       {
         test: /\.svg$/,
