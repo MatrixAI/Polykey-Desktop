@@ -54,12 +54,12 @@ async function getAgentClient(failOnNotInitialized = false) {
 
   console.log(grpcHost, grpcPort);
   console.log(process.version);
-  // const grpcClient = new GRPCClientClient({
-  //   nodeId: lock.nodeId as NodeId,
-  //   host: grpcHost as Host,
-  //   port: grpcPort as Port,
-  //   // logger,
-  // });
+  const grpcClient = new GRPCClientClient({
+    nodeId: lock.nodeId as NodeId,
+    host: grpcHost as Host,
+    port: grpcPort as Port,
+    // logger,
+  });
   // await grpcClient.start({ timeout: 30000 });
 
 
