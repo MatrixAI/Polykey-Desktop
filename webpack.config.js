@@ -26,7 +26,7 @@ const electronMain = {
   module: {
     rules: [
       {
-        test: /\.ts?$/,
+        test: /\.tsx?$/,
         loader: 'ts-loader',
       },
       {
@@ -84,7 +84,7 @@ const electronRenderer = {
         loader: 'vue-loader'
       },
       {
-        test: /\.ts?$/,
+        test: /\.tsx?$/,
         loader: 'ts-loader',
         options: {
           appendTsSuffixTo: [/\.vue$/]
@@ -125,7 +125,13 @@ const electronRenderer = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/renderer/index.html'
+      template: 'src/renderer/index.ejs',
+      inject: 'body',
+      xhtml: true,
+      filename: 'index.html',
+      templateParameters: {
+        title: 'Polykey'
+      }
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
