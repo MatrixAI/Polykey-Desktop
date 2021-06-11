@@ -22,8 +22,10 @@ import * as utils from '@matrixai/polykey/src/utils';
 import * as errors from '@matrixai/polykey/src/errors';
 import { WorkerManager } from '@matrixai/polykey/src/workers';
 import fs from 'fs';
+import { getDefaultNodePath } from "../js-polykey/dist/utils";
 
-const nodePath = './tmp/';
+const nodePath = getDefaultNodePath();
+console.log(nodePath);
 const keysPath = './tmp/keys';
 const nodesPath = './tmp/nodes';
 const vaultsPath = './tmp/vaults';

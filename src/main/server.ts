@@ -89,6 +89,7 @@ async function setHandlers() {
         // agent is offline so we start it!
         console.log('startAgent');
         const pid = 0; //FIXME: Return a pid or not? work out if this is used anywhere.
+        await getAgentClient();
         await client.start({});
 
         console.log('connectToAgent');

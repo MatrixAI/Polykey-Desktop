@@ -1,3 +1,4 @@
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 

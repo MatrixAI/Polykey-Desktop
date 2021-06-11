@@ -465,11 +465,12 @@ class PolykeyClient {
   }
 
   static async ListKeys(): Promise<string[]> {
-    throw new Error('Not implemented.');
+    // throw new Error('Not implemented.');
     // const res = pb.StringListMessage.deserializeBinary(
     //   await ipcRenderer.invoke('ListKeys'),
     // );
     // return res.getSList();
+    return [];
   }
 
   static async ListPeers(): Promise<string[]> {

@@ -1,3 +1,4 @@
+import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 
@@ -101,7 +102,7 @@ export default {
         commit(mutations.SetIsInitialized, true);
 
         // We can get the actual error if we load this up
-        console.log('Starting to ListKeyts');
+        console.log('Starting to ListKeys');
         await PolykeyClient.ListKeys();
         commit(mutations.SetIsUnlocked, true);
         setTimeout(() => {

@@ -21,17 +21,16 @@ const electronMain = {
   },
   node: {
     // When in devmode, webpack needs to get it from node_modules
-    __dirname: true,
-    __filename: true,
+    __dirname: true
   },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts?$/,
         loader: 'ts-loader',
       },
       {
-        test: /\.(png|svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
+        test: /\.(png|jpg|gif|woff|woff2|eot|ttf|otf)$/,
         use: [
           'file-loader'
         ]
@@ -74,6 +73,10 @@ const electronRenderer = {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json'],
     plugins: [new TsConfigPathsPlugin()]
   },
+  node: {
+    // When in devmode, webpack needs to get it from node_modules
+    __dirname: true
+  },
   module: {
     rules: [
       {
@@ -81,7 +84,7 @@ const electronRenderer = {
         loader: 'vue-loader'
       },
       {
-        test: /\.tsx?$/,
+        test: /\.ts?$/,
         loader: 'ts-loader',
         options: {
           appendTsSuffixTo: [/\.vue$/]
@@ -122,13 +125,7 @@ const electronRenderer = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'src/renderer/index.ejs',
-      inject: 'body',
-      xhtml: true,
-      filename: 'index.html',
-      templateParameters: {
-        title: 'Polykey'
-      }
+      template: './src/renderer/index.html'
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({

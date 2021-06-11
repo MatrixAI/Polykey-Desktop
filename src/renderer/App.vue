@@ -11,9 +11,6 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import type { Config } from '@/renderer/config';
-
 /**
  * Libs
  */
@@ -29,17 +26,9 @@ import Header from '@/renderer/organisms/header/Header.vue';
 
 export default defineComponent({
   components: {
-    Header,
+    Header
   },
-  props: {
-    config: {
-      type: Object as PropType<Config>,
-      required: true,
-    },
-  },
-  setup(props) {
-    console.log('Renderer Config', props.config);
-
+  setup() {
     const store = useStore();
     const router = useRouter();
 
@@ -85,8 +74,8 @@ export default defineComponent({
     });
 
     return {
-      authenticated,
+      authenticated
     };
-  },
+  }
 });
 </script>
