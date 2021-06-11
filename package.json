@@ -34,6 +34,7 @@
   "scripts": {
     "watch": "webpack-cli --watch --mode='development'",
     "build": "webpack-cli --mode='production'",
+    "devbuild": "webpack-cli --mode='development'",
     "ts-node": "ts-node -r tsconfig-paths/register",
     "test": "jest",
     "lint": "eslint '{src,tests}/**/*.{js,ts}'",
