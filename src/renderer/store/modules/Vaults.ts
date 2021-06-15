@@ -52,8 +52,8 @@ export default {
       commit(mutations.SetSelectedVault, vaultName);
     },
 
-    async [actionsInt.DeleteVault]({ commit }, vaultName: string) {
-      await PolykeyClient.DeleteVault(vaultName);
+    async [actionsInt.DeleteVault]({ commit }, vaultId: string) {
+      await PolykeyClient.DeleteVault(vaultId);
       const vaultNames = await PolykeyClient.ListVaults();
       commit(mutations.SetVaultNames, vaultNames);
     },

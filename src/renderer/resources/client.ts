@@ -502,12 +502,15 @@ class PolykeyClient {
     return output;
   }
 
-  static async ListVaults(): Promise<string[]> {
+  static async ListVaults(): Promise<clientPB.VaultMessage.AsObject[]> {
     const data: Array<Uint8Array> = await ipcRenderer.invoke('ListVaults');
-    const output: Array<string> = [];
+    const output: Array<clientPB.VaultMessage.AsObject> = [];
     for (const datum of data) {
-      const test = clientPB.VaultMessage.deserializeBinary(datum);
-      output.push(test.getId());
+      const vaultMessage = clientPB.VaultMessage.deserializeBinary(datum);
+      output.push({
+        name: vaultMessage.getName(),
+        id: vaultMessage.getId(),
+      });
     }
     return output;
   }
