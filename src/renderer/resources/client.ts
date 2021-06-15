@@ -1,6 +1,7 @@
 // import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
 // import * as pb from '@matrixai/polykey/dist/proto/js/Client_pb'
 import { clientPB } from '@matrixai/polykey/src/client';
+import { promises } from "dns";
 // import commandSecretEnv from '../../../../js-polykey/dist/bin/secrets/commandSecretEnv';
 // import client from '@/renderer/resources/client';
 const ipcRenderer = window.require('electron').ipcRenderer;
@@ -99,17 +100,23 @@ class PolykeyClient {
   }
 
   static async DeleteSecret(
-    request: clientPB.EmptyMessage.AsObject /*clientPB.VaultSpecificMessage*/,
+    request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
-    throw new Error('Not implemented.');
-    // await ipcRenderer.invoke('DeleteSecret', request.serializeBinary());
-    // return;
+    const vaultMessage = new clientPB.VaultMessage();
+    const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
+
+    if(request.vault) {
+      vaultMessage.setId(request.vault.id);
+      vaultSpecificMessage.setVault(vaultMessage);
+      vaultSpecificMessage.setName(request.name);
+    } else throw new Error('Undefined property vault.');
+    await ipcRenderer.invoke('DeleteSecret', vaultSpecificMessage.serializeBinary());
+    return;
   }
 
-  static async DeleteVault(vaultName: string): Promise<void> {
+  static async DeleteVault(vaultId: string): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
-    vaultMessage.setName(vaultName);
-    // vaultMessage.setId("PLACEHOLDER") //FIXME
+    vaultMessage.setId(vaultId);
     await ipcRenderer.invoke('DeleteVault', vaultMessage.serializeBinary());
     return;
   }
@@ -283,7 +290,7 @@ class PolykeyClient {
   static async GetGestalts(
     request: clientPB.EmptyMessage.AsObject,
   ): Promise<any> {
-    throw new Error('Not implemented.');
+    // throw new Error('Not implemented.');
     // const encodedRequest = new pb.EmptyMessage();
     // const res = pb.GestaltListMessage.deserializeBinary(
     //   await ipcRenderer.invoke('GetGestalts', encodedRequest.serializeBinary()),
@@ -371,7 +378,7 @@ class PolykeyClient {
     //     });
     //   });
     // });
-    // return containers;
+    return {};
   }
 
   static async GetIdentityInfo(request: clientPB.EmptyMessage): Promise<any> {
@@ -482,22 +489,26 @@ class PolykeyClient {
   }
 
   static async ListSecrets(vaultName: string): Promise<string[]> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.StringMessage();
-    // encodedRequest.setS(vaultName);
-    // const res = pb.StringListMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('ListSecrets', encodedRequest.serializeBinary()),
-    // );
-    // return res.getSList();
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setId(vaultName);
+    const secretList = await ipcRenderer.invoke('ListSecrets', vaultMessage.serializeBinary());
+    const output: Array<string> = [];
+    for (const secretListElement of secretList) {
+      console.log(secretListElement);
+      output.push(secretListElement)
+    }
+    return output;
   }
 
   static async ListVaults(): Promise<string[]> {
-    // TODO: come back to this later, work out how to handle streams/generators
-    throw new Error('Not implemented.');
-    // const res = pb.StringListMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('ListVaults'),
-    // );
-    // return res.getSList();
+    const data: Array<Uint8Array> = await ipcRenderer.invoke('ListVaults');
+    const output: Array<string> = [];
+    for (const datum of data) {
+      const test = clientPB.VaultMessage.deserializeBinary(datum);
+      console.log(test.getId());
+      output.push(test.getId());
+    }
+    return output;
   }
 
   static async LockNode(): Promise<void> {
@@ -560,7 +571,6 @@ class PolykeyClient {
   static async NewVault(vaultName: string): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setName(vaultName);
-    // vaultMessage.setId("PLACEHOLDER")// FIXME: this should be an actual ID or something.
     await ipcRenderer.invoke('NewVault', vaultMessage.serializeBinary());
     return;
   }
@@ -577,14 +587,13 @@ class PolykeyClient {
   }
 
   static async PullVault(
-    request: clientPB.VaultSpecificMessage,
+    request: clientPB.VaultMessage.AsObject,
   ): Promise<void> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.VaultPathMessage();
-    // encodedRequest.setPublicKey(request.publicKey);
-    // encodedRequest.setVaultName(request.vaultName);
-    // await ipcRenderer.invoke('PullVault', encodedRequest.serializeBinary());
-    // return;
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setId(request.id);
+    vaultMessage.setName(request.name);
+    await ipcRenderer.invoke('PullVault', vaultMessage.serializeBinary());
+    return;
   }
 
   static async RevokeOAuthToken(token: string): Promise<void> {
@@ -599,16 +608,10 @@ class PolykeyClient {
   }
 
   static async ScanVaultNames(peerId: string): Promise<string[]> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.StringMessage();
-    // encodedRequest.setS(peerId);
-    // const res = pb.StringListMessage.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'ScanVaultNames',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // return res.getSList();
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setId(peerId);
+    const res = await ipcRenderer.invoke('ScanVaultNames', vaultMessage.serializeBinary());
+    return res;
   }
 
   static async SignFile(request: clientPB.CryptoMessage): Promise<string> {
@@ -702,6 +705,17 @@ class PolykeyClient {
     // encodedRequest.setS(request.s);
     // await ipcRenderer.invoke('SetIdentity', encodedRequest.serializeBinary());
     // return;
+  }
+
+  //testing a stream response.
+  static async streamTest(num: number): Promise<void>{
+    ipcRenderer.send('stream-test', num);
+  };
+
+  static async setHandler(): Promise<void> {
+    ipcRenderer.on('stream-test', (event, arg) => {
+      console.log(arg);
+    })
   }
 }
 

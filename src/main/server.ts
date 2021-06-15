@@ -9,6 +9,8 @@ import { GRPCClientClient } from '@matrixai/polykey/src/client';
 import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
 import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 import { clientPB } from '@matrixai/polykey/src/client';
+import { sleep } from '../utils';
+import * as grpc from '@grpc/grpc-js';
 // import { KeyMessage } from '../../../js-polykey/dist/proto/js/Client_pb';
 
 fixPath();
@@ -174,10 +176,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultMessge = clientPB.VaultSpecificMessage.deserializeBinary(
-      request,
-    );
-    await grpcClient.vaultsDeleteSecret(vaultMessge);
+    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsDeleteSecret(vaultSpecificMessage);
     return;
   });
 
@@ -469,22 +469,26 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.listSecrets.bind(client))(
-    //   pb.StringMessage.deserializeBinary(request),
-    // )) as pb.StringListMessage;
-    // return res.serializeBinary();
+    const vaultMessage = await clientPB.VaultMessage.deserializeBinary(request);
+    const secretListGenerator = grpcClient.vaultsListSecrets(vaultMessage);
+    const data: Array<Uint8Array> = [];
+    for await (const vault of secretListGenerator) {
+      data.push(vault.serializeBinary());
+    }
+    return data;
   });
 
   ipcMain.handle('ListVaults', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const test = await grpcClient.vaultsList();
-    return;
-    /*TODO: Need to convert the stream or generator to a list of vault messages
-      Might need listVaultMessage in clientPB so I can use serializeBinary()
-     */
+    const emptyMessage = new clientPB.EmptyMessage();
+    const vaultListGenerator = await grpcClient.vaultsList(emptyMessage);
+    const data: Array<Uint8Array> = [];
+    for await (const vault of vaultListGenerator) {
+      data.push(vault.serializeBinary());
+    }
+    return data;
   });
 
   ipcMain.handle('LockNode', async (event, request) => {
@@ -563,11 +567,11 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const meta = new grpc.Metadata();
+    // await PolykeyClient.vaultsPull(vaultMessage, meta); //FIXME MISSINGCOMM
     throw new Error('Not implemented.');
-    // await promisifyGrpc(client.pullVault.bind(client))(
-    //   pb.VaultPathMessage.deserializeBinary(request),
-    // );
-    // return;
+    return;
   });
 
   ipcMain.handle('RevokeOAuthToken', async (event, request) => {
@@ -585,11 +589,15 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.scanVaultNames.bind(client))(
-    //   pb.StringMessage.deserializeBinary(request),
-    // )) as pb.StringListMessage;
-    // return res.serializeBinary();
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const meta = new grpc.Metadata();
+    // const vaultListGenerator = grpcClient.vaultsScan(vaultMessage, meta); //FIXME MISSINGCOMM
+    const vaultListGenerator: Array<clientPB.VaultMessage> = [];
+    const data: Array<string> = []
+    for await (const vault of vaultListGenerator) {
+      data.push(`${vault.getName()}`);
+    }
+    return data;
   });
 
   ipcMain.handle('SignFile', async (event, request) => {
@@ -683,6 +691,15 @@ async function setHandlers() {
     // );
     // return;
   });
+
+  // Testing a stream response.
+  ipcMain.on('stream-test', async (event, arg) => {
+    console.log(arg);
+    for (let i = 0; i < arg; i++) {
+      event.reply(i);
+      await sleep(1000);
+    }
+  })
 }
 
 export default setHandlers;
