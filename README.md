@@ -108,6 +108,50 @@ npm run lint
 npm run lintfix
 ```
 
+#### Linking local code for testing.
+For temporary scaffolding of working with client-refactoring branch of js-polykey use this technique:
+npm install --save-dev ../js-polykey
+This will create a symlink inside the node_modules pointing to js-polykey project.
+This allows us to do things like:
+```ts
+import GRPCClient from '@matrixai/polykey/src/grpc/GRPCClient';
+
+async function main () {
+  console.log(GRPCClient);
+}
+
+main();
+```
+
+Notice that I'm importing from the @matrixai/polykey/src/ and not from dist nor are we just doing @matrixai/polykey directly.
+This is because the dist build might not be working inside js-polykey branch, and we just want to test out source code quickly.
+Then afterwards just use:
+`npm run ts-node -- ./test.ts`
+Assuming that was put into ./test.ts.
+
+#### Other development notes.
+##### Level down conflict.
+The module `level` used in js-polykey conflicts with how webpack builds things.
+You need to make sure the webpack config contains
+```js
+  node: { // When in devmode, webpack needs to get it from node_modules
+    __dirname: true,
+    __filename: true,
+  }
+```
+
+##### Source map warnings on node_modules
+Some modules may be missing source mappings and this will clutter the compile output with warnings.
+We can filter out the warnings by adding the following options to the `webpack.config.js`
+```js
+test: /\.js$/,
+loader: "source-map-loader",
+options: { //Added to filter out source map warnings for node modules.
+  filterSourceMappingUrl: (url, resourcePath) => {
+    return !/.*\/node_modules\/.*/.test(resourcePath);
+  }
+}
+```
 
 ### Building the releases:
 ```
