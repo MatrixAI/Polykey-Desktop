@@ -414,10 +414,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const secretMessage = clientPB.SecretSpecificMessage.deserializeBinary(
-      request,
-    );
-    const res = await grpcClient.vaultsGetSecret(secretMessage);
+    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsGetSecret(vaultSpecificMessage);
     return res.serializeBinary();
   });
 
@@ -525,9 +523,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultMessage = clientPB.VaultSpecificMessage.deserializeBinary(
-      request,
-    );
+    const vaultMessage = clientPB.VaultSpecificMessage.deserializeBinary(request);
     await grpcClient.vaultsNewSecret(vaultMessage); //NOTE: not returning success?
     return;
   });
@@ -666,8 +662,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const secretMessage = clientPB.SecretMessage.deserializeBinary(request);
-    await grpcClient.vaultsEditSecret(secretMessage);
+    const secretSpecificMessage = clientPB.SecretSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsEditSecret(secretSpecificMessage);
     return;
   });
 

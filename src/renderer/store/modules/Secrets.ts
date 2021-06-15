@@ -2,6 +2,7 @@ import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 import FileSaver from 'file-saver';
 import { clientPB } from '@matrixai/polykey/src/client';
+import content from "*.svg";
 
 const [actionsInt, actionsExt] = makeIdentifiers('Secrets', [
   'LoadSecretNames',
@@ -48,7 +49,10 @@ export default {
       { commit },
       { secretName = '', vaultName = '', copy = false },
     ) {
-      const secret = await PolykeyClient.GetSecret({ vaultName, secretName });
+      const secret = await PolykeyClient.GetSecret({
+      vault: {name: vaultName, id: ''}, //TODO, need to switch this to using IDs not names.
+        name: secretName,
+      });
       if (copy) {
         navigator.clipboard.writeText(secret).then(
           function () {
@@ -68,8 +72,8 @@ export default {
     async [actionsInt.SelectSecret]({ commit, state }, secretName?: string) {
       if (secretName) {
         const secretContent = await PolykeyClient.GetSecret({
-          vaultName: state.selectedVaultName,
-          secretName,
+          vault: { name: state.selectedVaultName, id: '' },
+          name: secretName,
         });
         commit(mutations.SetSelectedSecret, { secretName, secretContent });
       } else {
@@ -87,13 +91,12 @@ export default {
       }: { secretName: string; secretContent: string },
     ) {
       const successful = await PolykeyClient.UpdateSecret({
-        secretPath: {
-          vaultName: state.selectedVaultName,
-          secretName,
-        },
-        secretContent: secretContent,
-        secretFilePath: '',
-      });
+          vault: {
+            vault: {name: state.selectedVaultName, id: ''},
+            name: secretName,
+          },
+          content: secretContent,
+        });
       if (successful !== null || successful !== undefined) {
         commit(mutations.SetSelectedSecret, {
           secretName: secretName,
@@ -103,21 +106,23 @@ export default {
     },
     async [actionsInt.DeleteSecret]({ state }, secretName: string) {
       await PolykeyClient.DeleteSecret({
-        vaultName: state.selectedVaultName,
-        secretName,
+        vault: { name: state.selectedVaultName, id: '' },
+        name: secretName,
       });
     },
-    // async [actionsInt.NewSecret]( //FIXME
-    //   { dispatch, commit },
-    //   secret: pb.SecretContentMessage.AsObject,
-    // ) {
-    //   /** Add error checking here */
-    //   await PolykeyClient.NewSecret(secret);
-    //
-    //   /** dispatch and reload the page */
-    //   commit(mutations.SetUploadCount);
-    //   dispatch(actionsInt.LoadSecretNames, secret.secretPath!.vaultName);
-    // },
+    async [actionsInt.NewSecret](
+      { dispatch, commit },
+      secret: clientPB.VaultSpecificMessage.AsObject,
+    ) {
+      /** Add error checking here */
+      await PolykeyClient.NewSecret(secret);
+
+      /** dispatch and reload the page */
+      if(secret.vault){
+        commit(mutations.SetUploadCount);
+        dispatch(actionsInt.LoadSecretNames, secret.vault.name);
+      } else throw new Error("Undefined property vault");
+    },
   },
   mutations: {
     [mutations.SetSecretNames]: function (
