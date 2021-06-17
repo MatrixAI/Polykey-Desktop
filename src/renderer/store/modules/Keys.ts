@@ -26,7 +26,7 @@ export default {
     loadKeyPair: async function ({ commit }) {
       const keyPair = await PolykeyClient.GetPrimaryKeyPair();
       console.log('keyPair', keyPair);
-      // commit('loadKeyPair', { publicKey: keyPair.public, privateKey: keyPair.private })
+      commit('loadKeyPair', { publicKey: keyPair.pb_public, privateKey: keyPair.pb_private })
     },
     selectKey: async function ({ commit }, keyName: string) {
       const keyContent = await PolykeyClient.GetKey(keyName);

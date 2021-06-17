@@ -1,4 +1,4 @@
-import GRPCClient from '@matrixai/polykey/src/grpc/GRPCClient';
+import GRPCClient from '@matrixai/polykey/dist/grpc/GRPCClient';
 
 async function main () {
 

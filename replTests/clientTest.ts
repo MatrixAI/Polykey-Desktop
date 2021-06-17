@@ -2,12 +2,12 @@ import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 
 import path from 'path';
 import fs from 'fs';
-import { PolykeyClient } from '@matrixai/polykey/src';
-import { clientPB, GRPCClientClient } from '@matrixai/polykey/src/client';
-import { Lockfile } from '@matrixai/polykey/src/lockfile';
-import { ErrorClientClientNotStarted } from '@matrixai/polykey/src/client/errors';
-import { NodeId } from '@matrixai/polykey/src/nodes/types';
-import { Host, Port } from '@matrixai/polykey/src/network/types';
+import { PolykeyClient } from '@matrixai/polykey/dist';
+import { clientPB, GRPCClientClient } from '@matrixai/polykey/dist/client';
+import { Lockfile } from '@matrixai/polykey/dist/lockfile';
+import { ErrorClientClientNotStarted } from '@matrixai/polykey/dist/client/errors';
+import { NodeId } from '@matrixai/polykey/dist/nodes/types';
+import { Host, Port } from '@matrixai/polykey/dist/network/types';
 
 let grpcHost: Host;
 let grpcPort: Port;

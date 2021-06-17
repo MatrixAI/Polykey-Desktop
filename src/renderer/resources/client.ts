@@ -20,7 +20,6 @@ class PolykeyClient {
   /// ////////////////
   static async StartAgent(): Promise<number | boolean> {
     console.log('starting agent');
-
     return await ipcRenderer.invoke('agent-start');
   }
 
@@ -199,10 +198,7 @@ class PolykeyClient {
   static async GetPrimaryKeyPair(): Promise<clientPB.KeyPairMessage.AsObject> {
     const emptyMessage = new clientPB.EmptyMessage();
     const res = clientPB.KeyPairMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'GetPrimaryKeyPair',
-        emptyMessage.serializeBinary(),
-      ),
+      await ipcRenderer.invoke('GetPrimaryKeyPair'),
     );
     return res.toObject();
   }

@@ -88,7 +88,7 @@ async function setHandlers() {
       // it is here that we know that the agent is running and client is initialize
     } catch (error) {
       try {
-        // agent is offline so we start it!
+        // agent is offline so we start it! //TODO, spawn the agent here.
         console.log('startAgent');
         const pid = 0; //FIXME: Return a pid or not? work out if this is used anywhere.
         await getAgentClient();
@@ -393,10 +393,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
-    // const res = await grpcClient.keysRootKeyPair(emptyMessage);
-    // return res.serializeBinary();
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = await grpcClient.keysRootKeyPair(emptyMessage)
+    return res.serializeBinary();
   });
 
   ipcMain.handle('GetRootCertificate', async (event, request) => {
