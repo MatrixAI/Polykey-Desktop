@@ -15,7 +15,7 @@ export default {
       commit('loadKeyNames', keyNames);
     },
     deleteKey: async function ({ commit, state }, keyName) {
-      const successful = await PolykeyClient.DeleteKey(keyName);
+      const successful = await PolykeyClient.KeysDelete(keyName);
       if (successful !== null || successful !== undefined) {
         const keyNames = await PolykeyClient.ListKeys();
         return commit('loadKeyNames', keyNames);
@@ -24,12 +24,12 @@ export default {
       }
     },
     loadKeyPair: async function ({ commit }) {
-      const keyPair = await PolykeyClient.GetPrimaryKeyPair();
+      const keyPair = await PolykeyClient.keysRootKeyPair();
       console.log('keyPair', keyPair);
       commit('loadKeyPair', { publicKey: keyPair.pb_public, privateKey: keyPair.pb_private })
     },
     selectKey: async function ({ commit }, keyName: string) {
-      const keyContent = await PolykeyClient.GetKey(keyName);
+      const keyContent = await PolykeyClient.keysGet(keyName);
       commit('selectKey', {
         selectedKeyName: keyName,
         selectedKeyContent: keyContent,

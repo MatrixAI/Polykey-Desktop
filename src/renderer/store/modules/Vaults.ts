@@ -34,8 +34,8 @@ export default {
   state,
   actions: {
     async [actionsInt.NewVault]({ commit }, vaultName: string) {
-      await PolykeyClient.NewVault(vaultName);
-      const vaultNames = await PolykeyClient.ListVaults();
+      await PolykeyClient.vaultsCreate(vaultName);
+      const vaultNames = await PolykeyClient.vaultsList();
       commit(mutations.SetVaultNames, vaultNames);
     },
 
@@ -44,7 +44,7 @@ export default {
     },
 
     async [actionsInt.LoadVaultNames]({ commit }) {
-      const vaultNames = await PolykeyClient.ListVaults();
+      const vaultNames = await PolykeyClient.vaultsList();
       commit(mutations.SetVaultNames, vaultNames);
     },
 
@@ -53,8 +53,8 @@ export default {
     },
 
     async [actionsInt.DeleteVault]({ commit }, vaultId: string) {
-      await PolykeyClient.DeleteVault(vaultId);
-      const vaultNames = await PolykeyClient.ListVaults();
+      await PolykeyClient.vaultsDelete(vaultId);
+      const vaultNames = await PolykeyClient.vaultsList();
       commit(mutations.SetVaultNames, vaultNames);
     },
   },

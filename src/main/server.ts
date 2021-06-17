@@ -154,7 +154,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('DecryptFile', async (event, request) => {
+  ipcMain.handle('KeysDecrypt', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -163,7 +163,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('DeleteKey', async (event, request) => {
+  ipcMain.handle('keysDelete', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -172,7 +172,7 @@ async function setHandlers() {
     return;
   });
 
-  ipcMain.handle('DeleteSecret', async (event, request) => {
+  ipcMain.handle('vaultsDeleteSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -181,7 +181,7 @@ async function setHandlers() {
     return;
   });
 
-  ipcMain.handle('DeleteVault', async (event, request) => {
+  ipcMain.handle('vaultsDelete', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -201,7 +201,7 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('EncryptFile', async (event, request) => {
+  ipcMain.handle('keysEncrypt', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -358,7 +358,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('GetKey', async (event, request) => {
+  ipcMain.handle('keysGet', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -389,7 +389,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('GetPrimaryKeyPair', async (event, request) => {
+  ipcMain.handle('keysRootKeyPair', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -398,18 +398,16 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetRootCertificate', async (event, request) => {
+  ipcMain.handle('certsGet', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.getRootCertificate.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.StringMessage;
-    // return res.getS();
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = await grpcClient.certsGet(emptyMessage);
+    return res;
   });
 
-  ipcMain.handle('GetSecret', async (event, request) => {
+  ipcMain.handle('vaultsGetSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -462,7 +460,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('ListSecrets', async (event, request) => {
+  ipcMain.handle('vaultsListSecrets', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -475,7 +473,7 @@ async function setHandlers() {
     return data;
   });
 
-  ipcMain.handle('ListVaults', async (event, request) => {
+  ipcMain.handle('vaultsList', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -518,7 +516,7 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('NewSecret', async (event, request) => {
+  ipcMain.handle('vaultsNewSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -538,7 +536,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('NewVault', async (event, request) => {
+  ipcMain.handle('vaultsCreate', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -558,7 +556,7 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('PullVault', async (event, request) => {
+  ipcMain.handle('vaultsPull', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -580,7 +578,7 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('ScanVaultNames', async (event, request) => {
+  ipcMain.handle('vaultsScan', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -595,7 +593,7 @@ async function setHandlers() {
     return data;
   });
 
-  ipcMain.handle('SignFile', async (event, request) => {
+  ipcMain.handle('keysSign', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -657,7 +655,7 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('UpdateSecret', async (event, request) => {
+  ipcMain.handle('vaultsEditSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -666,7 +664,7 @@ async function setHandlers() {
     return;
   });
 
-  ipcMain.handle('VerifyFile', async (event, request) => {
+  ipcMain.handle('keysVerify', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }

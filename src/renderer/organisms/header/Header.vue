@@ -14,7 +14,7 @@
     <!-- Right -->
     <div class="flex">
       <div class="flex cursor-pointer items-center border-r h-header border-content2 border-opacity-10 pr-3">
-        <Search />
+<!--        <Search />-->
       </div>
       <div class="flex cursor-pointer items-center border-r h-header border-content2 border-opacity-10 px-3">
         <Notification />

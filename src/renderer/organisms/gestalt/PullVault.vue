@@ -81,7 +81,7 @@ export default defineComponent({
     const searchVault = () => {};
 
     watchEffect(()=>{
-      PolykeyClient.ScanVaultNames(activeKeynode.value)
+      PolykeyClient.vaultsScan(activeKeynode.value)
         .then((vaults) => {
           activeVaults.value = vaults
         })
@@ -104,7 +104,7 @@ export default defineComponent({
             const vault = vaults[i];
             console.log(vault)
             if (selectedVaults[vault]) {
-              const result = await PolykeyClient.PullVault({
+              const result = await PolykeyClient.vaultsPull({
                 publicKey: activeKeynode.value,
                 vaultName: vault
               });

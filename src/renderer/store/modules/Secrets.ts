@@ -42,14 +42,14 @@ export default {
   state,
   actions: {
     async [actionsInt.LoadSecretNames]({ commit }, vaultName: string) {
-      const secretNames = await PolykeyClient.ListSecrets(vaultName);
+      const secretNames = await PolykeyClient.vaultsListSecrets(vaultName);
       commit(mutations.SetSecretNames, { vaultName, secretNames });
     },
     async [actionsInt.GetSecret](
       { commit },
       { secretName = '', vaultName = '', copy = false },
     ) {
-      const secret = await PolykeyClient.GetSecret({
+      const secret = await PolykeyClient.vaultsGetSecret({
       vault: {name: vaultName, id: ''}, //TODO, need to switch this to using IDs not names.
         name: secretName,
       });
@@ -71,7 +71,7 @@ export default {
     },
     async [actionsInt.SelectSecret]({ commit, state }, secretName?: string) {
       if (secretName) {
-        const secretContent = await PolykeyClient.GetSecret({
+        const secretContent = await PolykeyClient.vaultsGetSecret({
           vault: { name: state.selectedVaultName, id: '' },
           name: secretName,
         });
@@ -90,7 +90,7 @@ export default {
         secretContent,
       }: { secretName: string; secretContent: string },
     ) {
-      const successful = await PolykeyClient.UpdateSecret({
+      const successful = await PolykeyClient.vaultsEditSecret({
           vault: {
             vault: {name: state.selectedVaultName, id: ''},
             name: secretName,
@@ -105,7 +105,7 @@ export default {
       }
     },
     async [actionsInt.DeleteSecret]({ state }, secretName: string) {
-      await PolykeyClient.DeleteSecret({
+      await PolykeyClient.vaultsDeleteSecret({
         vault: { name: state.selectedVaultName, id: '' },
         name: secretName,
       });
@@ -115,7 +115,7 @@ export default {
       secret: clientPB.VaultSpecificMessage.AsObject,
     ) {
       /** Add error checking here */
-      await PolykeyClient.NewSecret(secret);
+      await PolykeyClient.vaultsNewSecret(secret);
 
       /** dispatch and reload the page */
       if(secret.vault){

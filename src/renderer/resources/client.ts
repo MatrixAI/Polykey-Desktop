@@ -85,20 +85,20 @@ class PolykeyClient {
 
   static async DecryptFile(request: clientPB.CryptoMessage): Promise<string> {
     const res = clientPB.CryptoMessage.deserializeBinary(
-      await ipcRenderer.invoke('DecryptFile', request.serializeBinary()),
+      await ipcRenderer.invoke('KeysDecrypt', request.serializeBinary()),
     );
     return res.getData();
   }
 
-  static async DeleteKey(keyName: string): Promise<void> {
+  static async KeysDelete(keyName: string): Promise<void> {
     const keyMessage = new clientPB.KeyMessage();
     keyMessage.setName(keyName);
 
-    await ipcRenderer.invoke('DeleteKey', keyMessage.serializeBinary());
+    await ipcRenderer.invoke('keysDelete', keyMessage.serializeBinary());
     return;
   }
 
-  static async DeleteSecret(
+  static async vaultsDeleteSecret(
     request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
@@ -109,14 +109,14 @@ class PolykeyClient {
       vaultSpecificMessage.setVault(vaultMessage);
       vaultSpecificMessage.setName(request.name);
     } else throw new Error('Undefined property vault.');
-    await ipcRenderer.invoke('DeleteSecret', vaultSpecificMessage.serializeBinary());
+    await ipcRenderer.invoke('vaultsDeleteSecret', vaultSpecificMessage.serializeBinary());
     return;
   }
 
-  static async DeleteVault(vaultId: string): Promise<void> {
+  static async vaultsDelete(vaultId: string): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(vaultId);
-    await ipcRenderer.invoke('DeleteVault', vaultMessage.serializeBinary());
+    await ipcRenderer.invoke('vaultsDelete', vaultMessage.serializeBinary());
     return;
   }
 
@@ -131,7 +131,7 @@ class PolykeyClient {
 
   static async EncryptFile(request: clientPB.CryptoMessage): Promise<string> {
     const res = clientPB.CryptoMessage.deserializeBinary(
-      await ipcRenderer.invoke('EncryptFile', request.serializeBinary()),
+      await ipcRenderer.invoke('keysEncrypt', request.serializeBinary()),
     );
     return res.getData();
   }
@@ -165,12 +165,12 @@ class PolykeyClient {
     return await ipcRenderer.invoke('GetOAuthClient');
   }
 
-  static async GetKey(keyName: string): Promise<string> {
+  static async keysGet(keyName: string): Promise<string> {
     const keyMessage = new clientPB.KeyMessage();
     keyMessage.setName(keyName);
 
     const res = await ipcRenderer.invoke(
-      'GetKey',
+      'keysGet',
       keyMessage.serializeBinary(),
     );
     const returnKeyMessage = clientPB.KeyMessage.deserializeBinary(res);
@@ -195,19 +195,21 @@ class PolykeyClient {
     // return res.toObject();
   }
 
-  static async GetPrimaryKeyPair(): Promise<clientPB.KeyPairMessage.AsObject> {
+  static async keysRootKeyPair(): Promise<clientPB.KeyPairMessage.AsObject> {
     const emptyMessage = new clientPB.EmptyMessage();
     const res = clientPB.KeyPairMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetPrimaryKeyPair'),
+      await ipcRenderer.invoke('keysRootKeyPair'),
     );
     return res.toObject();
   }
 
   static async GetRootCertificate(): Promise<string> {
-    return await ipcRenderer.invoke('GetRootCertificate');
+    const res = await ipcRenderer.invoke('certsGet');
+    const certificateMessage = clientPB.CertificateMessage.deserializeBinary(res);
+    return certificateMessage.getCert();
   }
 
-  static async GetSecret(
+  static async vaultsGetSecret(
     request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<string> {
     const vaultMessage = new clientPB.VaultMessage();
@@ -218,7 +220,7 @@ class PolykeyClient {
       vaultSpecificMessage.setName(request.name);
     } else throw new Error("Undefined property of vault");
     const res = await ipcRenderer.invoke(
-        'GetSecret',
+        'vaultsGetSecret',
         vaultSpecificMessage.serializeBinary(),
       );
     const secretMessage = clientPB.SecretMessage.deserializeBinary(res);
@@ -487,10 +489,10 @@ class PolykeyClient {
     // return res.getSList();
   }
 
-  static async ListSecrets(vaultName: string): Promise<string[]> {
+  static async vaultsListSecrets(vaultName: string): Promise<string[]> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(vaultName);
-    const secretList = await ipcRenderer.invoke('ListSecrets', vaultMessage.serializeBinary());
+    const secretList = await ipcRenderer.invoke('vaultsListSecrets', vaultMessage.serializeBinary());
     const output: Array<string> = [];
     for (const secretListElement of secretList) {
       output.push(secretListElement)
@@ -498,8 +500,8 @@ class PolykeyClient {
     return output;
   }
 
-  static async ListVaults(): Promise<clientPB.VaultMessage.AsObject[]> {
-    const data: Array<Uint8Array> = await ipcRenderer.invoke('ListVaults');
+  static async vaultsList(): Promise<clientPB.VaultMessage.AsObject[]> {
+    const data: Array<Uint8Array> = await ipcRenderer.invoke('vaultsList');
     const output: Array<clientPB.VaultMessage.AsObject> = [];
     for (const datum of data) {
       const vaultMessage = clientPB.VaultMessage.deserializeBinary(datum);
@@ -547,7 +549,7 @@ class PolykeyClient {
     // return;
   }
 
-  static async NewSecret(
+  static async vaultsNewSecret(
     request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
@@ -557,7 +559,7 @@ class PolykeyClient {
       vaultSpecificMessage.setVault(vaultMessage);
       vaultSpecificMessage.setName(request.name);
     } else throw new Error("Undefined property Vault");
-    await ipcRenderer.invoke('NewSecret', vaultSpecificMessage.serializeBinary());
+    await ipcRenderer.invoke('vaultsNewSecret', vaultSpecificMessage.serializeBinary());
     return;
   }
 
@@ -575,10 +577,10 @@ class PolykeyClient {
     // return res.getS();
   }
 
-  static async NewVault(vaultName: string): Promise<void> {
+  static async vaultsCreate(vaultName: string): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setName(vaultName);
-    await ipcRenderer.invoke('NewVault', vaultMessage.serializeBinary());
+    await ipcRenderer.invoke('vaultsCreate', vaultMessage.serializeBinary());
     return;
   }
 
@@ -593,13 +595,13 @@ class PolykeyClient {
     // return;
   }
 
-  static async PullVault(
+  static async vaultsPull(
     request: clientPB.VaultMessage.AsObject,
   ): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(request.id);
     vaultMessage.setName(request.name);
-    await ipcRenderer.invoke('PullVault', vaultMessage.serializeBinary());
+    await ipcRenderer.invoke('vaultsPull', vaultMessage.serializeBinary());
     return;
   }
 
@@ -614,16 +616,16 @@ class PolykeyClient {
     // return;
   }
 
-  static async ScanVaultNames(peerId: string): Promise<string[]> {
+  static async vaultsScan(peerId: string): Promise<string[]> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(peerId);
-    const res = await ipcRenderer.invoke('ScanVaultNames', vaultMessage.serializeBinary());
+    const res = await ipcRenderer.invoke('vaultsScan', vaultMessage.serializeBinary());
     return res;
   }
 
-  static async SignFile(request: clientPB.CryptoMessage): Promise<string> {
+  static async keysSign(request: clientPB.CryptoMessage): Promise<string> {
     const response = clientPB.CryptoMessage.deserializeBinary(
-      await ipcRenderer.invoke('SignFile', request.serializeBinary()),
+      await ipcRenderer.invoke('keysSign', request.serializeBinary()),
     );
     return response.getSignature();
   }
@@ -690,7 +692,7 @@ class PolykeyClient {
     // return;
   }
 
-  static async UpdateSecret(
+  static async vaultsEditSecret(
     request: clientPB.SecretSpecificMessage.AsObject,
   ): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
@@ -705,13 +707,13 @@ class PolykeyClient {
       secretSpecificMessage.setVault(vaultSpecificMessage);
       secretSpecificMessage.setContent(request.content);
     }else throw Error("Undefined property vault");
-    await ipcRenderer.invoke('UpdateSecret', vaultSpecificMessage.serializeBinary());
+    await ipcRenderer.invoke('vaultsEditSecret', vaultSpecificMessage.serializeBinary());
     return;
   }
 
-  static async VerifyFile(request: clientPB.CryptoMessage): Promise<boolean> {
+  static async keysVerify(request: clientPB.CryptoMessage): Promise<boolean> {
     const res = await ipcRenderer.invoke(
-      'VerifyFile',
+      'keysVerify',
       request.serializeBinary(),
     );
     return clientPB.StatusMessage.deserializeBinary(res).getSuccess();
