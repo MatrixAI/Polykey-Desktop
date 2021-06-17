@@ -108,7 +108,7 @@ import Github from '@/renderer/assets/github.svg';
 import Augment from '@/renderer/assets/augment.svg';
 
 /** Store */
-import { actions } from '@/renderer/store/modules/User';
+import { actions } from '@/renderer/store/modules/Nodes';
 import { actions as actionsGestalt } from '@/renderer/store/modules/Gestalt';
 
 export default defineComponent({
@@ -124,7 +124,7 @@ export default defineComponent({
     const username = ref('');
     const store = useStore();
     const router = useRouter();
-    const profile = computed(() => store.state.User.localPeerInfo);
+    const profile = computed(() => store.state.Nodes.localNodeInfo);
 
     /** Use this later for viewing of profile from identities */
     const id = router.currentRoute.value.params.id;

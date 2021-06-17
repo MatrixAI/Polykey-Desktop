@@ -13,6 +13,7 @@ const enum mutations {
   SetVaultNames = 'SetVaultNames',
   SetSelectedVault = 'SetSelectedVault',
   SetSearchFilter = 'SetSearchFilter',
+  // SetPullVaults = 'SetPullVaults',
 }
 
 type State = {
@@ -38,24 +39,26 @@ export default {
       const vaultNames = await PolykeyClient.vaultsList();
       commit(mutations.SetVaultNames, vaultNames);
     },
-
     async [actionsInt.SearchFilter]({ commit }, filter: string) {
       commit(mutations.SetSearchFilter, filter);
     },
-
     async [actionsInt.LoadVaultNames]({ commit }) {
       const vaultNames = await PolykeyClient.vaultsList();
       commit(mutations.SetVaultNames, vaultNames);
     },
-
     async [actionsInt.SelectVault]({ commit }, vaultName: string) {
       commit(mutations.SetSelectedVault, vaultName);
     },
-
     async [actionsInt.DeleteVault]({ commit }, vaultId: string) {
       await PolykeyClient.vaultsDelete(vaultId);
       const vaultNames = await PolykeyClient.vaultsList();
       commit(mutations.SetVaultNames, vaultNames);
+    },
+    //FIXME should this be done inside the store?
+    // it's an action that doesn't modify state.
+    async [actionsInt.PullVaults]({ commit }, NodeId: string) {
+      await PolykeyClient.vaultsPull({name: '', id: NodeId})
+      //commit(mutations.PullVaults, searchMode);
     },
   },
   mutations: {

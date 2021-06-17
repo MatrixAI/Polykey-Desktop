@@ -22,7 +22,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 /** Store */
-import { STATUS, actions } from '@/renderer/store/modules/User';
+import { STATUS, actions } from '@/renderer/store/modules/Agent';
 
 /** Components */
 import Header from '@/renderer/organisms/header/Header.vue';
@@ -48,7 +48,7 @@ export default defineComponent({
 
     watchEffect(() => {
       /** Watch the status here for redirection */
-      const status = store.state.User.status;
+      const status = store.state.Agent.status;
 
       switch (status) {
         case STATUS.PENDING:
@@ -81,7 +81,7 @@ export default defineComponent({
       /**
        * Check user if isUnlocked if not need to run the polykeyclient
        */
-      store.dispatch(actions.CheckUserStatus);
+      store.dispatch(actions.CheckAgentStatus);
     });
 
     return {

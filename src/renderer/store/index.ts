@@ -1,15 +1,18 @@
 import { createStore } from 'vuex';
 
+/// Other modules
 import Alert from '@/renderer/store/modules/Alert';
 import Configuration from '@/renderer/store/modules/Configuration';
 import ConfigurationDialog from '@/renderer/store/modules/ConfirmationDialog';
 import Drawer from '@/renderer/store/modules/Drawer';
+/// Subdomain modules
 import Keys from '@/renderer/store/modules/Keys';
-import Peers from '@/renderer/store/modules/Peers';
 import Secrets from '@/renderer/store/modules/Secrets';
 import Vaults from '@/renderer/store/modules/Vaults';
-import User from '@/renderer/store/modules/User';
+import Nodes from '@/renderer/store/modules/Nodes';
 import Gestalt from '@/renderer/store/modules/Gestalt';
+import Agent from '@/renderer/store/modules/Agent'
+import Bootstrap from '@/renderer/store/modules/Bootstrap'
 
 export default createStore({
   modules: {
@@ -17,13 +20,15 @@ export default createStore({
     Configuration,
     ConfigurationDialog,
     Drawer,
-    Keys,
-    Peers,
 
+    /** Related to subdomains of js-polykey*/
+    Agent,
+    Bootstrap,
+    Keys,
     /** Currently used */
     Secrets,
     Vaults,
-    User,
+    Nodes,
     Gestalt,
   },
 });

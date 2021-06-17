@@ -52,7 +52,7 @@ import Input from '@/renderer/atoms/input/Input.vue';
 import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
 
 /** Store */
-import { actions } from '@/renderer/store/modules/User';
+import { actions } from '@/renderer/store/modules/Nodes';
 
 /** Assets */
 import Action from '@/renderer/assets/action.svg';
