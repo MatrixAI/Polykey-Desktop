@@ -104,11 +104,10 @@ class PolykeyClient {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
 
-    if(request.vault) {
-      vaultMessage.setId(request.vault.id);
-      vaultSpecificMessage.setVault(vaultMessage);
-      vaultSpecificMessage.setName(request.name);
-    } else throw new Error('Undefined property vault.');
+    if(!request.vault) throw new Error('Undefined property vault.');
+    vaultMessage.setId(request.vault.id);
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.name);
     await ipcRenderer.invoke('vaultsDeleteSecret', vaultSpecificMessage.serializeBinary());
     return;
   }
@@ -214,11 +213,10 @@ class PolykeyClient {
   ): Promise<string> {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
-    if (request.vault){
-      vaultMessage.setId(request.vault.id)
-      vaultSpecificMessage.setVault(vaultMessage);
-      vaultSpecificMessage.setName(request.name);
-    } else throw new Error("Undefined property of vault");
+    if (!request.vault) throw new Error("Undefined property of vault");
+    vaultMessage.setId(request.vault.id)
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.name);
     const res = await ipcRenderer.invoke(
         'vaultsGetSecret',
         vaultSpecificMessage.serializeBinary(),
@@ -554,11 +552,10 @@ class PolykeyClient {
   ): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
-    if (request.vault) {
-      vaultMessage.setId(request.vault.id);
-      vaultSpecificMessage.setVault(vaultMessage);
-      vaultSpecificMessage.setName(request.name);
-    } else throw new Error("Undefined property Vault");
+    if (!request.vault) throw new Error("Undefined property Vault");
+    vaultMessage.setId(request.vault.id);
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.name);
     await ipcRenderer.invoke('vaultsNewSecret', vaultSpecificMessage.serializeBinary());
     return;
   }
@@ -698,15 +695,12 @@ class PolykeyClient {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
     const secretSpecificMessage = new clientPB.SecretSpecificMessage();
-    if (request.vault) {
-      if (request.vault.vault){
-        vaultMessage.setId(request.vault.vault.id);
-        vaultSpecificMessage.setVault(vaultMessage);
-        vaultSpecificMessage.setName(request.vault.vault.name);
-      }else throw Error("Undefined property vault");
-      secretSpecificMessage.setVault(vaultSpecificMessage);
-      secretSpecificMessage.setContent(request.content);
-    }else throw Error("Undefined property vault");
+    if (!request.vault || !request.vault.vault) throw Error("Undefined property vault");
+    vaultMessage.setId(request.vault.vault.id);
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.vault.vault.name);
+    secretSpecificMessage.setVault(vaultSpecificMessage);
+    secretSpecificMessage.setContent(request.content);
     await ipcRenderer.invoke('vaultsEditSecret', vaultSpecificMessage.serializeBinary());
     return;
   }

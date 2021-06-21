@@ -22,10 +22,10 @@ export default createStore({
     Drawer,
 
     /** Related to subdomains of js-polykey*/
-    Agent,
     Bootstrap,
     Keys,
     /** Currently used */
+    Agent,
     Secrets,
     Vaults,
     Nodes,
