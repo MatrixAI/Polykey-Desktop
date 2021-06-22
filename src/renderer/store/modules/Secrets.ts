@@ -31,7 +31,7 @@ const state: State = {
   selectedVaultName: '',
   selectedSecretName: '',
   selectedSecretContent: '',
-  secretNames: [],
+  secretNames: ['Secret 1', 'Secret 2', 'Secret 3', 'Password'],
   uploadCount: 0,
 };
 
@@ -42,7 +42,9 @@ export default {
   state,
   actions: {
     async [actionsInt.LoadSecretNames]({ commit }, vaultName: string) {
-      const secretNames = await PolykeyClient.vaultsListSecrets(vaultName);
+      // const secretNames = await PolykeyClient.vaultsListSecrets(vaultName); //FIXME, re-enable
+      const secretNames = ['Secret 1', 'Secret 2', 'Secret 3'];
+      console.log('Listing secret names...', secretNames);
       commit(mutations.SetSecretNames, { vaultName, secretNames });
     },
     async [actionsInt.GetSecret](

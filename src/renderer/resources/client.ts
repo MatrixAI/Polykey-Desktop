@@ -493,7 +493,7 @@ class PolykeyClient {
     const secretList = await ipcRenderer.invoke('vaultsListSecrets', vaultMessage.serializeBinary());
     const output: Array<string> = [];
     for (const secretListElement of secretList) {
-      output.push(secretListElement)
+      output.push(secretListElement) //TODO: Double check this.
     }
     return output;
   }

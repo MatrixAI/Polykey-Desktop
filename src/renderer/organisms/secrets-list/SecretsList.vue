@@ -74,11 +74,8 @@ export default defineComponent({
 
     watchEffect(() => {
       const secrets = store.state.Secrets.secretNames;
-      secretsList.value = Object.keys(secrets).map(key => {
-        return {
-          name: secrets[key]
-        };
-      });
+      secretsList.value = secrets.map((name) => {return {name: name}});
+      console.log("secrets", secretsList.value);
     });
 
     onMounted(() => {
