@@ -178,3 +178,97 @@ nix-env -f ./release.nix --install --attr application
 4. npx tsc -p tsconfig-electron.json
 5. npm run make:mac
 6. electron-packager ./dist Polykey --out=out/win --platform=win32 --arch=x64 --icon=icons/icons/win/icon.ico
+
+
+### Tests
+We are using Jest for the testing.
+There were a few changes that were made to get jest working with Polukey.
+
+#### Testing vue.
+For general Vue testing we need the `@vue/test-utils` package.
+```js
+//package.json
+"devDependencies": {
+  "@vue/test-utils": "^2.0.0-beta.14",
+}
+```
+In testing we can use this to mount components and test them via.
+```ts
+import { mount } from '@vue/test-utils';
+import Antd from 'ant-design-vue';
+import DefaultButton from '@/renderer/atoms/button/DefaultButton.vue'
+
+describe('DefaultButton component', () => {
+  const wrapper = mount(DefaultButton, {  //Mounts the component
+    global: {
+      plugins: [Antd],
+    },
+    props: {},
+  });
+  test('Exists.', async () => {
+    expect(wrapper.exists()).toBe(true); //We can use the wrapper to interact with the component.
+    // clicking elements
+    await wrapper.trigger('click') //Clicking
+    // we can get elements to trigger with
+    const button = wrapper.get('data-test=button-to-test');
+    await button.trigger('click');
+    // but for this the button needs the attribute data-test="button-to-test"
+    //I will provide a better example. soon.
+  });
+});
+```
+
+#### Issues
+Issues and their fixes as follows.
+
+##### importing Ant-design-vue
+To avoid warnings when using ant-design-vue the following changes were made to the jest.config.js
+```js
+//The lines were added.
+const transformIgnorePatterns = [
+  '/dist/',
+  // Ignore modules without es dir.
+  // Update: @babel/runtime should also be transformed
+  // 'node_modules/(?!.*(@babel|lodash-es))',
+  'node_modules/(?!@ant-design/icons-vue|@ant-design/icons-svg|lodash-es)/',
+];
+module.exports = {
+  //...
+  transformIgnorePatterns,
+}
+```
+
+##### Tansforms for babel and SVG
+We needed to add a transform for .js files, so `babel-jest` was added.
+In the package.json file
+```js
+//package.json
+"devDependencies": {
+    //...
+    //for babel
+    "@babel/preset-env": "^7.13.10",
+    "babel-jest": "^26.6.3",
+    //...
+    //For SVG and other imports
+    "jest-transform-stub": "^2.0.0",
+}
+```
+Added a babel.config.js file
+```js
+//babel.config.js
+module.exports = {
+  presets: ['@babel/preset-env'],
+};
+```
+Added a line to jest.config.js
+```js
+//jest.config.js
+module.exports = {
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest',        //For babel.
+    "^.+\\.svg$": "jest-transform-stub" //For stubbing svg
+  }
+}
+```
+
+

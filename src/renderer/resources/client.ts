@@ -1,11 +1,7 @@
-// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
-// import * as pb from '@matrixai/polykey/dist/proto/js/Client_pb'
 import { clientPB } from '@matrixai/polykey/src/client';
 import { promises } from "dns";
-// import commandSecretEnv from '../../../../js-polykey/dist/bin/secrets/commandSecretEnv';
-// import client from '@/renderer/resources/client';
 const ipcRenderer = window.require('electron').ipcRenderer;
-// import { ipcRenderer } from 'electron';git
+// import { ipcRenderer } from 'electron';
 
 class PolykeyClient {
   /// ////////////////////
