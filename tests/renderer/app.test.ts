@@ -10,7 +10,6 @@ import createRouter from '@/renderer/router';
 jest.mock('electron', () => {
   return jest.fn();
 });
-//TODO: https://stackoverflow.com/questions/58603201/jest-cannot-load-svg-file
 
 const config: Config = {
   BASE_PATH: '',

@@ -509,7 +509,7 @@ async function setHandlers() {
 
   ipcMain.handle('InitializeKeyNode', async (event, request) => {
     await getAgentClient(false);
-    throw new Error('Not implemented.');
+    throw new Error('Not implemented.'); //TODO Bootstrap.
     // await promisifyGrpc(client.initializeNode.bind(client))(
     //   pb.NewKeyPairMessage.deserializeBinary(request),
     // );
