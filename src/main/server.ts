@@ -89,7 +89,11 @@ async function setHandlers() {
         // agent is offline so we start it! //TODO, spawn the agent here.
         console.log('startAgent');
         const polykeyPath = getDefaultNodePath();
-        await bootstrapPolykeyState(polykeyPath, password); //FIXME, Do a proper bootstrap.
+        try {
+          await bootstrapPolykeyState(polykeyPath, password); //FIXME, Do a proper bootstrap. Also breaks if Agent is already running.
+        } catch (e) {
+          console.error(e);//asd
+        }
         let pid: number = 0;//asd
         try {
           pid = await spawnBackgroundAgent(polykeyPath, password); //FIXME: Return a pid or not? work out if this is used anywhere.
