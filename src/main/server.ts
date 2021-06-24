@@ -1,9 +1,6 @@
 import os from 'os';
-import fixPath from 'fix-path';
+// import fixPath from 'fix-path'; //Broken with webpack.
 import { ipcMain, clipboard } from 'electron';
-// import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
-// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
-// import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb';
 import { PolykeyClient } from '@matrixai/polykey/src/index';
 import { GRPCClientClient } from '@matrixai/polykey/src/client';
 import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
@@ -11,9 +8,10 @@ import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 import { clientPB } from '@matrixai/polykey/src/client';
 import { sleep } from '../utils';
 import * as grpc from '@grpc/grpc-js';
-// import { KeyMessage } from '../../../js-polykey/dist/proto/js/Client_pb';
+import { bootstrapPolykeyState } from '@matrixai/polykey/src/utils';
+import { spawnBackgroundAgent } from '@matrixai/polykey/src/agent/utils';
 
-fixPath();
+// fixPath(); //Broken with webpack.
 
 /** This will default for now */
 const polykeyPath = getDefaultNodePath();
@@ -33,14 +31,12 @@ async function getAgentClient(failOnNotInitialized = false) {
   clientConfig['nodePath'] = polykeyPath;
 
   client = new PolykeyClient(clientConfig);
-
-  console.log('done starting agent..');
   await client.start({});
   grpcClient = client.grpcClient;
-
   if (!grpcClient.started) {
     throw Error('agent is not running and could not be restarted');
   }
+  console.log('done starting agent..');
 }
 
 function resolveTilde(filePath: string) {
@@ -68,6 +64,8 @@ async function setHandlers() {
   // agent control //
   /// ////////////////
   ipcMain.handle('agent-start', async (event, request) => {
+    const password = "Password";
+
     // this method has a 3 possible cases:
     // case 1: polykey agent is not started and is started to return the pid
     // case 2: polykey agent is already started and returns true
@@ -90,9 +88,16 @@ async function setHandlers() {
       try {
         // agent is offline so we start it! //TODO, spawn the agent here.
         console.log('startAgent');
-        const pid = 0; //FIXME: Return a pid or not? work out if this is used anywhere.
+        const polykeyPath = getDefaultNodePath();
+        await bootstrapPolykeyState(polykeyPath, password); //FIXME, Do a proper bootstrap.
+        let pid: number = 0;//asd
+        try {
+          pid = await spawnBackgroundAgent(polykeyPath, password); //FIXME: Return a pid or not? work out if this is used anywhere.
+        } catch (e) {
+          console.log("Problem starting agent, might already be started.");
+        }
+        // console.log(pid);
         await getAgentClient();
-        await client.start({});
 
         console.log('connectToAgent');
         const tempClient = client.grpcClient;
