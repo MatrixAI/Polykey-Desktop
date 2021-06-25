@@ -22,7 +22,6 @@ const electronMain = {
   node: {
     // When in devmode, webpack needs to get it from node_modules
     __dirname: true,
-    __filepath: true
   },
   module: {
     rules: [
