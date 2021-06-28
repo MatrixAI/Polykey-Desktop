@@ -71,10 +71,9 @@ export default {
         passphrase,
       });
       if (result !== null) {
-        commit(mutations.SetIsUnlocked, true, {root: true});
         return commit(mutations.SetStatus, STATUS.ONLINE, {root: true});
       }
-    },
+    }, //TODO: Now handled by sessions, move back into agent module.
     async [actionsInt.GetLocalNodeInfo]({ commit }) {
       const localNodeInfo = await PolykeyClient.GetLocalPeerInfo();
       commit(mutations.SetGetLocalNodeInfo, localNodeInfo);

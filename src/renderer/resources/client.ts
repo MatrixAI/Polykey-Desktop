@@ -83,6 +83,10 @@ class PolykeyClient {
     return await ipcRenderer.invoke('bootstrap-keynode', request);
   }
 
+  /**
+   * @param keynodePath path to the keynode.
+   * @returns number 0 if can initialize, 1 if initialized, 2 if invalid.
+   */
   static async CheckKeynodeState(keynodePath: string): Promise<number> {
     const request = {keynodePath}
     return await ipcRenderer.invoke('check-keynode-state', request);

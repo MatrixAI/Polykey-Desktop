@@ -141,7 +141,7 @@ async function setHandlers() {
 
   ipcMain.handle('check-keynode-state', async (event, request) => {
     try{
-      const files = await fs.promises.readdir(request.nodePath);
+      const files = await fs.promises.readdir(request.keynodePath);
       //Checking if directory structure matches keynode structure.
       if(
         files.includes('agent')   &&
@@ -154,8 +154,13 @@ async function setHandlers() {
         console.log("good structure.");
         return 1; // Should be a good initilized keynode.
       } else {
-        console.log("bad structure.");
-        return 2; // Bad structure, either malformed or not a keynode.
+        if(files.length != 0){
+          console.log("bad structure.");
+          return 2; // Bad structure, either malformed or not a keynode.
+        } else {
+          console.log("Empty folder");
+          return 0; // Directy exists, but is empty, can make a keynode.
+        }
       }
     } catch (e) {
       if(e.code === 'ENOENT') {

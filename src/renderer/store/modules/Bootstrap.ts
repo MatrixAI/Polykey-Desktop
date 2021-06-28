@@ -3,12 +3,13 @@ import { makeIdentifiers } from '@/renderer/store/utils';
 import { STATUS } from "@/renderer/store/modules/Agent";
 
 const [actionsInt, actionsExt] = makeIdentifiers('Bootstrap', [
-  'CreateNewNode',
+  'BootstrapKeynode',
 ]);
 
 const enum mutations {
   SetIsUnlocked = 'Agent/SetIsUnlocked',
   SetStatus = 'Agent/SetStatus',
+  SetPassword = 'Agent/SetPassword',
 }
 
 type State = {};
@@ -21,15 +22,12 @@ export default {
   namespaced: true,
   state,
   actions: {
-    async [actionsInt.CreateNewNode]({ commit }, node) {
+    async [actionsInt.BootstrapKeynode]({ commit }, password) {
       try {
         console.log('Starting to InitializeKeyNode');
-        const result = await PolykeyClient.InitializeKeyNode(node);
-        console.log(result);
-        if (result === undefined) {
-          commit(mutations.SetIsUnlocked, true, {root: true});
-          return commit(mutations.SetStatus, STATUS.ONLINE, {root: true});
-        }
+        await PolykeyClient.BootstrapKeynode('./tmp', password);
+        commit(mutations.SetPassword, password, {root: true});
+        return commit(mutations.SetStatus, STATUS.INITIALIZED, {root: true});
       } catch (e) {
         console.log('Error InitializeKeyNode', e);
       }

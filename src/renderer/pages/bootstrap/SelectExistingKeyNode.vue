@@ -52,7 +52,8 @@ import Input from '@/renderer/atoms/input/Input.vue';
 import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
 
 /** Store */
-import { actions } from '@/renderer/store/modules/Nodes';
+// import { actions } from '@/renderer/store/modules/Nodes';
+import { actions, STATUS } from '@/renderer/store/modules/Agent';
 
 /** Assets */
 import Action from '@/renderer/assets/action.svg';
@@ -74,7 +75,8 @@ export default defineComponent({
     return {
       password,
       unseal: async function() {
-        store.dispatch(actions.UnlockKeyNode, password.value);
+        console.warn("Warning, not actually starting a sesson yet.");
+        await store.dispatch(actions.SetStatus, STATUS.ONLINE);
       }
     };
   }

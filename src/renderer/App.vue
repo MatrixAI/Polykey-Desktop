@@ -58,6 +58,9 @@ export default defineComponent({
         case STATUS.UNINITIALIZED:
           return router.replace('/selectKeyNode');
           break;
+        case STATUS.INITIALIZED:
+          store.dispatch(actions.StartAgent);
+          break;
         case STATUS.LOCKED:
           return router.replace('/selectExistingKeyNode');
           break;
@@ -77,11 +80,12 @@ export default defineComponent({
       }
     });
 
-    onMounted(() => {
+    onMounted(async () => {
       /**
        * Check user if isUnlocked if not need to run the polykeyclient
        */
-      store.dispatch(actions.CheckAgentStatus);
+      // await store.dispatch(actions.SetKeynodePath, './tmp'); //FIXME default path.
+      await store.dispatch(actions.CheckAgentStatus);
     });
 
     return {

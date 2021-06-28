@@ -79,10 +79,7 @@ export default defineComponent({
       confirmPassword,
       seal: async function() {
         if (password.value == confirmPassword.value) {
-          return store.dispatch(actions.CreateNewNode, {
-            userid: 'polykey',
-            passphrase: password.value
-          });
+          return store.dispatch(actions.BootstrapKeynode, password.value);
         }
         error.value = true;
       }
