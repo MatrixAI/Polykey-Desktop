@@ -29,7 +29,7 @@ export default defineComponent({
     const vaultName = ref('');
 
     onMounted(() => {
-      console.log(this);
+      // console.log(this);
     });
 
     return {

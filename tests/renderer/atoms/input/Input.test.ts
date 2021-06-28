@@ -21,7 +21,7 @@ describe('Input component', () => {
     const input = wrapper.get('input');
     expect(input.element.value).toBe('No Value');
     expect(wrapper.vm.data).toBe('No Value');
-    await input.setValue('New Value'); //Changing the value.
+    // await input.setValue('New Value'); //Changing the value.
     // input.element.value = 'New Value';
     // await input.trigger('change');
     expect(wrapper.vm.data).toBe('New Value'); //Expect update to data.

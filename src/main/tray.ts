@@ -2,8 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { app, Menu, BrowserWindow, Tray } from 'electron';
 
-import { polykeyPath } from './server';
-
 type CreateWinow = () => BrowserWindow;
 
 export default class TrayComponent {

@@ -12,8 +12,8 @@ jest.mock('electron', () => {
 });
 
 const config: Config = {
-  BASE_PATH: '',
-  TMPDIR: '',
+  BASE_PATH: './dist/index.html',
+  TMPDIR: '/tmp',
 };
 
 const router = createRouter(config)
@@ -28,6 +28,7 @@ describe('Console component', () => {
     expect(wrapper.exists()).toBeTruthy();
     expect(wrapper.findComponent({name: 'Input'}).exists()).toBeTruthy();
     expect(wrapper.findComponent({name: 'PrimaryButton'}).exists()).toBeTruthy();
+    fail("Test is not complete.");
   });
   //TODO add more tests.
 });

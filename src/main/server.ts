@@ -10,25 +10,30 @@ import { sleep } from '../utils';
 import * as grpc from '@grpc/grpc-js';
 import { bootstrapPolykeyState } from '@matrixai/polykey/src/utils';
 import { spawnBackgroundAgent } from '@matrixai/polykey/src/agent/utils';
+import fs from 'fs';
 
 // fixPath(); //Broken with webpack.
 
 /** This will default for now */
-const polykeyPath = getDefaultNodePath();
+let keynodePath: string; //= getDefaultNodePath();
 let client: PolykeyClient;
 let grpcClient: GRPCClientClient;
 
-async function getAgentClient(failOnNotInitialized = false) {
+//TODO, could be wrong, fix this up. functions for now.
+async function getAgentClient(nodePath?: string, failOnNotInitialized = false) {
   // make sure agent is running
   console.log('starting....');
-  console.log(polykeyPath);
+  console.log('Node path: ', nodePath);
+  if(nodePath) keynodePath = nodePath;
+  console.log("keynode path: ", keynodePath);
+  if(keynodePath === undefined) throw Error('No node path set.');
 
   const clientConfig = {};
   clientConfig['logger'] = new Logger('CLI Logger', LogLevel.WARN, [
     new StreamHandler(),
   ]);
   clientConfig['logger'].setLevel(LogLevel.DEBUG);
-  clientConfig['nodePath'] = polykeyPath;
+  clientConfig['nodePath'] = keynodePath;
 
   client = new PolykeyClient(clientConfig);
   await client.start({});
@@ -63,7 +68,7 @@ async function setHandlers() {
   /// ////////////////
   // agent control //
   /// ////////////////
-  ipcMain.handle('agent-start', async (event, request) => {
+  ipcMain.handle('agent-start-old', async (event, request) => { //FIXME: remove this when confirmed it is un-needed.
     const password = "Password";
 
     // this method has a 3 possible cases:
@@ -75,7 +80,7 @@ async function setHandlers() {
       // but we only know the agent is offline if getStatus returns an error (because its offline)
       // so check status and if it throws we know its offline, if not we assume its online
       console.log('connectToAgent');
-      console.log(polykeyPath);
+      console.log(keynodePath);
 
       const tempClient = client.grpcClient;
 
@@ -89,16 +94,21 @@ async function setHandlers() {
         // agent is offline so we start it! //TODO, spawn the agent here.
         console.log('startAgent');
         const polykeyPath = getDefaultNodePath();
+
+        //Bootstrapping
         try {
           await bootstrapPolykeyState(polykeyPath, password); //FIXME, Do a proper bootstrap. Also breaks if Agent is already running.
         } catch (e) {
           console.log("Can't bootstrap state, Error: ", e.message);
         }
         let pid: number = 0;
+
+        //Spawning agent.
         try {
           pid = await spawnBackgroundAgent(polykeyPath, password); //FIXME: Return a pid or not? work out if this is used anywhere.
         } catch (e) {
           console.log("Problem starting agent, might already be started.");
+          console.error(e);
         }
         // console.log(pid);
         await getAgentClient();
@@ -117,6 +127,49 @@ async function setHandlers() {
       } catch (error) {
         throw Error(error.message);
       }
+    }
+  });
+
+  ipcMain.handle('connect-client', async(event, request) => {
+    console.log("BRUH2 ", request.keynodePath);
+    return await getAgentClient(request.keynodePath);
+  })
+
+  ipcMain.handle('spawn-agent', async (event, request) => {
+    return await spawnBackgroundAgent(request.keynodePath, request.password);
+  })
+
+  ipcMain.handle('check-keynode-state', async (event, request) => {
+    try{
+      const files = await fs.promises.readdir(request.nodePath);
+      //Checking if directory structure matches keynode structure.
+      if(
+        files.includes('agent')   &&
+        files.includes('keys')    &&
+        files.includes('vaults')  &&
+        files.includes('nodes')   &&
+        files.includes('gestalts')&&
+        files.includes('identities')
+      ) {
+        console.log("good structure.");
+        return 1; // Should be a good initilized keynode.
+      } else {
+        console.log("bad structure.");
+        return 2; // Bad structure, either malformed or not a keynode.
+      }
+    } catch (e) {
+      if(e.code === 'ENOENT') {
+        console.log("Directory does not exist.")
+        return 0; // The directory does not exist, we can create a bootstrap a keynode.
+      } else throw Error(e);
+    }
+  });
+
+  ipcMain.handle('bootstrap-keynode', async (event, request) => {
+    try {
+      await bootstrapPolykeyState(request.keynodePath, request.password);
+    } catch (e) {
+      console.log("Can't bootstrap state, Error: ", e.message);
     }
   });
 
@@ -517,7 +570,7 @@ async function setHandlers() {
   });
 
   ipcMain.handle('InitializeKeyNode', async (event, request) => {
-    await getAgentClient(false);
+    await getAgentClient();
     throw new Error('Not implemented.'); //TODO Bootstrap.
     // await promisifyGrpc(client.initializeNode.bind(client))(
     //   pb.NewKeyPairMessage.deserializeBinary(request),
@@ -705,4 +758,4 @@ async function setHandlers() {
 }
 
 export default setHandlers;
-export { polykeyPath };
+export { keynodePath };

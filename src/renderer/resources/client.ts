@@ -1,7 +1,7 @@
 import { clientPB } from '@matrixai/polykey/src/client';
-import { promises } from "dns";
+import { getDefaultNodePath } from "@matrixai/polykey/src/utils";
+import { keynodePath } from "@/main/server";
 const ipcRenderer = window.require('electron').ipcRenderer;
-// import { ipcRenderer } from 'electron';
 
 class PolykeyClient {
   /// ////////////////////
@@ -14,9 +14,78 @@ class PolykeyClient {
   /// ////////////////
   // Agent Handler //
   /// ////////////////
-  static async StartAgent(): Promise<number | boolean> {
-    console.log('starting agent');
-    return await ipcRenderer.invoke('agent-start');
+
+  // static async StartAgent(): Promise<number | boolean> {
+  //   console.log('starting agent');
+  //   return await ipcRenderer.invoke('agent-start');
+  // }
+
+  //Temp moved agent starting to front end for now, this is just for testing.
+  static async StartAgent(){
+    const password = 'Password';
+    const keynodePath = './tmp';
+
+    // this method has a 3 possible cases:
+    // case 1: polykey agent is not started and is started to return the pid
+    // case 2: polykey agent is already started and returns true
+    // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
+    try {
+      // phase 1: the first thing we ever do is check if the agent is running or not
+      // but we only know the agent is offline if getStatus returns an error (because its offline)
+      // so check status and if it throws we know its offline, if not we assume its online
+      console.log('connectToAgent');
+      console.log(keynodePath);
+      await this.ConnectClient(keynodePath);
+      // it is here that we know that the agent is running and client is initialize
+    } catch (error) {
+      try {
+        // agent is offline so we start it!
+        console.log('startAgent');
+        // const polykeyPath = getDefaultNodePath();
+
+        //Bootstrapping
+        await this.BootstrapKeynode(keynodePath, password);
+        let pid: number = 0;
+
+        //Spawning agent.
+        try {
+          console.log('starting agent.');
+          pid = await this.SpawnAgent(keynodePath, password);
+          console.log('pid: ', pid);
+        } catch (e) {
+          console.log("Problem starting agent, might already be started.");
+          // console.error(e);
+        }
+        console.log('connectToAgent');
+        await this.ConnectClient(keynodePath);
+
+        console.log('done');
+        return pid;
+      } catch (error) {
+        throw Error(error.message);
+      }
+    }
+  }
+
+  static async ConnectClient(keynodePath: string){
+    console.log("BRUH ", keynodePath);
+    const request = {keynodePath}
+    return await ipcRenderer.invoke('connect-client', request);
+  }
+
+  static async SpawnAgent(keynodePath: string, password: string): Promise<number> {
+    const request = {keynodePath, password}
+    return await ipcRenderer.invoke('spawn-agent', request);
+  }
+
+  static async BootstrapKeynode(keynodePath: string, password: string) {
+    const request = {keynodePath, password}
+    return await ipcRenderer.invoke('bootstrap-keynode', request);
+  }
+
+  static async CheckKeynodeState(keynodePath: string): Promise<number> {
+    const request = {keynodePath}
+    return await ipcRenderer.invoke('check-keynode-state', request);
   }
 
   static async RestartAgent(): Promise<number> {
