@@ -2,7 +2,9 @@ import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 import { keynodePath } from "@/main/server";
 import { getDefaultNodePath } from "@matrixai/polykey/src/utils";
-
+import type { BootstrapEvent } from "@/renderer/store/modules/Bootstrap";
+import { actions as BootstrapActions } from "@/renderer/store/modules/Bootstrap";
+import { checkAgentRunning } from '@/utils'
 const DELAY = 0;
 
 const [actionsInt, actionsExt] = makeIdentifiers('Agent', [
@@ -49,7 +51,7 @@ export default {
   namespaced: true,
   state,
   actions: {
-    async [actionsInt.CheckAgentStatus]({ commit }) { //TODO fix this whole thing.
+    async [actionsInt.CheckAgentStatus]({ commit }) {
       /**OK, so we need to do a few things here.
        * There are 4 states we need to check for.
        * 1. ONLINE: agent running, session open.
@@ -94,23 +96,22 @@ export default {
       }
 
     },
-    async [actionsInt.SetKeynodePath]({ commit }, keynodePath) {
+    async [actionsInt.SetKeynodePath]({ commit, dispatch }, keynodePath) {
       commit(mutations.SetKeynodePath, keynodePath);
       return;
     },
-    async [actionsInt.BootstrapKeynode]({ commit }, password) {
-      await PolykeyClient.BootstrapKeynode(keynodePath, password);
-      commit(mutations.SetStatus, STATUS.INITIALIZED);
-    },
-    async [actionsInt.StartAgent]({ commit, state }) {
-      try{
-        const pid = await PolykeyClient.SpawnAgent(state.keynodePath, state.password);
-        commit(mutations.SetPid, pid);
-      } catch (e) {
-        console.log("agent is likely already started.");
+    async [actionsInt.StartAgent]({ commit, dispatch }, password) {// Need to throw actual errors if something goes wrong.
+      if(!await checkAgentRunning(state.keynodePath)){
+        try{
+          console.warn("Printing starting agent");
+          await dispatch(BootstrapActions.AddEvent, {action: 'Starting', name: 'Agent'}, {root: true});
+          const pid = await PolykeyClient.SpawnAgent(state.keynodePath, password);
+          commit(mutations.SetPid, pid);
+        } catch (e) {
+          console.error("Problem starting agent.", e);
+        }
       }
       commit(mutations.SetStatus, STATUS.LOCKED);
-      commit(mutations.SetPassword, '');
     },
     async [actionsInt.SetStatus]({ commit }, status) {
       commit(mutations.SetStatus, status);

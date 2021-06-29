@@ -1,20 +1,36 @@
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
-import { STATUS } from "@/renderer/store/modules/Agent";
+import type { STATUS } from "@/renderer/store/modules/Agent";
+import { actions as agentActions } from "@/renderer/store/modules/Agent";
 
 const [actionsInt, actionsExt] = makeIdentifiers('Bootstrap', [
   'BootstrapKeynode',
+  'AddEvent',
 ]);
 
 const enum mutations {
   SetIsUnlocked = 'Agent/SetIsUnlocked',
   SetStatus = 'Agent/SetStatus',
   SetPassword = 'Agent/SetPassword',
+  AddEvent = 'AddEvent',
 }
 
-type State = {};
+type BootstrapEvent = {
+  action: string;
+  name: string;
+}
+export { BootstrapEvent };
 
-const state: State = {};
+type State = {
+  events: BootstrapEvent[];
+};
+
+const state: State = {
+  events: [
+    // {action: 'Bootstrapping', name: 'Keynode'},
+    // {action: 'Installing', name: 'Agent'},
+  ]
+};
 
 export { actionsExt as actions };
 
@@ -22,17 +38,25 @@ export default {
   namespaced: true,
   state,
   actions: {
-    async [actionsInt.BootstrapKeynode]({ commit }, password) {
+    async [actionsInt.BootstrapKeynode]({ commit, dispatch }, password) {
       try {
         console.log('Starting to InitializeKeyNode');
+        commit(mutations.AddEvent, {action: 'Bootstrapping', name: 'Keynode'});
         await PolykeyClient.BootstrapKeynode('./tmp', password);
-        commit(mutations.SetPassword, password, {root: true});
-        return commit(mutations.SetStatus, STATUS.INITIALIZED, {root: true});
+        dispatch(agentActions.StartAgent, password, {root: true});
       } catch (e) {
+        commit(mutations.AddEvent, {action: 'Bootstrapping', name: 'Failed'})
         console.log('Error InitializeKeyNode', e);
       }
     },
+    async [actionsInt.AddEvent]({ commit }, event: BootstrapEvent) {
+      commit(mutations.AddEvent, event);
+    }
   },
-  mutations: {},
+  mutations: {
+    [mutations.AddEvent](state, event: BootstrapEvent) {
+      state.events.push(event);
+    },
+  },
   getters: {},
 };

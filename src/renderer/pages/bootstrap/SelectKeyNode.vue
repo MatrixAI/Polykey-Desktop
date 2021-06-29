@@ -33,23 +33,19 @@
         </div>
       </div>
     </div>
-    <div class="w-1/3 flex flex-col items-center bg-grey7 p-8">
-      <div class="mt-5 mb-8"><Logo /></div>
-      <div class="bg-grey8 bg-opacity-10 w-full p-5 text-primary4 text-xs font-robotomono">
-        <p>Installing <span>Agent...</span></p>
-      </div>
-    </div>
+    <console-small />
   </div>
 </template>
 
 <script lang="ts">
 /** Libs */
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from "vue";
 import { useStore } from 'vuex';
 
 /** Components */
 import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
 import Input from '@/renderer/atoms/input/Input.vue';
+import ConsoleSmall from "@/renderer/molecules/console/ConsoleSmall.vue";
 
 /** Store */
 import { actions } from '@/renderer/store/modules/Bootstrap';
@@ -65,13 +61,18 @@ export default defineComponent({
     Action,
     PrimaryButton,
     Helper,
-    Input
+    Input,
+    ConsoleSmall,
   },
   setup() {
     const store = useStore();
     const error = ref(false);
     const password = ref('');
     const confirmPassword = ref('');
+
+    onMounted(async () => {
+      await store.dispatch(actions.AddEvent, {action: 'Setting up', name: 'keynode'});
+    });
 
     return {
       error,

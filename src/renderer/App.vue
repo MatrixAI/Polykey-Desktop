@@ -11,21 +11,20 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import type { Config } from '@/renderer/config';
-
+import type { PropType } from "vue";
 /**
  * Libs
  */
-import { defineComponent, watchEffect, ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { defineComponent, onMounted, ref, watchEffect, nextTick } from "vue";
+import type { Config } from "@/renderer/config";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 /** Store */
-import { STATUS, actions } from '@/renderer/store/modules/Agent';
+import { actions, STATUS } from "@/renderer/store/modules/Agent";
 
 /** Components */
-import Header from '@/renderer/organisms/header/Header.vue';
+import Header from "@/renderer/organisms/header/Header.vue";
 
 export default defineComponent({
   components: {
@@ -50,6 +49,7 @@ export default defineComponent({
       /** Watch the status here for redirection */
       const status = store.state.Agent.status;
 
+      console.log("watching, found: ", status);
       switch (status) {
         case STATUS.PENDING:
           // Do some loader here
@@ -59,8 +59,6 @@ export default defineComponent({
           return router.replace('/selectKeyNode');
           break;
         case STATUS.INITIALIZED:
-          store.dispatch(actions.StartAgent);
-          break;
         case STATUS.LOCKED:
           return router.replace('/selectExistingKeyNode');
           break;
