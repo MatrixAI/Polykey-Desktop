@@ -58,7 +58,7 @@ export default {
        * 4. UNINITILIZED: path has no keynode.
        */
 
-      commit(mutations.SetKeynodePath, getDefaultNodePath()); //Assuming default path for now.
+      commit(mutations.SetKeynodePath, './tmp'); //FIXME: Temp path for now.
       if (!state.keynodePath) throw Error("keynode path not set");
       try{
       await PolykeyClient.ConnectClient(state.keynodePath);

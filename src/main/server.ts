@@ -15,7 +15,7 @@ import fs from 'fs';
 // fixPath(); //Broken with webpack.
 
 /** This will default for now */
-let keynodePath: string; //= getDefaultNodePath();
+let keynodePath: string; //getDefaultNodePath();
 let client: PolykeyClient;
 let grpcClient: GRPCClientClient;
 
@@ -35,12 +35,16 @@ async function getAgentClient(nodePath?: string, failOnNotInitialized = false) {
   clientConfig['logger'].setLevel(LogLevel.DEBUG);
   clientConfig['nodePath'] = keynodePath;
 
-  client = new PolykeyClient(clientConfig);
-  await client.start({});
-  grpcClient = client.grpcClient;
-  if (!grpcClient.started) {
+  // Temp so we can check it started properly before using it.
+  const tmpClient = new PolykeyClient(clientConfig);
+  await tmpClient.start({});
+  const tmpGrpcClient = tmpClient.grpcClient;
+  if (!tmpGrpcClient.started) {
+    await tmpClient.stop();
     throw Error('agent is not running and could not be restarted');
   }
+  client = tmpClient;
+  grpcClient = tmpGrpcClient
   console.log('done starting agent..');
 }
 
@@ -131,7 +135,6 @@ async function setHandlers() {
   });
 
   ipcMain.handle('connect-client', async(event, request) => {
-    console.log("BRUH2 ", request.keynodePath);
     return await getAgentClient(request.keynodePath);
   })
 
@@ -178,12 +181,12 @@ async function setHandlers() {
     }
   });
 
-  ipcMain.handle('agent-restart', async (event, request) => {
-    await client.stop();
-    await client.start({});
-    const pid = 0; //FIXME: return pid or not?
-    return pid;
-  });
+  // ipcMain.handle('agent-restart', async (event, request) => {
+  //   await client.stop();
+  //   await client.start({});
+  //   const pid = 0; //FIXME: return pid or not?
+  //   return pid;
+  // });
 
   /// /////////////////
   // agent handlers //
