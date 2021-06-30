@@ -51,7 +51,7 @@ export default {
   namespaced: true,
   state,
   actions: {
-    async [actionsInt.CheckAgentStatus]({ commit }) {
+    async [actionsInt.CheckAgentStatus]({ commit }): Promise<void> {
       /**OK, so we need to do a few things here.
        * There are 4 states we need to check for.
        * 1. ONLINE: agent running, session open.
@@ -59,59 +59,73 @@ export default {
        * 3. INITIALIZED: proper keynode at path.
        * 4. UNINITILIZED: path has no keynode.
        */
-
       commit(mutations.SetKeynodePath, './tmp'); //FIXME: Temp path for now.
       if (!state.keynodePath) throw Error("keynode path not set");
-      try{
-      await PolykeyClient.ConnectClient(state.keynodePath);
-      console.log("Agent running");
-      try {
-        await PolykeyClient.vaultsList();
-      } catch (e) {// FIXME, check if error is due to locked keynode.
-        console.log("LOCKED: agent running but locked.");
-        commit(mutations.SetStatus, STATUS.LOCKED);
-        return;
-      }
-      console.log("ONLINE: Agent running, unlocked.");
-      commit(mutations.SetStatus, STATUS.ONLINE);
-      return;
-
-      }catch (e) {
-        console.log("Agent not running.");
-        console.log("keynodePath: ", state.keynodePath);
-        const result = await PolykeyClient.CheckKeynodeState(state.keynodePath);
-        switch (result) {
-          case 0: // un-initialized
-            console.log("UNINITILIZED: path has no keynode.");
-            commit(mutations.SetStatus, STATUS.UNINITIALIZED);
+      switch (await PolykeyClient.CheckAgent(state.keynodePath)){
+        case 'LOCKED': {
+          commit(mutations.SetStatus, STATUS.LOCKED);
+          return;
+        }
+        case 'UNLOCKED': {
+          try {
+            await PolykeyClient.vaultsList();
+          } catch (e) {// FIXME, check if error is due to locked keynode.
+            console.log("LOCKED: agent running but locked.");
+            commit(mutations.SetStatus, STATUS.LOCKED);
             return;
-          case 1:// Initialized
-            console.log("INITIALIZED: proper keynode at path.");
-            commit(mutations.SetStatus, STATUS.INITIALIZED);
-            return;
-          case 2:// Invalid.
-            throw Error("Directory is not keynode but has contents.");
-            break;
+          }
+          console.log("Agent running");
+          commit(mutations.SetStatus, STATUS.ONLINE);
+          return;
+        }
+        default:
+        case 'DOESNOTEXIST': {
+          console.log("Agent not running.");
+          console.log("keynodePath: ", state.keynodePath);
+          const result = await PolykeyClient.CheckKeynodeState(state.keynodePath);
+          switch (result) {
+            case 'EMPTY_DIRECTORY': // un-initialized
+            case 'NO_DIRECTORY': // un-initialized
+              console.log("UNINITILIZED: path has no keynode.");
+              commit(mutations.SetStatus, STATUS.UNINITIALIZED);
+              return;
+            case 'KEYNODE_EXISTS':// Initialized
+              console.log("INITIALIZED: proper keynode at path.");
+              commit(mutations.SetStatus, STATUS.INITIALIZED);
+              return;
+            case 'OTHER_EXIST':// Invalid.
+              throw Error("Directory is not keynode but has contents.");
+          }
         }
       }
-
     },
     async [actionsInt.SetKeynodePath]({ commit, dispatch }, keynodePath) {
       commit(mutations.SetKeynodePath, keynodePath);
       return;
     },
     async [actionsInt.StartAgent]({ commit, dispatch }, password) {// Need to throw actual errors if something goes wrong.
-      if(!await checkAgentRunning(state.keynodePath)){
-        try{
-          console.warn("Printing starting agent");
-          await dispatch(BootstrapActions.AddEvent, {action: 'Starting', name: 'Agent'}, {root: true});
-          const pid = await PolykeyClient.SpawnAgent(state.keynodePath, password);
-          commit(mutations.SetPid, pid);
-        } catch (e) {
-          console.error("Problem starting agent.", e);
+      switch (await PolykeyClient.CheckAgent(state.keynodePath)){
+        case "DOESNOTEXIST": {
+          try{
+            console.warn("Printing starting agent");
+            await dispatch(BootstrapActions.AddEvent, {action: 'Starting', name: 'Agent'}, {root: true});
+            const pid = await PolykeyClient.SpawnAgent(state.keynodePath, password);
+            commit(mutations.SetPid, pid);
+            commit(mutations.SetStatus, STATUS.LOCKED);
+          } catch (e) {
+            console.error("Problem starting agent.", e);
+          }
         }
+        break;
+        case "UNLOCKED":
+        case "LOCKED":
+        default: {
+          //Agent was already running.
+          commit(mutations.SetStatus, STATUS.LOCKED);
+        }
+        break;
       }
-      commit(mutations.SetStatus, STATUS.LOCKED);
+        await PolykeyClient.ConnectClient(state.keynodePath); //TODO: Make a connect to agent goober
     },
     async [actionsInt.SetStatus]({ commit }, status) {
       commit(mutations.SetStatus, status);
@@ -119,7 +133,7 @@ export default {
   },
   mutations: {
     [mutations.SetStatus](state, status) {
-      console.log('status was set to ', status);
+      console.log('status was set to ', status); //FIXME: remove when done with.
       state.status = status;
     },
     [mutations.SetKeynodePath](state, keynodePath){

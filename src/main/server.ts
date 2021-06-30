@@ -8,7 +8,7 @@ import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 import { clientPB } from '@matrixai/polykey/src/client';
 import { sleep } from '../utils';
 import * as grpc from '@grpc/grpc-js';
-import { bootstrapPolykeyState } from '@matrixai/polykey/src/utils';
+import { bootstrapPolykeyState, checkKeynodeState, checkAgentState } from '@matrixai/polykey/src/bootstrap';
 import { spawnBackgroundAgent } from '@matrixai/polykey/src/agent/utils';
 import fs from 'fs';
 
@@ -138,47 +138,20 @@ async function setHandlers() {
     return await getAgentClient(request.keynodePath);
   })
 
+  ipcMain.handle('check-agent', async (event, request) => {
+    return await checkAgentState(request.keynodePath);
+  });
+
   ipcMain.handle('spawn-agent', async (event, request) => {
     return await spawnBackgroundAgent(request.keynodePath, request.password);
   })
 
   ipcMain.handle('check-keynode-state', async (event, request) => {
-    try{
-      const files = await fs.promises.readdir(request.keynodePath);
-      //Checking if directory structure matches keynode structure.
-      if(
-        files.includes('agent')   &&
-        files.includes('keys')    &&
-        files.includes('vaults')  &&
-        files.includes('nodes')   &&
-        files.includes('gestalts')&&
-        files.includes('identities')
-      ) {
-        console.log("good structure.");
-        return 1; // Should be a good initilized keynode.
-      } else {
-        if(files.length != 0){
-          console.log("bad structure.");
-          return 2; // Bad structure, either malformed or not a keynode.
-        } else {
-          console.log("Empty folder");
-          return 0; // Directy exists, but is empty, can make a keynode.
-        }
-      }
-    } catch (e) {
-      if(e.code === 'ENOENT') {
-        console.log("Directory does not exist.")
-        return 0; // The directory does not exist, we can create a bootstrap a keynode.
-      } else throw Error(e);
-    }
+    return await checkKeynodeState(request.keynodePath);
   });
 
   ipcMain.handle('bootstrap-keynode', async (event, request) => {
-    try {
       await bootstrapPolykeyState(request.keynodePath, request.password);
-    } catch (e) {
-      console.log("Can't bootstrap state, Error: ", e.message);
-    }
   });
 
   // ipcMain.handle('agent-restart', async (event, request) => {
@@ -251,7 +224,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('DeriveKey', async (event, request) => {
+  ipcMain.handle('DeriveKey', async (event, request) => { //FIXME: Not used, Not actually a thing now?
     if (!client) {
       await getAgentClient();
     }
@@ -379,6 +352,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
+    throw new Error('Not implemented.');
     //
     // const res = (await promisifyGrpc(client.trustGestalt.bind(client))(
     //   pb.StringMessage.deserializeBinary(request),
@@ -468,7 +442,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetStatus', async (event, request) => {
+  ipcMain.handle('GetStatus', async (event, request) => { //FIXME Agent status.
     if (!client) {
       await getAgentClient();
     }
@@ -535,7 +509,7 @@ async function setHandlers() {
     // (await promisifyGrpc(client.lockNode.bind(client))(
     //   new pb.EmptyMessage(),
     // )) as pb.EmptyMessage;
-  });
+  }); //FIXME, not needed, session management now.
 
   ipcMain.handle('NewClientCertificate', async (event, request) => {
     if (!client) {
@@ -555,7 +529,7 @@ async function setHandlers() {
     //   pb.NewKeyPairMessage.deserializeBinary(request),
     // );
     // return;
-  });
+  });//FIXME: remove, handled somewhere else now.
 
   ipcMain.handle('vaultsNewSecret', async (event, request) => {
     if (!client) {
@@ -606,7 +580,7 @@ async function setHandlers() {
     await grpcClient.vaultsPull(vaultMessage, meta);
     throw new Error('Not implemented.');
     return;
-  });
+  });//FIXME: Is actually implemented?
 
   ipcMain.handle('RevokeOAuthToken', async (event, request) => {
     if (!client) {
@@ -649,7 +623,7 @@ async function setHandlers() {
     // throw new Error("Not implemented.");
     // await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
     // return;
-  });
+  });// FIXME, Is it needed?
 
   ipcMain.handle('ToggleStealthMode', async (event, request) => {
     if (!client) {
