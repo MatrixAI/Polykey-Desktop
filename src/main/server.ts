@@ -233,15 +233,6 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('keysDelete', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const keyMessage = clientPB.KeyMessage.deserializeBinary(request);
-    await grpcClient.keysDelete(keyMessage);
-    return;
-  });
-
   ipcMain.handle('vaultsDeleteSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
@@ -428,15 +419,6 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('keysGet', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const keyMessage = clientPB.KeyMessage.deserializeBinary(request);
-    const res = await grpcClient.keysGet(keyMessage);
-    return res.serializeBinary();
-  });
-
   ipcMain.handle('GetLocalPeerInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
@@ -503,17 +485,6 @@ async function setHandlers() {
     }
     throw new Error('Not implemented.');
     // const res = (await promisifyGrpc(client.listOAuthTokens.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.StringListMessage;
-    // return res.serializeBinary();
-  });
-
-  ipcMain.handle('ListKeys', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.listKeys.bind(client))(
     //   new pb.EmptyMessage(),
     // )) as pb.StringListMessage;
     // return res.serializeBinary();
@@ -632,7 +603,7 @@ async function setHandlers() {
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
     const meta = new grpc.Metadata();
-    // await PolykeyClient.vaultsPull(vaultMessage, meta); //FIXME MISSINGCOMM
+    await grpcClient.vaultsPull(vaultMessage, meta);
     throw new Error('Not implemented.');
     return;
   });
@@ -654,8 +625,7 @@ async function setHandlers() {
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
     const meta = new grpc.Metadata();
-    // const vaultListGenerator = grpcClient.vaultsScan(vaultMessage, meta); //FIXME MISSINGCOMM
-    const vaultListGenerator: Array<clientPB.VaultMessage> = [];
+    const vaultListGenerator = grpcClient.vaultsScan(vaultMessage, meta);
     const data: Array<string> = []
     for await (const vault of vaultListGenerator) {
       data.push(`${vault.getName()}`);

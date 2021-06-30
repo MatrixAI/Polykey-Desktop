@@ -159,14 +159,6 @@ class PolykeyClient {
     return res.getData();
   }
 
-  static async KeysDelete(keyName: string): Promise<void> {
-    const keyMessage = new clientPB.KeyMessage();
-    keyMessage.setName(keyName);
-
-    await ipcRenderer.invoke('keysDelete', keyMessage.serializeBinary());
-    return;
-  }
-
   static async vaultsDeleteSecret(
     request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
@@ -231,18 +223,6 @@ class PolykeyClient {
 
   static async GetOAuthClient(): Promise<clientPB.CryptoMessage> {
     return await ipcRenderer.invoke('GetOAuthClient');
-  }
-
-  static async keysGet(keyName: string): Promise<string> {
-    const keyMessage = new clientPB.KeyMessage();
-    keyMessage.setName(keyName);
-
-    const res = await ipcRenderer.invoke(
-      'keysGet',
-      keyMessage.serializeBinary(),
-    );
-    const returnKeyMessage = clientPB.KeyMessage.deserializeBinary(res);
-    return returnKeyMessage.getKey();
   }
 
   static async GetLocalPeerInfo(): Promise<clientPB.NodeMessage> {
@@ -537,15 +517,6 @@ class PolykeyClient {
     //   await ipcRenderer.invoke('ListOAuthTokens'),
     // );
     // return res.getSList();
-  }
-
-  static async ListKeys(): Promise<string[]> {
-    // throw new Error('Not implemented.');
-    // const res = pb.StringListMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('ListKeys'),
-    // );
-    // return res.getSList();
-    return [];
   }
 
   static async ListPeers(): Promise<string[]> {
