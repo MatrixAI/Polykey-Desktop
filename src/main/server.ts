@@ -8,9 +8,9 @@ import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 import { clientPB } from '@matrixai/polykey/src/client';
 import { sleep } from '../utils';
 import * as grpc from '@grpc/grpc-js';
-import { bootstrapPolykeyState, checkKeynodeState, checkAgentState } from '@matrixai/polykey/src/bootstrap';
+import { bootstrapPolykeyState, checkKeynodeState } from '@matrixai/polykey/src/bootstrap';
+import { checkAgentRunning } from "@matrixai/polykey/src/agent/utils";
 import { spawnBackgroundAgent } from '@matrixai/polykey/src/agent/utils';
-import fs from 'fs';
 
 // fixPath(); //Broken with webpack.
 
@@ -139,7 +139,7 @@ async function setHandlers() {
   })
 
   ipcMain.handle('check-agent', async (event, request) => {
-    return await checkAgentState(request.keynodePath);
+    return await checkAgentRunning(request.keynodePath);
   });
 
   ipcMain.handle('spawn-agent', async (event, request) => {

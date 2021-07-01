@@ -1,7 +1,7 @@
 import { clientPB } from '@matrixai/polykey/src/client';
 import { getDefaultNodePath } from "@matrixai/polykey/src/utils";
 import { keynodePath } from "@/main/server";
-import type { AgentState, KeynodeState } from '@matrixai/polykey/src/bootstrap'
+import type { KeynodeState } from '@matrixai/polykey/src/bootstrap'
 const ipcRenderer = window.require('electron').ipcRenderer;
 
 class PolykeyClient {
@@ -74,7 +74,7 @@ class PolykeyClient {
     return await ipcRenderer.invoke('connect-client', request);
   }
 
-  static async CheckAgent(keynodePath: string): Promise<AgentState> {
+  static async CheckAgent(keynodePath: string): Promise<boolean> {
     const request = {keynodePath};
     return await ipcRenderer.invoke('check-agent', request);
   }
