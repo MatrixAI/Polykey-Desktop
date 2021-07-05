@@ -75,11 +75,11 @@ export default {
       }
     }, //TODO: Now handled by sessions, move back into agent module.
     async [actionsInt.GetLocalNodeInfo]({ commit }) {
-      const localNodeInfo = await PolykeyClient.GetLocalPeerInfo();
+      const localNodeInfo = await PolykeyClient.GetLocalNodeInfo();
       commit(mutations.SetGetLocalNodeInfo, localNodeInfo);
     },
     async [actionsInt.ListNodes]({ commit }) {
-      const NodeIds = await PolykeyClient.ListPeers();
+      const NodeIds = await PolykeyClient.ListNodes();
       console.log(NodeIds);
       commit(mutations.SetListNodes);
     },

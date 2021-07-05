@@ -154,6 +154,15 @@ async function setHandlers() {
       await bootstrapPolykeyState(request.keynodePath, request.password);
   });
 
+  ipcMain.handle('Stop-Agent', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    // throw new Error("Not implemented.");
+    // await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
+    // return;
+  });// FIXME, Is it needed?
+
   // ipcMain.handle('agent-restart', async (event, request) => {
   //   await client.stop();
   //   await client.start({});
@@ -164,7 +173,7 @@ async function setHandlers() {
   /// /////////////////
   // agent handlers //
   /// /////////////////
-  ipcMain.handle('AddPeer', async (event, request) => {
+  ipcMain.handle('Add-Node', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -244,7 +253,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('FindPeer', async (event, request) => {
+  ipcMain.handle('Find-Node', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -393,7 +402,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('GetLocalPeerInfo', async (event, request) => {
+  ipcMain.handle('GetLocalNodeInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -404,7 +413,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('GetPeerInfo', async (event, request) => {
+  ipcMain.handle('GetNodeInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -442,17 +451,6 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetStatus', async (event, request) => { //FIXME Agent status.
-    if (!client) {
-      await getAgentClient();
-    }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.getStatus.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.AgentStatusMessage;
-    // return res.serializeBinary();
-  });
-
   ipcMain.handle('ListOAuthTokens', async (event, request) => {
     if (!client) {
       await getAgentClient();
@@ -464,7 +462,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('ListPeers', async (event, request) => {
+  ipcMain.handle('List-Nodes', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -501,16 +499,6 @@ async function setHandlers() {
     return data;
   });
 
-  ipcMain.handle('LockNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    throw new Error('Not implemented.');
-    // (await promisifyGrpc(client.lockNode.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.EmptyMessage;
-  }); //FIXME, not needed, session management now.
-
   ipcMain.handle('NewClientCertificate', async (event, request) => {
     if (!client) {
       await getAgentClient();
@@ -521,15 +509,6 @@ async function setHandlers() {
     // )) as pb.NewClientCertificateMessage;
     // return res.serializeBinary();
   });
-
-  ipcMain.handle('InitializeKeyNode', async (event, request) => {
-    await getAgentClient();
-    throw new Error('Not implemented.'); //TODO Bootstrap.
-    // await promisifyGrpc(client.initializeNode.bind(client))(
-    //   pb.NewKeyPairMessage.deserializeBinary(request),
-    // );
-    // return;
-  });//FIXME: remove, handled somewhere else now.
 
   ipcMain.handle('vaultsNewSecret', async (event, request) => {
     if (!client) {
@@ -560,7 +539,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('PingPeer', async (event, request) => {
+  ipcMain.handle('Ping-Node', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -578,9 +557,8 @@ async function setHandlers() {
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
     const meta = new grpc.Metadata();
     await grpcClient.vaultsPull(vaultMessage, meta);
-    throw new Error('Not implemented.');
     return;
-  });//FIXME: Is actually implemented?
+  });
 
   ipcMain.handle('RevokeOAuthToken', async (event, request) => {
     if (!client) {
@@ -616,15 +594,6 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('StopAgent', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    // throw new Error("Not implemented.");
-    // await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
-    // return;
-  });// FIXME, Is it needed?
-
   ipcMain.handle('ToggleStealthMode', async (event, request) => {
     if (!client) {
       await getAgentClient();
@@ -636,18 +605,7 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('UnlockNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    throw new Error('Not implemented.');
-    // await promisifyGrpc(client.unlockNode.bind(client))(
-    //   pb.UnlockNodeMessage.deserializeBinary(request),
-    // );
-    // return;
-  });
-
-  ipcMain.handle('UpdateLocalPeerInfo', async (event, request) => {
+  ipcMain.handle('UpdateLocalNodeInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -658,7 +616,7 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('UpdatePeerInfo', async (event, request) => {
+  ipcMain.handle('UpdateNodeInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
