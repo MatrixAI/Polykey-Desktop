@@ -284,9 +284,8 @@ export default {
         gestalt.keynodes.forEach(async (keynode) => {
           if (keynode.id) {
             try {
-              await PolykeyClient.PingNode({
-                publicKeyOrHandle: keynode.id,
-                timeout: 300,
+              await PolykeyClient.NodesPing({
+                name: keynode.id,
               });
               keynode.online = true;
             } catch (e) {

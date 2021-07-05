@@ -173,15 +173,14 @@ async function setHandlers() {
   /// /////////////////
   // agent handlers //
   /// /////////////////
-  ipcMain.handle('Add-Node', async (event, request) => {
+  //TODO: This will need to be redone later.
+  ipcMain.handle('NodesAdd', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.addNode.bind(client))(
-    //   pb.NodeInfoReadOnlyMessage.deserializeBinary(request),
-    // )) as pb.StringMessage;
-    // return res.serializeBinary();
+    const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
+    const res = await grpcClient.NodesAdd(emptyMessage);
+    return res.serializeBinary();
   });
 
   ipcMain.handle('AuthenticateProvider', async (event, request) => {
@@ -253,15 +252,13 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('Find-Node', async (event, request) => {
+  ipcMain.handle('NodesFind', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // await promisifyGrpc(client.findNode.bind(client))(
-    //   pb.ContactNodeMessage.deserializeBinary(request),
-    // );
-    // return;
+    const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
+    await grpcClient.NodesFind(nodeMessage);
+    return;
   });
 
   ipcMain.on('GetConnectedIdentityInfos-message', async (event, request) => {
@@ -402,26 +399,23 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('GetLocalNodeInfo', async (event, request) => {
+  ipcMain.handle('NodesGetLocalInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
     throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.getLocalNodeInfo.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.NodeInfoMessage;
-    // return res.serializeBinary();
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = await grpcClient.NodesGetLocalInfo(emptyMessage);
+    return res.serializeBinary();
   });
 
-  ipcMain.handle('GetNodeInfo', async (event, request) => {
+  ipcMain.handle('NodesGetInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.getNodeInfo.bind(client))(
-    //   pb.StringMessage.deserializeBinary(request),
-    // )) as pb.NodeInfoMessage;
-    // return res.serializeBinary();
+    const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
+    const res = await grpcClient.NodesGetInfo(nodeMessage);
+    return res.serializeBinary();
   });
 
   ipcMain.handle('keysRootKeyPair', async (event, request) => {
@@ -462,15 +456,17 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('List-Nodes', async (event, request) => {
+  ipcMain.handle('Nodes-List', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.listNodes.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.StringListMessage;
-    // return res.serializeBinary();
+    const emptyMessage = await clientPB.EmptyMessage;
+    const nodesListGenerator = grpcClient.vaultsListSecrets(emptyMessage);
+    const data: Array<Uint8Array> = [];
+    for await (const node of nodesListGenerator) {
+      data.push(node.serializeBinary());
+    }
+    return data;
   });
 
   ipcMain.handle('vaultsListSecrets', async (event, request) => {
@@ -539,15 +535,13 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('Ping-Node', async (event, request) => {
+  ipcMain.handle('NodesPing', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // await promisifyGrpc(client.pingNode.bind(client))(
-    //   pb.ContactNodeMessage.deserializeBinary(request),
-    // );
-    // return;
+    const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
+    await grpcClient.NodesPing(nodeMessage)
+    return;
   });
 
   ipcMain.handle('vaultsPull', async (event, request) => {
@@ -605,26 +599,22 @@ async function setHandlers() {
     // return;
   });
 
-  ipcMain.handle('UpdateLocalNodeInfo', async (event, request) => {
+  ipcMain.handle('NodesUpdateLocalInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // await promisifyGrpc(client.updateLocalNodeInfo.bind(client))(
-    //   pb.NodeInfoMessage.deserializeBinary(request),
-    // );
-    // return;
+    const nodeInfoMessage = clientPB.NodeInfoMessage.deserializeBinary(request);
+    const res = await grpcClient.NodesUpdateLocalInfo(nodeInfoMessage);
+    return;
   });
 
-  ipcMain.handle('UpdateNodeInfo', async (event, request) => {
+  ipcMain.handle('NodesUpdateInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // await promisifyGrpc(client.updateNodeInfo.bind(client))(
-    //   pb.NodeInfoReadOnlyMessage.deserializeBinary(request),
-    // );
-    // return;
+    const nodeMessage = clientPB.NodeInfoMessage.deserializeBinary(request);
+    await grpcClient.NodesUpdateInfo(nodeMessage);
+    return;
   });
 
   ipcMain.handle('vaultsEditSecret', async (event, request) => {

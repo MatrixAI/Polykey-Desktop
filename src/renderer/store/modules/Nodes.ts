@@ -5,7 +5,6 @@ import { STATUS } from '@/renderer/store/modules/Agent';
 
 
 const [actionsInt, actionsExt] = makeIdentifiers('Nodes', [
-  'UnlockKeyNode',
   'SetIsUnlocked',
   'SetIsInitialized',
   'SetStatus',
@@ -65,21 +64,21 @@ export default {
   namespaced: true,
   state,
   actions: {
-    async [actionsInt.UnlockKeyNode]({ commit }, passphrase: string) {
-      const result = await PolykeyClient.UnlockNode({
-        timeout: 0,
-        passphrase,
-      });
-      if (result !== null) {
-        return commit(mutations.SetStatus, STATUS.ONLINE, {root: true});
-      }
-    }, //TODO: Now handled by sessions, move back into agent module.
+    // async [actionsInt.UnlockKeyNode]({ commit }, passphrase: string) {
+    //   const result = await PolykeyClient.UnlockNode({
+    //     timeout: 0,
+    //     passphrase,
+    //   });
+    //   if (result !== null) {
+    //     return commit(mutations.SetStatus, STATUS.ONLINE, {root: true});
+    //   }
+    // }, //TODO: Now handled by sessions, move back into agent module.
     async [actionsInt.GetLocalNodeInfo]({ commit }) {
-      const localNodeInfo = await PolykeyClient.GetLocalNodeInfo();
+      const localNodeInfo = await PolykeyClient.NodesGetLocalInfo();
       commit(mutations.SetGetLocalNodeInfo, localNodeInfo);
     },
     async [actionsInt.ListNodes]({ commit }) {
-      const NodeIds = await PolykeyClient.ListNodes();
+      const NodeIds = await PolykeyClient.NodesList();
       console.log(NodeIds);
       commit(mutations.SetListNodes);
     },

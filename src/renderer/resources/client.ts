@@ -109,20 +109,20 @@ class PolykeyClient {
   /// ////////////////
   // GRPC Handlers //
   /// ////////////////
-  static async AddNode(request: clientPB.NodeMessage): Promise<string> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.NodeInfoMessage();
-    // encodedRequest.setPublicKey(request.publicKey);
-    // if (request.nodeAddress !== '') {
-    //   encodedRequest.setNodeAddress(request.nodeAddress);
-    // }
-    // if (request.apiAddress !== '') {
-    //   encodedRequest.setApiAddress(request.apiAddress);
-    // }
-    // const res = pb.StringMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('Add-Node', encodedRequest.serializeBinary()),
-    // );
-    // return res.getS();
+  //TODO: This will need to be redone later.
+  static async NodesAdd(request: clientPB.NodeInfoMessage.AsObject): Promise<void> {
+    const nodeInfoMessage = new clientPB.NodeInfoMessage();
+    nodeInfoMessage.setPublicKey(request.publicKey);
+    if (request.nodeAddress !== '') {
+      nodeInfoMessage.setNodeAddress(request.nodeAddress);
+    }
+    if (request.apiAddress !== '') {
+      nodeInfoMessage.setApiAddress(request.apiAddress);
+    }
+    const res = clientPB.EmptyMessage.deserializeBinary(
+      await ipcRenderer.invoke('NodesAdd', nodeInfoMessage.serializeBinary()),
+    );
+    return;
   }
 
   static async AddNodeB64(peerInfoB64: string): Promise<string> {
@@ -206,13 +206,11 @@ class PolykeyClient {
     return res.getData();
   }
 
-  static async FindNode(request: clientPB.NodeMessage): Promise<void> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.ContactNodeMessage();
-    // encodedRequest.setPublicKeyOrHandle(request.publicKeyOrHandle);
-    // encodedRequest.setTimeout(request.timeout);
-    // await ipcRenderer.invoke('Find-Node', encodedRequest.serializeBinary());
-    // return;
+  static async NodesFind(request: clientPB.NodeMessage.AsObject): Promise<void> {
+    const nodeMessage = new clientPB.NodeMessage();
+    nodeMessage.setName(request.name);
+    await ipcRenderer.invoke('NodesFind', nodeMessage.serializeBinary());
+    return;
   }
 
   static async FindSocialPeer(
@@ -235,22 +233,20 @@ class PolykeyClient {
     return await ipcRenderer.invoke('GetOAuthClient');
   }
 
-  static async GetLocalNodeInfo(): Promise<clientPB.NodeMessage> {
-    throw new Error('Not implemented.');
-    // const res = pb.NodeInfoMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('GetLocalNodeInfo'),
-    // );
-    // return res.toObject();
+  static async NodesGetLocalInfo(): Promise<clientPB.NodeInfoMessage.AsObject> {
+    const res = clientPB.NodeInfoMessage.deserializeBinary(
+      await ipcRenderer.invoke('NodesGetLocalInfo'),
+    );
+    return res.toObject();
   }
 
-  static async GetNodeInfo(peerId: string): Promise<clientPB.NodeMessage> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.StringMessage();
-    // encodedRequest.setS(peerId);
-    // const res = pb.NodeInfoMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('GetNodeInfo', encodedRequest.serializeBinary()),
-    // );
-    // return res.toObject();
+  static async NodesGetInfo(peerId: string): Promise<clientPB.NodeInfoMessage.AsObject> {
+    const nodeMessage = new clientPB.NodeMessage();
+    nodeMessage.setName(peerId);
+    const res = clientPB.NodeInfoMessage.deserializeBinary(
+      await ipcRenderer.invoke('NodesGetInfo', nodeMessage.serializeBinary()),
+    );
+    return res.toObject();
   }
 
   static async keysRootKeyPair(): Promise<clientPB.KeyPairMessage.AsObject> {
@@ -521,21 +517,24 @@ class PolykeyClient {
     // return res.getSList();
   }
 
-  static async ListNodes(): Promise<string[]> {
-    throw new Error('Not implemented.');
-    // const res = pb.StringListMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('List-Nodes'),
-    // );
-    // return res.getSList();
+  static async NodesList(): Promise<clientPB.NodeMessage.AsObject[]> {
+    const nodesList = await ipcRenderer.invoke('Nodes-List');
+    const output: Array<clientPB.NodeMessage.AsObject> = [];
+    for (const nodesListElement of nodesList) {
+      const element = clientPB.NodeMessage.deserializeBinary(nodesListElement);
+      output.push(element.toObject());
+    }
+    return output;
   }
 
-  static async vaultsListSecrets(vaultName: string): Promise<string[]> {
+  static async vaultsListSecrets(vaultName: string): Promise<clientPB.SecretMessage.AsObject[]> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(vaultName);
     const secretList = await ipcRenderer.invoke('vaultsListSecrets', vaultMessage.serializeBinary());
-    const output: Array<string> = [];
+    const output: Array<clientPB.SecretMessage.AsObject> = [];
     for (const secretListElement of secretList) {
-      output.push(secretListElement) //TODO: Double check this.
+      const element = clientPB.SecretMessage.deserializeBinary(secretListElement);
+      output.push(element.toObject());
     }
     return output;
   }
@@ -604,15 +603,13 @@ class PolykeyClient {
     return;
   }
 
-  static async PingNode(
-    request: clientPB.EmptyMessage.AsObject /*clientPB.NodeMessage*/,
+  static async NodesPing(
+    request: clientPB.NodeMessage.AsObject /*clientPB.NodeMessage*/,
   ): Promise<void> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.ContactNodeMessage();
-    // encodedRequest.setPublicKeyOrHandle(request.publicKeyOrHandle);
-    // encodedRequest.setTimeout(request.timeout);
-    // await ipcRenderer.invoke('Ping-Node', encodedRequest.serializeBinary());
-    // return;
+    const nodeMessage = new clientPB.NodeMessage();
+    nodeMessage.setName(request.name);
+    await ipcRenderer.invoke('NodesPing', nodeMessage.serializeBinary());
+    return;
   }
 
   static async vaultsPull(
@@ -661,40 +658,37 @@ class PolykeyClient {
     // return;
   }
 
-  static async UpdateLocalNodeInfo(
-    request: clientPB.NodeMessage,
-  ): Promise<void> {
+  static async UpdateLocalNodeInfo(request: clientPB.NodeInfoMessage.AsObject,): Promise<void> {
     throw new Error('Not implemented.');
-    // const encodedRequest = new pb.NodeInfoMessage();
-    // encodedRequest.setPublicKey(request.publicKey);
-    // if (request.nodeAddress !== '') {
-    //   encodedRequest.setNodeAddress(request.nodeAddress);
-    // }
-    // if (request.apiAddress !== '') {
-    //   encodedRequest.setApiAddress(request.apiAddress);
-    // }
-    // await ipcRenderer.invoke(
-    //   'UpdateLocalNodeInfo',
-    //   encodedRequest.serializeBinary(),
-    // );
-    // return;
+    const encodedRequest = new clientPB.NodeInfoMessage();
+    encodedRequest.setPublicKey(request.publicKey);
+    if (request.nodeAddress !== '') {
+      encodedRequest.setNodeAddress(request.nodeAddress);
+    }
+    if (request.apiAddress !== '') {
+      encodedRequest.setApiAddress(request.apiAddress);
+    }
+    await ipcRenderer.invoke(
+      'NodesUpdateLocalInfo',
+      encodedRequest.serializeBinary(),
+    );
+    return;
   }
 
-  static async UpdateNodeInfo(request: clientPB.NodeMessage): Promise<void> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.NodeInfoMessage();
-    // encodedRequest.setPublicKey(request.publicKey);
-    // if (request.nodeAddress !== '') {
-    //   encodedRequest.setNodeAddress(request.nodeAddress);
-    // }
-    // if (request.apiAddress !== '') {
-    //   encodedRequest.setApiAddress(request.apiAddress);
-    // }
-    // await ipcRenderer.invoke(
-    //   'UpdateNodeInfo',
-    //   encodedRequest.serializeBinary(),
-    // );
-    // return;
+  static async UpdateNodeInfo(request: clientPB.NodeInfoMessage.AsObject): Promise<void> {
+    const encodedRequest = new clientPB.NodeInfoMessage();
+    encodedRequest.setPublicKey(request.publicKey);
+    if (request.nodeAddress !== '') {
+      encodedRequest.setNodeAddress(request.nodeAddress);
+    }
+    if (request.apiAddress !== '') {
+      encodedRequest.setApiAddress(request.apiAddress);
+    }
+    await ipcRenderer.invoke(
+      'NodesUpdateInfo',
+      encodedRequest.serializeBinary(),
+    );
+    return;
   }
 
   static async vaultsEditSecret(
