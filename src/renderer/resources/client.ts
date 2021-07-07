@@ -134,32 +134,31 @@ class PolykeyClient {
   }
 
   static async AuthenticateProvider(
-    request: clientPB.ProviderMessage,
-  ): Promise<string> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.AuthenticateProviderRequest();
-    // encodedRequest.setProviderKey(request.providerKey);
-    // const res = pb.StringMessage.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'AuthenticateProvider',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // return res.getS();
+    request: clientPB.ProviderMessage.AsObject,
+  ): Promise<clientPB.ProviderMessage.AsObject> {
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
+    const res = clientPB.ProviderMessage.deserializeBinary(
+      await ipcRenderer.invoke(
+        'AuthenticateProvider',
+        providerMessage.serializeBinary(),
+      ),
+    );
+    return res.toObject();
   }
 
-  static async AugmentKeynode(request: clientPB.NodeMessage): Promise<string> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.AugmentKeynodeRequest();
-    // encodedRequest.setProviderKey(request.providerKey);
-    // encodedRequest.setIdentityKey(request.identityKey);
-    // const res = pb.StringMessage.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'AugmentKeynode',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // return res.getS();
+  static async IdentitiesAugmentKeynode(request: clientPB.ProviderMessage.AsObject): Promise<void> {
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
+    const res = clientPB.EmptyMessage.deserializeBinary(
+      await ipcRenderer.invoke(
+        'AugmentKeynode',
+        providerMessage.serializeBinary(),
+      ),
+    );
+    return;
   }
 
   static async DecryptFile(request: clientPB.CryptoMessage): Promise<string> {
@@ -197,7 +196,7 @@ class PolykeyClient {
     // encodedRequest.setPassphrase(request.passphrase);
     // await ipcRenderer.invoke('DeriveKey', encodedRequest.serializeBinary());
     // return;
-  }
+  } //Not relevant anymore.
 
   static async EncryptFile(request: clientPB.CryptoMessage): Promise<string> {
     const res = clientPB.CryptoMessage.deserializeBinary(
@@ -280,188 +279,84 @@ class PolykeyClient {
     return secretMessage.getName();
   }
 
-  static async GetConnectedIdentityInfos(
-    request: clientPB.EmptyMessage.AsObject /*clientPB.ProviderMessage*/,
-    callback,
-  ): Promise<void> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.ProviderSearchMessage();
-    // encodedRequest.setProviderKey(request.providerKey);
-    // encodedRequest.setSearchTermList(request.searchTermList);
-    //
-    // const streamData = async (event, arg) => {
-    //   const result = pb.IdentityInfoMessage.deserializeBinary(arg);
-    //   callback(null, result.getKey());
-    // };
-    //
-    // ipcRenderer.once('GetConnectedIdentityInfos-reply', streamData);
-    //
-    // await ipcRenderer.send(
-    //   'GetConnectedIdentityInfos-message',
-    //   encodedRequest.serializeBinary(),
-    // );
+  static async IdentityGetConnectedInfos(
+    request: clientPB.ProviderSearchMessage.AsObject
+  ): Promise<clientPB.IdentityInfoMessage.AsObject[]> {
+    //Constructing message.
+    if (!request.provider) throw Error("Provider is undefined.");
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.provider.id);
+    providerMessage.setMessage(request.provider.message);
+
+    const providerSearchMessage = new clientPB.ProviderSearchMessage();
+    providerSearchMessage.setProvider(providerMessage);
+    providerSearchMessage.setSearchTermList(request.searchTermList);
+
+    //getting response and converting to object.
+    const data: Array<Uint8Array> = await ipcRenderer.invoke(
+      'IdentityGetConnectedInfos',
+      providerSearchMessage.serializeBinary()
+    );
+    const output: Array<clientPB.IdentityInfoMessage.AsObject> = [];
+    for (const datum of data) {
+      const identityInfoMessage = clientPB.IdentityInfoMessage.deserializeBinary(datum);
+      output.push(identityInfoMessage.toObject());
+    }
+    return output;
   }
 
-  static async DiscoverGestaltIdentity(
-    request: clientPB.EmptyMessage.AsObject /*clientPB.ProviderMessage.AsObject*/,
-    callback,
-  ): Promise<void> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.IdentityMessage();
-    // console.log('discovering', request.key);
-    // encodedRequest.setKey(request.key);
-    // encodedRequest.setProviderKey(request.providerKey);
-    //
-    // await ipcRenderer.send(
-    //   'DiscoverGestaltIdentity-message',
-    //   encodedRequest.serializeBinary(),
-    // );
-    //
-    // ipcRenderer.once('DiscoverGestaltIdentity-reply', async (event, arg) => {
-    //   const result = pb.IdentityMessage.deserializeBinary(arg);
-    //   console.log(result.getKey());
-    //   console.log('----provider', result.getProviderKey());
-    //   callback(null, result.getKey());
-    // });
+  static async GestaltsDiscoverIdentity(
+    request: clientPB.ProviderMessage.AsObject /*clientPB.ProviderMessage.AsObject*/,
+  ): Promise<clientPB.GestaltMessage.AsObject> {
+    const providerMess = new clientPB.ProviderMessage();
+    providerMess.setId(request.id);
+    providerMess.setMessage(request.message);
+    const res = await ipcRenderer.invoke(
+      'IdentitiesDiscoverIdentity',
+      providerMess.serializeBinary()
+    );
+    return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
-  // static async DiscoverGestaltNode(request: pb.IdentityMessage.AsObject): Promise<void> {
-  //   const encodedRequest = new pb.IdentityMessage();
-  //   encodedRequest.setKey(request.key);
-  //   encodedRequest.setProviderKey(request.providerKey);
+  static async GestaltsDiscoverNode(request: clientPB.GestaltMessage.AsObject): Promise<clientPB.GestaltMessage.AsObject> {
+    const gestaltMessage = new clientPB.GestaltMessage();
+    gestaltMessage.setName(request.name);
 
-  //   ipcRenderer.on('DiscoverGestaltNode', async (event, arg) => {});
-  // }
-
-  static async GetGestalts(
-    request: clientPB.EmptyMessage.AsObject,
-  ): Promise<any> {
-    // throw new Error('Not implemented.');
-    // const encodedRequest = new pb.EmptyMessage();
-    // const res = pb.GestaltListMessage.deserializeBinary(
-    //   await ipcRenderer.invoke('GetGestalts', encodedRequest.serializeBinary()),
-    // );
-    // const containers: any = {};
-    // res.getGestaltMessageList().forEach((value, gestaltIndex) => {
-    //   if (!containers[gestaltIndex]) {
-    //     containers[gestaltIndex] = {
-    //       id: gestaltIndex,
-    //       trusted: true,
-    //       keynodes: [],
-    //       digitalIdentities: [],
-    //     };
-    //   }
-    //
-    //   value.getIdentitiesMap().forEach((identitiesValue) => {
-    //     const identityKey = identitiesValue?.getKey();
-    //     const identityProvider = identitiesValue?.getProvider();
-    //     containers[gestaltIndex].digitalIdentities.push(identityKey);
-    //     containers[gestaltIndex].keynodes.push({
-    //       id: null,
-    //       name: null,
-    //       digitalIdentity: [
-    //         {
-    //           type: identityProvider,
-    //           username: identityKey,
-    //         },
-    //       ],
-    //       vaults: [],
-    //     });
-    //   });
-    //
-    //   /** This is for gestalts that have links already */
-    //   value.getGestaltMatrixMap().forEach((matrixValue) => {
-    //     matrixValue.getPairsMap().forEach(async (pairs, key) => {
-    //       const matrixKey = JSON.parse(key);
-    //
-    //       // If p is null then it is a node we only need the list of nodes
-    //       if (!matrixKey.p) {
-    //         // Check if there is a node or and identity
-    //         if (pairs.hasLinkInfoIdentity()) {
-    //           const linkedIdentity = pairs.getLinkInfoIdentity();
-    //           const identityKey = linkedIdentity?.getIdentity();
-    //           const identityProvider = linkedIdentity?.getProvider();
-    //           // If key is not existing
-    //           if (!containers[gestaltIndex].keynodes.length) {
-    //             containers[gestaltIndex].keynodes.push({
-    //               id: matrixKey.key,
-    //               name: matrixKey.key,
-    //               digitalIdentity: [
-    //                 {
-    //                   type: identityProvider,
-    //                   username: identityKey,
-    //                 },
-    //               ],
-    //               vaults: [],
-    //             });
-    //           } else {
-    //             if (!containers[gestaltIndex].keynodes[0].id) {
-    //               containers[gestaltIndex].keynodes[0] = {
-    //                 id: matrixKey.key,
-    //                 name: matrixKey.key,
-    //                 digitalIdentity: [
-    //                   {
-    //                     type: identityProvider,
-    //                     username: identityKey,
-    //                   },
-    //                 ],
-    //                 vaults: [],
-    //               };
-    //             } else {
-    //               // This is when the same identity is linked to the node
-    //               containers[gestaltIndex].keynodes[0].digitalIdentity.push({
-    //                 type: identityProvider,
-    //                 username: identityKey,
-    //               });
-    //             }
-    //           }
-    //         }
-    //
-    //         // Still todo
-    //         if (pairs.hasLinkInfoNode()) {
-    //         }
-    //       }
-    //     });
-    //   });
-    // });
-    return {};
+    const res = await ipcRenderer.invoke('GestaltsDiscoverNode', gestaltMessage);
+    return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
-  static async GetIdentityInfo(request: clientPB.EmptyMessage): Promise<any> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.EmptyMessage();
-    // const res = pb.IdentityInfo.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'GetIdentityInfo',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // return res.getKey();
+  static async GestaltsList(): Promise<Array<object>> {
+    const gestaltList = await ipcRenderer.invoke('GestaltsList');
+    const output: Array<object> = [];
+    for (const gestalt of gestaltList) {
+      const gestaltMessage = clientPB.GestaltMessage.deserializeBinary(gestalt);
+      const json = JSON.parse(gestaltMessage.getName());
+      output.push(json);
+    }
+    return output;
+  }
+
+  static async IdentitiesGetInfo(request: clientPB.EmptyMessage): Promise<any> {
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = clientPB.EmptyMessage.deserializeBinary(
+      await ipcRenderer.invoke(
+        'IdentitiesGetInfo',
+        emptyMessage.serializeBinary(),
+      ),
+    );
+    return;
   }
 
   static async GetGestaltByIdentity(
-    request: clientPB.ProviderMessage,
-  ): Promise<any> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.IdentityMessage();
-    // encodedRequest.setProviderKey(request.providerKey);
-    // encodedRequest.setKey(request.key);
-    // const res = pb.GestaltMessage.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'GetGestaltByIdentity',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // // return {
-    // //   matrix: JSON.parse(atob(res.getGestaltMatrix())),
-    // //   nodes: JSON.parse(atob(res.getGestaltNodes())),
-    // //   identities: JSON.parse(atob(res.getIdentities()))
-    // // };
-    // return {
-    //   matrix: {},
-    //   nodes: {},
-    //   identities: {},
-    // };
+    request: clientPB.ProviderMessage.AsObject,
+  ): Promise<clientPB.GestaltMessage.AsObject> {
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id)
+    providerMessage.setMessage(request.message)
+
+    const res = await ipcRenderer.invoke('GestaltsGetIdentity', providerMessage.serializeBinary());
+    return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
   static async TrustGestalt(
@@ -715,12 +610,12 @@ class PolykeyClient {
     return clientPB.StatusMessage.deserializeBinary(res).getSuccess();
   }
 
-  static async SetIdentity(request: clientPB.ProviderMessage): Promise<void> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.StringMessage();
-    // encodedRequest.setS(request.s);
-    // await ipcRenderer.invoke('SetIdentity', encodedRequest.serializeBinary());
-    // return;
+  static async GestaltsSetIdentity(request: clientPB.ProviderMessage.AsObject): Promise<void> {
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
+    await ipcRenderer.invoke('GestaltsSetIdentity', providerMessage.serializeBinary());
+    return;
   }
 
   //testing a stream response.

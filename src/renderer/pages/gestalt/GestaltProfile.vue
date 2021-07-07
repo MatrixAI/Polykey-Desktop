@@ -161,7 +161,7 @@ export default defineComponent({
           return error.value = 'Please input username';
         }
         try {
-          const result = await PolykeyClient.AugmentKeynode({
+          const result = await PolykeyClient.IdentitiesAugmentKeynode({
             identityKey: username.value,
             providerKey: 'github.com'
           });

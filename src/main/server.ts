@@ -187,22 +187,18 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    // throw new Error("Not implemented.");
-    // const res = (await promisifyGrpc(client.authenticateProvider.bind(client))(
-    //   pb.AuthenticateProviderRequest.deserializeBinary(request),
-    // )) as pb.StringMessage;
-    // return res.serializeBinary();
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.identitiesAuthenticate(providerMessage)
+    return res.serializeBinary();
   });
 
-  ipcMain.handle('AugmentKeynode', async (event, request) => {
+  ipcMain.handle('IdentitiesAugmentKeynode', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    // throw new Error("Not implemented.");
-    // const res = (await promisifyGrpc(client.augmentKeynode.bind(client))(
-    //   pb.AugmentKeynodeRequest.deserializeBinary(request),
-    // )) as pb.StringMessage;
-    // return res.serializeBinary();
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.identitiesAugmentKeynode(providerMessage)
+    return res.serializeBinary();
   });
 
   ipcMain.handle('KeysDecrypt', async (event, request) => {
@@ -261,97 +257,67 @@ async function setHandlers() {
     return;
   });
 
-  ipcMain.on('GetConnectedIdentityInfos-message', async (event, request) => {
+  ipcMain.on('IdentityGetConnectedInfos', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const responseStream = client.getConnectedIdentityInfos(
-    //   pb.ProviderSearchMessage.deserializeBinary(request),
-    // );
-    //
-    // responseStream.on('data', async (identityInfo: pb.IdentityInfoMessage) => {
-    //   console.log('recieving data');
-    //   event.reply(
-    //     'GetConnectedIdentityInfos-reply',
-    //     identityInfo.serializeBinary(),
-    //   );
-    // });
-    //
-    // // responseStream.on('error', () => {});
-    // // responseStream.on('end', () => {});
+    const providerSearchMessage = new clientPB.ProviderSearchMessage();
+    const connectedIdentitiesList = await grpcClient.identitiesGetConnectedInfos(providerSearchMessage);
+    const data: Array<Uint8Array> = [];
+    for await (const identity of connectedIdentitiesList) {
+      data.push(identity.serializeBinary());
+    }
+    return data;
   });
 
-  ipcMain.handle('GetIdentityInfo', async (event, request) => {
+  ipcMain.handle('IdentitiesGetInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.getIdentityInfo.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.IdentityInfo;
-    //
-    // return res.serializeBinary();
+    const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
+    const res = await grpcClient.identitiesGetInfo(emptyMessage);
+    return res.serializeBinary();
   });
 
-  ipcMain.on('DiscoverGestaltIdentity-message', async (event, request) => {
+  ipcMain.on('IdentitiesDiscoverIdentity', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const responseStream = client.discoverGestaltIdentity(
-    //   pb.IdentityMessage.deserializeBinary(request),
-    // );
-    //
-    // responseStream.on('data', async () => {
-    //   const res = (await promisifyGrpc(client.getGestalts.bind(client))(
-    //     new pb.EmptyMessage(),
-    //   )) as pb.GestaltListMessage;
-    //   event.reply('DiscoverGestaltIdentity-reply', res.serializeBinary());
-    // });
-    // // responseStream.on('error', () => {});
-    // // responseStream.on('end', () => {});
+    const gestaltMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.gestaltsDiscoverIdentity(gestaltMessage);
+    return res.serializeBinary();
   });
 
-  ipcMain.on('DiscoverGestaltNode', async (event, request) => {
+  ipcMain.on('GestaltsDiscoverNode', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const responseStream = client.discoverGestaltNode(
-    //   pb.IdentityMessage.deserializeBinary(request),
-    // );
-    //
-    // responseStream.on('data', async () => {
-    //   const res = (await promisifyGrpc(client.getGestalts.bind(client))(
-    //     new pb.EmptyMessage(),
-    //   )) as pb.GestaltListMessage;
-    //   event.reply(res.serializeBinary());
-    // });
-    // // responseStream.on('error', () => {});
-    // // responseStream.on('end', () => {});
+    const gestaltMessage = clientPB.GestaltMessage.deserializeBinary(request);
+    const res = await grpcClient.gestaltsDiscoverNode(gestaltMessage);
+    return res.serializeBinary();
   });
 
-  ipcMain.handle('GetGestalts', async (event, request) => {
+  ipcMain.handle('GestaltsList', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.getGestalts.bind(client))(
-    //   new pb.EmptyMessage(),
-    // )) as pb.GestaltListMessage;
-    // return res.serializeBinary();
+    const emptyMessage = new clientPB.EmptyMessage();
+    const knownGestalts = await grpcClient.gestaltsList(emptyMessage);
+
+    const data: Array<Uint8Array> = [];
+    for await (const gestalt of knownGestalts) {
+      data.push(gestalt.serializeBinary());
+    }
+    return data;
   });
 
-  ipcMain.handle('GetGestaltByIdentity', async (event, request) => {
+  ipcMain.handle('GestaltsGetIdentity', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.getGestaltByIdentity.bind(client))(
-    //   pb.IdentityMessage.deserializeBinary(request),
-    // )) as pb.GestaltMessage;
-    // return res.serializeBinary();
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.gestaltsGetIdentitiy(providerMessage);
+    return res.serializeBinary();
   });
 
   ipcMain.handle('TrustGestalt', async (event, request) => {
@@ -403,7 +369,6 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
     const emptyMessage = new clientPB.EmptyMessage();
     const res = await grpcClient.NodesGetLocalInfo(emptyMessage);
     return res.serializeBinary();
@@ -531,6 +496,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const emptyMessage = new clientPB.EmptyMessage();
     const res = await grpcClient.vaultsCreate(vaultMessage);
     return res.serializeBinary();
   });
@@ -636,15 +602,13 @@ async function setHandlers() {
   });
 
   /** Test handlers */
-  ipcMain.handle('SetIdentity', async (event, request) => {
+  ipcMain.handle('GestaltsSetIdentity', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // await promisifyGrpc(client.setIdentity.bind(client))(
-    //   pb.StringMessage.deserializeBinary(request),
-    // );
-    // return;
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    await grpcClient.gestaltsGetIdentitiy(providerMessage);
+    return;
   });
 
   // Testing a stream response.
