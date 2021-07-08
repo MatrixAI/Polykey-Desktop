@@ -18,7 +18,7 @@ const config: Config = {
 
 const STATUS = {
   PENDING: 'a',
-}
+};
 
 const router = createRouter(config);
 

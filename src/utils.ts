@@ -1,4 +1,3 @@
-
 function filterByKeys(obj: any, keys: Array<any>): any {
   return Object.keys(obj)
     .filter((key) => keys.includes(key))
@@ -26,4 +25,4 @@ function debounce(f, t = 0) {
   };
 }
 
-export { filterByKeys, sleep, debounce};
+export { filterByKeys, sleep, debounce };

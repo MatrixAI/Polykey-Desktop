@@ -2,7 +2,7 @@ import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 import FileSaver from 'file-saver';
 import { clientPB } from '@matrixai/polykey/src/client';
-import content from "*.svg";
+import content from '*.svg';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Secrets', [
   'LoadSecretNames',
@@ -52,7 +52,7 @@ export default {
       { secretName = '', vaultName = '', copy = false },
     ) {
       const secret = await PolykeyClient.vaultsGetSecret({
-      vault: {name: vaultName, id: ''}, //TODO, need to switch this to using IDs not names.
+        vault: { name: vaultName, id: '' }, //TODO, need to switch this to using IDs not names.
         name: secretName,
       });
       if (copy) {
@@ -93,12 +93,12 @@ export default {
       }: { secretName: string; secretContent: string },
     ) {
       const successful = await PolykeyClient.vaultsEditSecret({
-          vault: {
-            vault: {name: state.selectedVaultName, id: ''},
-            name: secretName,
-          },
-          content: secretContent,
-        });
+        vault: {
+          vault: { name: state.selectedVaultName, id: '' },
+          name: secretName,
+        },
+        content: secretContent,
+      });
       if (successful !== null || successful !== undefined) {
         commit(mutations.SetSelectedSecret, {
           secretName: secretName,
@@ -120,10 +120,10 @@ export default {
       await PolykeyClient.vaultsNewSecret(secret);
 
       /** dispatch and reload the page */
-      if(secret.vault){
+      if (secret.vault) {
         commit(mutations.SetUploadCount);
         dispatch(actionsInt.LoadSecretNames, secret.vault.name);
-      } else throw new Error("Undefined property vault");
+      } else throw new Error('Undefined property vault');
     },
   },
   mutations: {

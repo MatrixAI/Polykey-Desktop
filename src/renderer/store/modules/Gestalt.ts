@@ -168,11 +168,10 @@ export default {
       { dispatch, commit },
       identity: string,
     ) {
-      const res = await PolykeyClient.GestaltsDiscoverIdentity(
-        {
-          id: identity,
-          message: 'github.com',
-        });
+      const res = await PolykeyClient.GestaltsDiscoverIdentity({
+        id: identity,
+        message: 'github.com',
+      });
       console.log('--- discovery --- ');
       console.log(res);
     },
@@ -213,17 +212,16 @@ export default {
       commit(mutations.SetFoundDI, []);
       commit(mutations.SetSearchDI, searchQueryDI);
 
-      const res = await PolykeyClient.IdentityGetConnectedInfos(
-        {
-          provider: {
-            id: '',
-            message: 'github.com'
-          },
-          searchTermList: [searchQueryDI],
-        });
+      const res = await PolykeyClient.IdentityGetConnectedInfos({
+        provider: {
+          id: '',
+          message: 'github.com',
+        },
+        searchTermList: [searchQueryDI],
+      });
 
       for (const foundIdentity of res) {
-        if (!foundIdentity.provider) throw Error('Provider is undefined.')
+        if (!foundIdentity.provider) throw Error('Provider is undefined.');
         console.log('key:', foundIdentity.provider.id);
         const foundDI = state.foundDI;
         let newFoundDI = [...foundDI];
@@ -234,7 +232,6 @@ export default {
           commit(mutations.SetFoundDI, newFoundDI);
         }
       }
-
 
       // try {
       //   const gestaltsByIdentity = await PolykeyClient.GetGestaltByIdentity({

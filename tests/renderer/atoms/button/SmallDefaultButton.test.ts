@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import Antd from 'ant-design-vue';
-import SmallDefaultButton from '@/renderer/atoms/button/SmallDefaultButton.vue'
+import SmallDefaultButton from '@/renderer/atoms/button/SmallDefaultButton.vue';
 
 describe('SmallDefaultButton component', () => {
   const wrapper = mount(SmallDefaultButton, {

@@ -1,6 +1,4 @@
-import setHandlers from '@/main/server'
-
-
+import setHandlers from '@/main/server';
 
 describe('index', () => {
   test('sanity', () => {

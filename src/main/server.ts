@@ -8,8 +8,11 @@ import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 import { clientPB } from '@matrixai/polykey/src/client';
 import { sleep } from '../utils';
 import * as grpc from '@grpc/grpc-js';
-import { bootstrapPolykeyState, checkKeynodeState } from '@matrixai/polykey/src/bootstrap';
-import { checkAgentRunning } from "@matrixai/polykey/src/agent/utils";
+import {
+  bootstrapPolykeyState,
+  checkKeynodeState,
+} from '@matrixai/polykey/src/bootstrap';
+import { checkAgentRunning } from '@matrixai/polykey/src/agent/utils';
 import { spawnBackgroundAgent } from '@matrixai/polykey/src/agent/utils';
 
 // fixPath(); //Broken with webpack.
@@ -24,9 +27,9 @@ async function getAgentClient(nodePath?: string, failOnNotInitialized = false) {
   // make sure agent is running
   console.log('starting....');
   console.log('Node path: ', nodePath);
-  if(nodePath) keynodePath = nodePath;
-  console.log("keynode path: ", keynodePath);
-  if(keynodePath === undefined) throw Error('No node path set.');
+  if (nodePath) keynodePath = nodePath;
+  console.log('keynode path: ', keynodePath);
+  if (keynodePath === undefined) throw Error('No node path set.');
 
   const clientConfig = {};
   clientConfig['logger'] = new Logger('CLI Logger', LogLevel.WARN, [
@@ -44,7 +47,7 @@ async function getAgentClient(nodePath?: string, failOnNotInitialized = false) {
     throw Error('agent is not running and could not be restarted');
   }
   client = tmpClient;
-  grpcClient = tmpGrpcClient
+  grpcClient = tmpGrpcClient;
   console.log('done starting agent..');
 }
 
@@ -72,8 +75,9 @@ async function setHandlers() {
   /// ////////////////
   // agent control //
   /// ////////////////
-  ipcMain.handle('agent-start-old', async (event, request) => { //FIXME: remove this when confirmed it is un-needed.
-    const password = "Password";
+  ipcMain.handle('agent-start-old', async (event, request) => {
+    //FIXME: remove this when confirmed it is un-needed.
+    const password = 'Password';
 
     // this method has a 3 possible cases:
     // case 1: polykey agent is not started and is started to return the pid
@@ -111,7 +115,7 @@ async function setHandlers() {
         try {
           pid = await spawnBackgroundAgent(polykeyPath, password); //FIXME: Return a pid or not? work out if this is used anywhere.
         } catch (e) {
-          console.log("Problem starting agent, might already be started.");
+          console.log('Problem starting agent, might already be started.');
           console.error(e);
         }
         // console.log(pid);
@@ -134,9 +138,9 @@ async function setHandlers() {
     }
   });
 
-  ipcMain.handle('connect-client', async(event, request) => {
+  ipcMain.handle('connect-client', async (event, request) => {
     return await getAgentClient(request.keynodePath);
-  })
+  });
 
   ipcMain.handle('check-agent', async (event, request) => {
     return await checkAgentRunning(request.keynodePath);
@@ -144,14 +148,14 @@ async function setHandlers() {
 
   ipcMain.handle('spawn-agent', async (event, request) => {
     return await spawnBackgroundAgent(request.keynodePath, request.password);
-  })
+  });
 
   ipcMain.handle('check-keynode-state', async (event, request) => {
     return await checkKeynodeState(request.keynodePath);
   });
 
   ipcMain.handle('bootstrap-keynode', async (event, request) => {
-      await bootstrapPolykeyState(request.keynodePath, request.password);
+    await bootstrapPolykeyState(request.keynodePath, request.password);
   });
 
   ipcMain.handle('Stop-Agent', async (event, request) => {
@@ -161,7 +165,7 @@ async function setHandlers() {
     // throw new Error("Not implemented.");
     // await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
     // return;
-  });// FIXME, Is it needed?
+  }); // FIXME, Is it needed?
 
   // ipcMain.handle('agent-restart', async (event, request) => {
   //   await client.stop();
@@ -188,7 +192,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
-    const res = await grpcClient.identitiesAuthenticate(providerMessage)
+    const res = await grpcClient.identitiesAuthenticate(providerMessage);
     return res.serializeBinary();
   });
 
@@ -197,7 +201,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
-    const res = await grpcClient.identitiesAugmentKeynode(providerMessage)
+    const res = await grpcClient.identitiesAugmentKeynode(providerMessage);
     return res.serializeBinary();
   });
 
@@ -214,7 +218,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(request);
+    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(
+      request,
+    );
     await grpcClient.vaultsDeleteSecret(vaultSpecificMessage);
     return;
   });
@@ -228,7 +234,8 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('DeriveKey', async (event, request) => { //FIXME: Not used, Not actually a thing now?
+  ipcMain.handle('DeriveKey', async (event, request) => {
+    //FIXME: Not used, Not actually a thing now?
     if (!client) {
       await getAgentClient();
     }
@@ -262,7 +269,9 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerSearchMessage = new clientPB.ProviderSearchMessage();
-    const connectedIdentitiesList = await grpcClient.identitiesGetConnectedInfos(providerSearchMessage);
+    const connectedIdentitiesList = await grpcClient.identitiesGetConnectedInfos(
+      providerSearchMessage,
+    );
     const data: Array<Uint8Array> = [];
     for await (const identity of connectedIdentitiesList) {
       data.push(identity.serializeBinary());
@@ -388,7 +397,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.keysRootKeyPair(emptyMessage)
+    const res = await grpcClient.keysRootKeyPair(emptyMessage);
     return res.serializeBinary();
   });
 
@@ -405,7 +414,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(request);
+    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(
+      request,
+    );
     const res = await grpcClient.vaultsGetSecret(vaultSpecificMessage);
     return res.serializeBinary();
   });
@@ -475,7 +486,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultMessage = clientPB.VaultSpecificMessage.deserializeBinary(request);
+    const vaultMessage = clientPB.VaultSpecificMessage.deserializeBinary(
+      request,
+    );
     await grpcClient.vaultsNewSecret(vaultMessage); //NOTE: not returning success?
     return;
   });
@@ -506,7 +519,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
-    await grpcClient.NodesPing(nodeMessage)
+    await grpcClient.NodesPing(nodeMessage);
     return;
   });
 
@@ -538,7 +551,7 @@ async function setHandlers() {
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
     const meta = new grpc.Metadata();
     const vaultListGenerator = grpcClient.vaultsScan(vaultMessage, meta);
-    const data: Array<string> = []
+    const data: Array<string> = [];
     for await (const vault of vaultListGenerator) {
       data.push(`${vault.getName()}`);
     }
@@ -587,7 +600,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const secretSpecificMessage = clientPB.SecretSpecificMessage.deserializeBinary(request);
+    const secretSpecificMessage = clientPB.SecretSpecificMessage.deserializeBinary(
+      request,
+    );
     await grpcClient.vaultsEditSecret(secretSpecificMessage);
     return;
   });
@@ -618,7 +633,7 @@ async function setHandlers() {
       event.reply(i);
       await sleep(1000);
     }
-  })
+  });
 }
 
 export default setHandlers;

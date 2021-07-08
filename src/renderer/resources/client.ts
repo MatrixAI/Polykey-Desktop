@@ -1,7 +1,7 @@
 import { clientPB } from '@matrixai/polykey/src/client';
-import { getDefaultNodePath } from "@matrixai/polykey/src/utils";
-import { keynodePath } from "@/main/server";
-import type { KeynodeState } from '@matrixai/polykey/src/bootstrap'
+import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
+import { keynodePath } from '@/main/server';
+import type { KeynodeState } from '@matrixai/polykey/src/bootstrap';
 const ipcRenderer = window.require('electron').ipcRenderer;
 
 class PolykeyClient {
@@ -22,7 +22,7 @@ class PolykeyClient {
   // }
 
   //Temp moved agent starting to front end for now, this is just for testing.
-  static async StartAgent(){
+  static async StartAgent() {
     const password = 'Password';
     const keynodePath = './tmp';
 
@@ -54,7 +54,7 @@ class PolykeyClient {
           pid = await this.SpawnAgent(keynodePath, password);
           console.log('pid: ', pid);
         } catch (e) {
-          console.log("Problem starting agent, might already be started.");
+          console.log('Problem starting agent, might already be started.');
           // console.error(e);
         }
         console.log('connectToAgent');
@@ -68,24 +68,27 @@ class PolykeyClient {
     }
   }
 
-  static async ConnectClient(keynodePath: string){
-    console.log("BRUH ", keynodePath);
-    const request = {keynodePath}
+  static async ConnectClient(keynodePath: string) {
+    console.log('BRUH ', keynodePath);
+    const request = { keynodePath };
     return await ipcRenderer.invoke('connect-client', request);
   }
 
   static async CheckAgent(keynodePath: string): Promise<boolean> {
-    const request = {keynodePath};
+    const request = { keynodePath };
     return await ipcRenderer.invoke('check-agent', request);
   }
 
-  static async SpawnAgent(keynodePath: string, password: string): Promise<number> {
-    const request = {keynodePath, password}
+  static async SpawnAgent(
+    keynodePath: string,
+    password: string,
+  ): Promise<number> {
+    const request = { keynodePath, password };
     return await ipcRenderer.invoke('spawn-agent', request);
   }
 
   static async BootstrapKeynode(keynodePath: string, password: string) {
-    const request = {keynodePath, password}
+    const request = { keynodePath, password };
     return await ipcRenderer.invoke('bootstrap-keynode', request);
   }
 
@@ -94,7 +97,7 @@ class PolykeyClient {
    * @returns number 0 if can initialize, 1 if initialized, 2 if invalid.
    */
   static async CheckKeynodeState(keynodePath: string): Promise<KeynodeState> {
-    const request = {keynodePath}
+    const request = { keynodePath };
     return await ipcRenderer.invoke('check-keynode-state', request);
   }
 
@@ -110,7 +113,9 @@ class PolykeyClient {
   // GRPC Handlers //
   /// ////////////////
   //TODO: This will need to be redone later.
-  static async NodesAdd(request: clientPB.NodeInfoMessage.AsObject): Promise<void> {
+  static async NodesAdd(
+    request: clientPB.NodeInfoMessage.AsObject,
+  ): Promise<void> {
     const nodeInfoMessage = new clientPB.NodeInfoMessage();
     nodeInfoMessage.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
@@ -148,7 +153,9 @@ class PolykeyClient {
     return res.toObject();
   }
 
-  static async IdentitiesAugmentKeynode(request: clientPB.ProviderMessage.AsObject): Promise<void> {
+  static async IdentitiesAugmentKeynode(
+    request: clientPB.ProviderMessage.AsObject,
+  ): Promise<void> {
     const providerMessage = new clientPB.ProviderMessage();
     providerMessage.setId(request.id);
     providerMessage.setMessage(request.message);
@@ -174,11 +181,14 @@ class PolykeyClient {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
 
-    if(!request.vault) throw new Error('Undefined property vault.');
+    if (!request.vault) throw new Error('Undefined property vault.');
     vaultMessage.setId(request.vault.id);
     vaultSpecificMessage.setVault(vaultMessage);
     vaultSpecificMessage.setName(request.name);
-    await ipcRenderer.invoke('vaultsDeleteSecret', vaultSpecificMessage.serializeBinary());
+    await ipcRenderer.invoke(
+      'vaultsDeleteSecret',
+      vaultSpecificMessage.serializeBinary(),
+    );
     return;
   }
 
@@ -205,7 +215,9 @@ class PolykeyClient {
     return res.getData();
   }
 
-  static async NodesFind(request: clientPB.NodeMessage.AsObject): Promise<void> {
+  static async NodesFind(
+    request: clientPB.NodeMessage.AsObject,
+  ): Promise<void> {
     const nodeMessage = new clientPB.NodeMessage();
     nodeMessage.setName(request.name);
     await ipcRenderer.invoke('NodesFind', nodeMessage.serializeBinary());
@@ -239,7 +251,9 @@ class PolykeyClient {
     return res.toObject();
   }
 
-  static async NodesGetInfo(peerId: string): Promise<clientPB.NodeInfoMessage.AsObject> {
+  static async NodesGetInfo(
+    peerId: string,
+  ): Promise<clientPB.NodeInfoMessage.AsObject> {
     const nodeMessage = new clientPB.NodeMessage();
     nodeMessage.setName(peerId);
     const res = clientPB.NodeInfoMessage.deserializeBinary(
@@ -258,7 +272,9 @@ class PolykeyClient {
 
   static async GetRootCertificate(): Promise<string> {
     const res = await ipcRenderer.invoke('certsGet');
-    const certificateMessage = clientPB.CertificateMessage.deserializeBinary(res);
+    const certificateMessage = clientPB.CertificateMessage.deserializeBinary(
+      res,
+    );
     return certificateMessage.getCert();
   }
 
@@ -267,23 +283,23 @@ class PolykeyClient {
   ): Promise<string> {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
-    if (!request.vault) throw new Error("Undefined property of vault");
-    vaultMessage.setId(request.vault.id)
+    if (!request.vault) throw new Error('Undefined property of vault');
+    vaultMessage.setId(request.vault.id);
     vaultSpecificMessage.setVault(vaultMessage);
     vaultSpecificMessage.setName(request.name);
     const res = await ipcRenderer.invoke(
-        'vaultsGetSecret',
-        vaultSpecificMessage.serializeBinary(),
-      );
+      'vaultsGetSecret',
+      vaultSpecificMessage.serializeBinary(),
+    );
     const secretMessage = clientPB.SecretMessage.deserializeBinary(res);
     return secretMessage.getName();
   }
 
   static async IdentityGetConnectedInfos(
-    request: clientPB.ProviderSearchMessage.AsObject
+    request: clientPB.ProviderSearchMessage.AsObject,
   ): Promise<clientPB.IdentityInfoMessage.AsObject[]> {
     //Constructing message.
-    if (!request.provider) throw Error("Provider is undefined.");
+    if (!request.provider) throw Error('Provider is undefined.');
     const providerMessage = new clientPB.ProviderMessage();
     providerMessage.setId(request.provider.id);
     providerMessage.setMessage(request.provider.message);
@@ -295,11 +311,13 @@ class PolykeyClient {
     //getting response and converting to object.
     const data: Array<Uint8Array> = await ipcRenderer.invoke(
       'IdentityGetConnectedInfos',
-      providerSearchMessage.serializeBinary()
+      providerSearchMessage.serializeBinary(),
     );
     const output: Array<clientPB.IdentityInfoMessage.AsObject> = [];
     for (const datum of data) {
-      const identityInfoMessage = clientPB.IdentityInfoMessage.deserializeBinary(datum);
+      const identityInfoMessage = clientPB.IdentityInfoMessage.deserializeBinary(
+        datum,
+      );
       output.push(identityInfoMessage.toObject());
     }
     return output;
@@ -313,19 +331,25 @@ class PolykeyClient {
     providerMess.setMessage(request.message);
     const res = await ipcRenderer.invoke(
       'IdentitiesDiscoverIdentity',
-      providerMess.serializeBinary()
+      providerMess.serializeBinary(),
     );
     return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
-  static async GestaltsDiscoverNode(request: clientPB.GestaltMessage.AsObject): Promise<clientPB.GestaltMessage.AsObject> {
+  static async GestaltsDiscoverNode(
+    request: clientPB.GestaltMessage.AsObject,
+  ): Promise<clientPB.GestaltMessage.AsObject> {
     const gestaltMessage = new clientPB.GestaltMessage();
     gestaltMessage.setName(request.name);
 
-    const res = await ipcRenderer.invoke('GestaltsDiscoverNode', gestaltMessage);
+    const res = await ipcRenderer.invoke(
+      'GestaltsDiscoverNode',
+      gestaltMessage,
+    );
     return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
+  //FIXME, replace object with proper type.
   static async GestaltsList(): Promise<Array<object>> {
     const gestaltList = await ipcRenderer.invoke('GestaltsList');
     const output: Array<object> = [];
@@ -352,10 +376,13 @@ class PolykeyClient {
     request: clientPB.ProviderMessage.AsObject,
   ): Promise<clientPB.GestaltMessage.AsObject> {
     const providerMessage = new clientPB.ProviderMessage();
-    providerMessage.setId(request.id)
-    providerMessage.setMessage(request.message)
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
 
-    const res = await ipcRenderer.invoke('GestaltsGetIdentity', providerMessage.serializeBinary());
+    const res = await ipcRenderer.invoke(
+      'GestaltsGetIdentity',
+      providerMessage.serializeBinary(),
+    );
     return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
@@ -422,13 +449,20 @@ class PolykeyClient {
     return output;
   }
 
-  static async vaultsListSecrets(vaultName: string): Promise<clientPB.SecretMessage.AsObject[]> {
+  static async vaultsListSecrets(
+    vaultName: string,
+  ): Promise<clientPB.SecretMessage.AsObject[]> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(vaultName);
-    const secretList = await ipcRenderer.invoke('vaultsListSecrets', vaultMessage.serializeBinary());
+    const secretList = await ipcRenderer.invoke(
+      'vaultsListSecrets',
+      vaultMessage.serializeBinary(),
+    );
     const output: Array<clientPB.SecretMessage.AsObject> = [];
     for (const secretListElement of secretList) {
-      const element = clientPB.SecretMessage.deserializeBinary(secretListElement);
+      const element = clientPB.SecretMessage.deserializeBinary(
+        secretListElement,
+      );
       output.push(element.toObject());
     }
     return output;
@@ -469,11 +503,14 @@ class PolykeyClient {
   ): Promise<void> {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
-    if (!request.vault) throw new Error("Undefined property Vault");
+    if (!request.vault) throw new Error('Undefined property Vault');
     vaultMessage.setId(request.vault.id);
     vaultSpecificMessage.setVault(vaultMessage);
     vaultSpecificMessage.setName(request.name);
-    await ipcRenderer.invoke('vaultsNewSecret', vaultSpecificMessage.serializeBinary());
+    await ipcRenderer.invoke(
+      'vaultsNewSecret',
+      vaultSpecificMessage.serializeBinary(),
+    );
     return;
   }
 
@@ -531,7 +568,10 @@ class PolykeyClient {
   static async vaultsScan(peerId: string): Promise<string[]> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(peerId);
-    const res = await ipcRenderer.invoke('vaultsScan', vaultMessage.serializeBinary());
+    const res = await ipcRenderer.invoke(
+      'vaultsScan',
+      vaultMessage.serializeBinary(),
+    );
     return res;
   }
 
@@ -553,7 +593,9 @@ class PolykeyClient {
     // return;
   }
 
-  static async UpdateLocalNodeInfo(request: clientPB.NodeInfoMessage.AsObject,): Promise<void> {
+  static async UpdateLocalNodeInfo(
+    request: clientPB.NodeInfoMessage.AsObject,
+  ): Promise<void> {
     throw new Error('Not implemented.');
     const encodedRequest = new clientPB.NodeInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
@@ -570,7 +612,9 @@ class PolykeyClient {
     return;
   }
 
-  static async UpdateNodeInfo(request: clientPB.NodeInfoMessage.AsObject): Promise<void> {
+  static async UpdateNodeInfo(
+    request: clientPB.NodeInfoMessage.AsObject,
+  ): Promise<void> {
     const encodedRequest = new clientPB.NodeInfoMessage();
     encodedRequest.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
@@ -592,13 +636,17 @@ class PolykeyClient {
     const vaultMessage = new clientPB.VaultMessage();
     const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
     const secretSpecificMessage = new clientPB.SecretSpecificMessage();
-    if (!request.vault || !request.vault.vault) throw Error("Undefined property vault");
+    if (!request.vault || !request.vault.vault)
+      throw Error('Undefined property vault');
     vaultMessage.setId(request.vault.vault.id);
     vaultSpecificMessage.setVault(vaultMessage);
     vaultSpecificMessage.setName(request.vault.vault.name);
     secretSpecificMessage.setVault(vaultSpecificMessage);
     secretSpecificMessage.setContent(request.content);
-    await ipcRenderer.invoke('vaultsEditSecret', vaultSpecificMessage.serializeBinary());
+    await ipcRenderer.invoke(
+      'vaultsEditSecret',
+      vaultSpecificMessage.serializeBinary(),
+    );
     return;
   }
 
@@ -610,23 +658,28 @@ class PolykeyClient {
     return clientPB.StatusMessage.deserializeBinary(res).getSuccess();
   }
 
-  static async GestaltsSetIdentity(request: clientPB.ProviderMessage.AsObject): Promise<void> {
+  static async GestaltsSetIdentity(
+    request: clientPB.ProviderMessage.AsObject,
+  ): Promise<void> {
     const providerMessage = new clientPB.ProviderMessage();
     providerMessage.setId(request.id);
     providerMessage.setMessage(request.message);
-    await ipcRenderer.invoke('GestaltsSetIdentity', providerMessage.serializeBinary());
+    await ipcRenderer.invoke(
+      'GestaltsSetIdentity',
+      providerMessage.serializeBinary(),
+    );
     return;
   }
 
   //testing a stream response.
-  static async streamTest(num: number): Promise<void>{
+  static async streamTest(num: number): Promise<void> {
     ipcRenderer.send('stream-test', num);
-  };
+  }
 
   static async setHandler(): Promise<void> {
     ipcRenderer.on('stream-test', (event, arg) => {
       console.log(arg);
-    })
+    });
   }
 }
 

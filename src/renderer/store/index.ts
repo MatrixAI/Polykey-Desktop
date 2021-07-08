@@ -11,8 +11,8 @@ import Secrets from '@/renderer/store/modules/Secrets';
 import Vaults from '@/renderer/store/modules/Vaults';
 import Nodes from '@/renderer/store/modules/Nodes';
 import Gestalt from '@/renderer/store/modules/Gestalt';
-import Agent from '@/renderer/store/modules/Agent'
-import Bootstrap from '@/renderer/store/modules/Bootstrap'
+import Agent from '@/renderer/store/modules/Agent';
+import Bootstrap from '@/renderer/store/modules/Bootstrap';
 
 export default createStore({
   modules: {

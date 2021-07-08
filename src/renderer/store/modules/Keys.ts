@@ -13,7 +13,10 @@ export default {
     loadKeyPair: async function ({ commit }) {
       const keyPair = await PolykeyClient.keysRootKeyPair();
       console.log('keyPair', keyPair);
-      commit('loadKeyPair', { publicKey: keyPair.pb_public, privateKey: keyPair.pb_private })
+      commit('loadKeyPair', {
+        publicKey: keyPair.pb_public,
+        privateKey: keyPair.pb_private,
+      });
     },
   },
   mutations: {

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import Antd from 'ant-design-vue';
-import Console from '@/renderer/molecules/console/Console.vue'
+import Console from '@/renderer/molecules/console/Console.vue';
 
 describe('Console component', () => {
   const wrapper = mount(Console, {
@@ -15,6 +15,6 @@ describe('Console component', () => {
     wrapper.get('.ant-progress'); // error if none found.
   });
   test('Text exists', async () => {
-    expect(wrapper.text()).toContain('Initializing...')
+    expect(wrapper.text()).toContain('Initializing...');
   });
 });

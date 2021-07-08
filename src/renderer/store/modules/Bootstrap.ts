@@ -1,7 +1,7 @@
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
-import type { STATUS } from "@/renderer/store/modules/Agent";
-import { actions as agentActions } from "@/renderer/store/modules/Agent";
+import type { STATUS } from '@/renderer/store/modules/Agent';
+import { actions as agentActions } from '@/renderer/store/modules/Agent';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Bootstrap', [
   'BootstrapKeynode',
@@ -18,7 +18,7 @@ const enum mutations {
 type BootstrapEvent = {
   action: string;
   name: string;
-}
+};
 export { BootstrapEvent };
 
 type State = {
@@ -29,7 +29,7 @@ const state: State = {
   events: [
     // {action: 'Bootstrapping', name: 'Keynode'},
     // {action: 'Installing', name: 'Agent'},
-  ]
+  ],
 };
 
 export { actionsExt as actions };
@@ -41,17 +41,20 @@ export default {
     async [actionsInt.BootstrapKeynode]({ commit, dispatch }, password) {
       try {
         console.log('Starting to InitializeKeyNode');
-        commit(mutations.AddEvent, {action: 'Bootstrapping', name: 'Keynode'});
+        commit(mutations.AddEvent, {
+          action: 'Bootstrapping',
+          name: 'Keynode',
+        });
         await PolykeyClient.BootstrapKeynode('./tmp', password);
-        dispatch(agentActions.StartAgent, password, {root: true});
+        dispatch(agentActions.StartAgent, password, { root: true });
       } catch (e) {
-        commit(mutations.AddEvent, {action: 'Bootstrapping', name: 'Failed'})
+        commit(mutations.AddEvent, { action: 'Bootstrapping', name: 'Failed' });
         console.log('Error InitializeKeyNode', e);
       }
     },
     async [actionsInt.AddEvent]({ commit }, event: BootstrapEvent) {
       commit(mutations.AddEvent, event);
-    }
+    },
   },
   mutations: {
     [mutations.AddEvent](state, event: BootstrapEvent) {

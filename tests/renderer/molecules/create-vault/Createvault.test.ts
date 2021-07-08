@@ -16,7 +16,7 @@ const config: Config = {
   TMPDIR: '/tmp',
 };
 
-const router = createRouter(config)
+const router = createRouter(config);
 
 describe('Console component', () => {
   const wrapper = mount(CreateVault, {
@@ -26,9 +26,11 @@ describe('Console component', () => {
   });
   test('Exists.', async () => {
     expect(wrapper.exists()).toBeTruthy();
-    expect(wrapper.findComponent({name: 'Input'}).exists()).toBeTruthy();
-    expect(wrapper.findComponent({name: 'PrimaryButton'}).exists()).toBeTruthy();
-    fail("Test is not complete.");
+    expect(wrapper.findComponent({ name: 'Input' }).exists()).toBeTruthy();
+    expect(
+      wrapper.findComponent({ name: 'PrimaryButton' }).exists(),
+    ).toBeTruthy();
+    fail('Test is not complete.');
   });
   //TODO add more tests.
 });

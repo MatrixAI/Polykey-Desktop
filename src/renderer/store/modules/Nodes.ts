@@ -2,8 +2,6 @@ import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 import { STATUS } from '@/renderer/store/modules/Agent';
 
-
-
 const [actionsInt, actionsExt] = makeIdentifiers('Nodes', [
   'SetIsUnlocked',
   'SetIsInitialized',
@@ -25,10 +23,9 @@ const enum mutations {
   SetStatus = 'Agent/SetStatus',
 }
 
-
 type State = {
   nodes: string[];
-  localNodeInfo;  //FIXME No type, not good
+  localNodeInfo; //FIXME No type, not good
   // localNodeInfo: pb.NodeInfoMessage.AsObject;
 };
 
@@ -58,7 +55,6 @@ const state: State = {
 };
 
 export { actionsExt as actions };
-
 
 export default {
   namespaced: true,

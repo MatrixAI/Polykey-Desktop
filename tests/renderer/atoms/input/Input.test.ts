@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import Antd from 'ant-design-vue';
-import Input from '@/renderer/atoms/input/Input.vue'
-import { ref } from "vue";
+import Input from '@/renderer/atoms/input/Input.vue';
+import { ref } from 'vue';
 
 describe('Input component', () => {
   const wrapper = mount(Input, {
@@ -9,8 +9,8 @@ describe('Input component', () => {
       plugins: [Antd],
     },
     props: {
-      value: "val1",
-      data: "No Value",
+      value: 'val1',
+      data: 'No Value',
     },
   });
   test('Exists.', async () => {

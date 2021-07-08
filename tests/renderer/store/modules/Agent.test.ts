@@ -1,6 +1,7 @@
-import { useStore } from 'vuex';describe('Agent Store', () => {
+import { useStore } from 'vuex';
+describe('Agent Store', () => {
   test('Sanity.', async () => {
-    expect(1+1).toBe(2);
+    expect(1 + 1).toBe(2);
   });
 
   // test('Sanity.', async () => {
@@ -15,8 +16,8 @@ import { useStore } from 'vuex';describe('Agent Store', () => {
 
 describe('Agent Store', () => {
   test('Sanity.', async () => {
-    expect(1+1).toBe(2);
-    fail("No tests created.");
+    expect(1 + 1).toBe(2);
+    fail('No tests created.');
   });
 
   // test('Sanity.', async () => {

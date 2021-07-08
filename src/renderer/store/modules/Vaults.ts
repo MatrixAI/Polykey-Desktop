@@ -57,7 +57,7 @@ export default {
     //FIXME should this be done inside the store?
     // it's an action that doesn't modify state.
     async [actionsInt.PullVaults]({ commit }, NodeId: string) {
-      await PolykeyClient.vaultsPull({name: '', id: NodeId})
+      await PolykeyClient.vaultsPull({ name: '', id: NodeId });
       //commit(mutations.PullVaults, searchMode);
     },
   },
