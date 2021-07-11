@@ -1,5 +1,7 @@
 # Polykey
 
+[![pipeline status](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/commits/master)
+
 Polykey is a distributed secret sharing system. It helps you manage your
 secrets, passwords, API keys and more. It is designed for both managing
 personal secrets and infrastructural secrets. This means it can be used
