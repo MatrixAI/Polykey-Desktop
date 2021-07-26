@@ -142,6 +142,17 @@ async function setHandlers() {
     return await getAgentClient(request.keynodePath);
   });
 
+  ipcMain.handle('start-session', async (event, request) => {
+    console.log('got', request);
+    const meta = new grpc.Metadata();
+    //Needs the passwordfile path.
+    meta.set('password', 'password');
+    const emptyMessage = new clientPB.EmptyMessage();
+    console.log('meta', meta);
+    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta);
+    return res.getToken();
+  });
+
   ipcMain.handle('check-agent', async (event, request) => {
     return await checkAgentRunning(request.keynodePath);
   });
@@ -183,7 +194,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
-    const res = await grpcClient.NodesAdd(emptyMessage);
+    const res = await grpcClient.nodesAdd(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -192,8 +206,11 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
-    const res = await grpcClient.identitiesAuthenticate(providerMessage);
-    return res.serializeBinary();
+    const res = await grpcClient.identitiesAuthenticate(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    // return res.serializeBinary(); //TODO FIXME, is a generator.
   });
 
   ipcMain.handle('IdentitiesAugmentKeynode', async (event, request) => {
@@ -201,7 +218,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
-    const res = await grpcClient.identitiesAugmentKeynode(providerMessage);
+    const res = await grpcClient.identitiesAugmentKeynode(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -210,7 +230,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
-    const res = await grpcClient.keysDecrypt(cryptoMessage);
+    const res = await grpcClient.keysDecrypt(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -218,10 +241,12 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(
-      request,
+    const vaultSpecificMessage =
+      clientPB.VaultSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsDeleteSecret(
+      vaultSpecificMessage,
+      await client.session.createJWTCallCredentials(),
     );
-    await grpcClient.vaultsDeleteSecret(vaultSpecificMessage);
     return;
   });
 
@@ -230,10 +255,14 @@ async function setHandlers() {
       await getAgentClient();
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
-    const res = await grpcClient.vaultsDelete(vaultMessage);
+    const res = await grpcClient.vaultsDelete(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
+  //FIXME: remove?
   ipcMain.handle('DeriveKey', async (event, request) => {
     //FIXME: Not used, Not actually a thing now?
     if (!client) {
@@ -251,7 +280,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
-    const res = await grpcClient.keysEncrypt(cryptoMessage);
+    const res = await grpcClient.keysEncrypt(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -260,7 +292,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
-    await grpcClient.NodesFind(nodeMessage);
+    await grpcClient.nodesFind(
+      nodeMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return;
   });
 
@@ -269,13 +304,15 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerSearchMessage = new clientPB.ProviderSearchMessage();
-    const connectedIdentitiesList = await grpcClient.identitiesGetConnectedInfos(
-      providerSearchMessage,
-    );
+    const connectedIdentitiesList =
+      await grpcClient.identitiesGetConnectedInfos(
+        providerSearchMessage,
+        await client.session.createJWTCallCredentials(),
+      );
     const data: Array<Uint8Array> = [];
-    for await (const identity of connectedIdentitiesList) {
-      data.push(identity.serializeBinary());
-    }
+    // for await (const identity of connectedIdentitiesList) { FIXME: generator?
+    //   data.push(identity.serializeBinary());
+    // }
     return data;
   });
 
@@ -284,7 +321,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
-    const res = await grpcClient.identitiesGetInfo(emptyMessage);
+    const res = await grpcClient.identitiesGetInfo(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -293,7 +333,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const gestaltMessage = clientPB.ProviderMessage.deserializeBinary(request);
-    const res = await grpcClient.gestaltsDiscoverIdentity(gestaltMessage);
+    const res = await grpcClient.gestaltsDiscoverIdentity(
+      gestaltMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -302,7 +345,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const gestaltMessage = clientPB.GestaltMessage.deserializeBinary(request);
-    const res = await grpcClient.gestaltsDiscoverNode(gestaltMessage);
+    const res = await grpcClient.gestaltsDiscoverNode(
+      gestaltMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -311,7 +357,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const knownGestalts = await grpcClient.gestaltsList(emptyMessage);
+    const knownGestalts = await grpcClient.gestaltsList(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
 
     const data: Array<Uint8Array> = [];
     for await (const gestalt of knownGestalts) {
@@ -325,7 +374,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
-    const res = await grpcClient.gestaltsGetIdentitiy(providerMessage);
+    const res = await grpcClient.gestaltsGetIdentitiy(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -379,7 +431,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.NodesGetLocalInfo(emptyMessage);
+    const res = await grpcClient.nodesGetLocalInfo(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -388,7 +443,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
-    const res = await grpcClient.NodesGetInfo(nodeMessage);
+    const res = await grpcClient.nodesGetInfo(
+      nodeMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -397,7 +455,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.keysRootKeyPair(emptyMessage);
+    const res = await grpcClient.keysRootKeyPair(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -406,7 +467,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.certsGet(emptyMessage);
+    const res = await grpcClient.certsGet(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res;
   });
 
@@ -414,10 +478,12 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultSpecificMessage = clientPB.VaultSpecificMessage.deserializeBinary(
-      request,
+    const vaultSpecificMessage =
+      clientPB.VaultSpecificMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsGetSecret(
+      vaultSpecificMessage,
+      await client.session.createJWTCallCredentials(),
     );
-    const res = await grpcClient.vaultsGetSecret(vaultSpecificMessage);
     return res.serializeBinary();
   });
 
@@ -437,7 +503,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = await clientPB.EmptyMessage;
-    const nodesListGenerator = grpcClient.vaultsListSecrets(emptyMessage);
+    const nodesListGenerator = grpcClient.vaultsListSecrets(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     const data: Array<Uint8Array> = [];
     for await (const node of nodesListGenerator) {
       data.push(node.serializeBinary());
@@ -450,7 +519,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const vaultMessage = await clientPB.VaultMessage.deserializeBinary(request);
-    const secretListGenerator = grpcClient.vaultsListSecrets(vaultMessage);
+    const secretListGenerator = grpcClient.vaultsListSecrets(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     const data: Array<Uint8Array> = [];
     for await (const vault of secretListGenerator) {
       data.push(vault.serializeBinary());
@@ -463,7 +535,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const vaultListGenerator = await grpcClient.vaultsList(emptyMessage);
+    const vaultListGenerator = await grpcClient.vaultsList(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     const data: Array<Uint8Array> = [];
     for await (const vault of vaultListGenerator) {
       data.push(vault.serializeBinary());
@@ -486,10 +561,12 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const vaultMessage = clientPB.VaultSpecificMessage.deserializeBinary(
-      request,
-    );
-    await grpcClient.vaultsNewSecret(vaultMessage); //NOTE: not returning success?
+    const vaultMessage =
+      clientPB.VaultSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsNewSecret(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    ); //NOTE: not returning success?
     return;
   });
 
@@ -510,7 +587,10 @@ async function setHandlers() {
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.vaultsCreate(vaultMessage);
+    const res = await grpcClient.vaultsCreate(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -519,7 +599,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
-    await grpcClient.NodesPing(nodeMessage);
+    await grpcClient.nodesPing(
+      nodeMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return;
   });
 
@@ -528,8 +611,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
-    const meta = new grpc.Metadata();
-    await grpcClient.vaultsPull(vaultMessage, meta);
+    await grpcClient.vaultsPull(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return;
   });
 
@@ -549,8 +634,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
-    const meta = new grpc.Metadata();
-    const vaultListGenerator = grpcClient.vaultsScan(vaultMessage, meta);
+    const vaultListGenerator = grpcClient.vaultsScan(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     const data: Array<string> = [];
     for await (const vault of vaultListGenerator) {
       data.push(`${vault.getName()}`);
@@ -563,7 +650,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
-    const res = await grpcClient.keysSign(cryptoMessage);
+    const res = await grpcClient.keysSign(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -578,12 +668,16 @@ async function setHandlers() {
     // return;
   });
 
+  //FIXME, this should be removed.
   ipcMain.handle('NodesUpdateLocalInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
     const nodeInfoMessage = clientPB.NodeInfoMessage.deserializeBinary(request);
-    const res = await grpcClient.NodesUpdateLocalInfo(nodeInfoMessage);
+    const res = await grpcClient.nodesUpdateLocalInfo(
+      nodeInfoMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return;
   });
 
@@ -592,7 +686,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const nodeMessage = clientPB.NodeInfoMessage.deserializeBinary(request);
-    await grpcClient.NodesUpdateInfo(nodeMessage);
+    await grpcClient.nodesUpdateInfo(
+      nodeMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return;
   });
 
@@ -600,10 +697,12 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const secretSpecificMessage = clientPB.SecretSpecificMessage.deserializeBinary(
-      request,
+    const secretSpecificMessage =
+      clientPB.SecretSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsEditSecret(
+      secretSpecificMessage,
+      await client.session.createJWTCallCredentials(),
     );
-    await grpcClient.vaultsEditSecret(secretSpecificMessage);
     return;
   });
 
@@ -612,7 +711,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
-    const res = await grpcClient.keysVerify(cryptoMessage);
+    const res = await grpcClient.keysVerify(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -622,7 +724,10 @@ async function setHandlers() {
       await getAgentClient();
     }
     const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
-    await grpcClient.gestaltsGetIdentitiy(providerMessage);
+    await grpcClient.gestaltsGetIdentitiy(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return;
   });
 

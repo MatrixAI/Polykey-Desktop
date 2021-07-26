@@ -58,7 +58,7 @@ export default {
        * 3. INITIALIZED: proper keynode at path.
        * 4. UNINITILIZED: path has no keynode.
        */
-      commit(mutations.SetKeynodePath, './tmp'); //FIXME: Temp path for now.
+      commit(mutations.SetKeynodePath, './tmp/keynode'); //FIXME: Temp path for now.
       if (!state.keynodePath) throw Error('keynode path not set');
       if (await PolykeyClient.CheckAgent(state.keynodePath)) {
         try {
@@ -120,6 +120,7 @@ export default {
         commit(mutations.SetStatus, STATUS.LOCKED);
       }
       await PolykeyClient.ConnectClient(state.keynodePath); //TODO: Make a connect to agent goober
+      await dispatch(BootstrapActions.AddEvent);
     },
     async [actionsInt.SetStatus]({ commit }, status) {
       commit(mutations.SetStatus, status);
@@ -132,6 +133,7 @@ export default {
       // 4. set the state to online.
       // 5. remove passwordFile.
       // We also need to switch the state back to locked if any GRPC call fails due to invalid session.
+      await PolykeyClient.StartSession(state.password);
     },
   },
   mutations: {

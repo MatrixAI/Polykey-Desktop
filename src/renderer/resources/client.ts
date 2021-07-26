@@ -74,6 +74,13 @@ class PolykeyClient {
     return await ipcRenderer.invoke('connect-client', request);
   }
 
+  static async StartSession(password: string) {
+    const request = { password };
+    const res = await ipcRenderer.invoke('start-session', request);
+    console.log('The token is: ', res);
+    return res;
+  }
+
   static async CheckAgent(keynodePath: string): Promise<boolean> {
     const request = { keynodePath };
     return await ipcRenderer.invoke('check-agent', request);
@@ -272,9 +279,8 @@ class PolykeyClient {
 
   static async GetRootCertificate(): Promise<string> {
     const res = await ipcRenderer.invoke('certsGet');
-    const certificateMessage = clientPB.CertificateMessage.deserializeBinary(
-      res,
-    );
+    const certificateMessage =
+      clientPB.CertificateMessage.deserializeBinary(res);
     return certificateMessage.getCert();
   }
 
@@ -315,9 +321,8 @@ class PolykeyClient {
     );
     const output: Array<clientPB.IdentityInfoMessage.AsObject> = [];
     for (const datum of data) {
-      const identityInfoMessage = clientPB.IdentityInfoMessage.deserializeBinary(
-        datum,
-      );
+      const identityInfoMessage =
+        clientPB.IdentityInfoMessage.deserializeBinary(datum);
       output.push(identityInfoMessage.toObject());
     }
     return output;
@@ -350,9 +355,9 @@ class PolykeyClient {
   }
 
   //FIXME, replace object with proper type.
-  static async GestaltsList(): Promise<Array<object>> {
+  static async GestaltsList(): Promise<Array<any>> {
     const gestaltList = await ipcRenderer.invoke('GestaltsList');
-    const output: Array<object> = [];
+    const output: Array<any> = [];
     for (const gestalt of gestaltList) {
       const gestaltMessage = clientPB.GestaltMessage.deserializeBinary(gestalt);
       const json = JSON.parse(gestaltMessage.getName());
@@ -460,9 +465,8 @@ class PolykeyClient {
     );
     const output: Array<clientPB.SecretMessage.AsObject> = [];
     for (const secretListElement of secretList) {
-      const element = clientPB.SecretMessage.deserializeBinary(
-        secretListElement,
-      );
+      const element =
+        clientPB.SecretMessage.deserializeBinary(secretListElement);
       output.push(element.toObject());
     }
     return output;

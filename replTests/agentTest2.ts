@@ -4,8 +4,10 @@ import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 const nodePath = 'tmp/keynode';
 
 async function main() {
-  const agent = new PolykeyAgent({ nodePath });
-  await agent.start({ password: 'Password' });
+  const agent = new PolykeyAgent({
+    nodePath
+  });
+  await agent.start({ password: 'password' });
   // Start a session.
 
   const clientConfig = {};
@@ -16,11 +18,11 @@ async function main() {
   clientConfig['nodePath'] = nodePath;
 
   // Temp so we can check it started properly before using it.
-  const tmpClient = new PolykeyClient(clientConfig);
-  await tmpClient.start({});
+  // const tmpClient = new PolykeyClient(clientConfig);
+  // await tmpClient.start({});
 
-  const grpcClient = tmpClient.grpcClient;
-  await grpcClient.vaultsList();
+  // const grpcClient = tmpClient.grpcClient;
+  // await grpcClient.vaultsList();
 }
 
 main();

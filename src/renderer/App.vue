@@ -82,7 +82,7 @@ export default defineComponent({
       /**
        * Check user if isUnlocked if not need to run the polykeyclient
        */
-      // await store.dispatch(actions.SetKeynodePath, './tmp'); //FIXME default path.
+      // await store.dispatch(actions.SetKeynodePath, './tmp/keynode'); //FIXME default path.
       await store.dispatch(actions.CheckAgentStatus);
     });
 
