@@ -11,6 +11,7 @@ const [actionsInt, actionsExt] = makeIdentifiers('Agent', [
   'BootstrapKeynode',
   'StartAgent',
   'SetStatus',
+  'StartSession',
 ]);
 
 const enum mutations {
@@ -90,7 +91,7 @@ export default {
         }
       }
     },
-    async [actionsInt.SetKeynodePath]({ commit, dispatch }, keynodePath) {
+    async [actionsInt.SetKeynodePath]({ commit }, keynodePath) {
       commit(mutations.SetKeynodePath, keynodePath);
       return;
     },
@@ -122,6 +123,15 @@ export default {
     },
     async [actionsInt.SetStatus]({ commit }, status) {
       commit(mutations.SetStatus, status);
+    },
+    async [actionsInt.StartSession]({ commit }) {
+      //Here we need to do
+      // 1. Create a password file.
+      // 2. start the session with the agent and store the token.
+      // 3. make sure the grpcClient has the session token.
+      // 4. set the state to online.
+      // 5. remove passwordFile.
+      // We also need to switch the state back to locked if any GRPC call fails due to invalid session.
     },
   },
   mutations: {
