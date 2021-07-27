@@ -392,53 +392,43 @@ class PolykeyClient {
     return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
-  static async TrustGestalt(
-    request: clientPB.SetActionsMessage.AsObject,
-  ): Promise<void> {
+  private static constructActionMessage(request: clientPB.SetActionsMessage.AsObject) {
     const actionMessage = new clientPB.SetActionsMessage();
     if (request.identity) {
-      const providerMessage = new clientPB.ProviderMessage()
+      const providerMessage = new clientPB.ProviderMessage();
       providerMessage.setId(request.identity.id);
       providerMessage.setMessage(request.identity.message);
       actionMessage.setIdentity(providerMessage);
     }
-    if (request.node){
+    if (request.node) {
       const nodeMessage = new clientPB.NodeMessage();
       nodeMessage.setName(request.node.name);
       actionMessage.setNode(nodeMessage);
     }
+    return actionMessage;
+  }
+
+  static async TrustGestalt(
+    request: clientPB.SetActionsMessage.AsObject,
+  ): Promise<void> {
+    const actionMessage = this.constructActionMessage(request);
     actionMessage.setAction(request.action);
     ipcRenderer.invoke('TrustGestalt', actionMessage.serializeBinary());
   }
 
   static async UntrustGestalt(
-    request: clientPB.GestaltTrustMessage,
-  ): Promise<string> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.StringMessage();
-    // encodedRequest.setS(request.s);
-    // const res = pb.StringMessage.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'UntrustGestalt',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // return res.getS();
+    request: clientPB.SetActionsMessage.AsObject,
+  ): Promise<void> {
+    const actionMessage = this.constructActionMessage(request);
+    actionMessage.setAction(request.action);
+    ipcRenderer.invoke('UntrustGestalt', actionMessage.serializeBinary());
   }
 
   static async GestaltIsTrusted(
-    request: clientPB.GestaltTrustMessage,
-  ): Promise<string> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.StringMessage();
-    // encodedRequest.setS(request.s);
-    // const res = pb.StringMessage.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'GestaltIsTrusted',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // return res.getS();
+    request: clientPB.SetActionsMessage.AsObject,
+  ): Promise<string[]> {
+    const actionMessage = this.constructActionMessage(request);
+    return await ipcRenderer.invoke('GestaltIsTrusted', actionMessage.serializeBinary());
   }
 
   static async ListOAuthTokens(): Promise<string[]> {

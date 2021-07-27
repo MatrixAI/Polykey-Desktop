@@ -14,6 +14,7 @@ import {
 } from '@matrixai/polykey/src/bootstrap';
 import { checkAgentRunning } from '@matrixai/polykey/src/agent/utils';
 import { spawnBackgroundAgent } from '@matrixai/polykey/src/agent/utils';
+import { SetActionsMessage } from "@matrixai/polykey/dist/proto/js/Client_pb";
 
 // fixPath(); //Broken with webpack.
 
@@ -145,13 +146,12 @@ async function setHandlers() {
   ipcMain.handle('start-session', async (event, request) => {
     console.log('got', request);
     const meta = new grpc.Metadata();
-    //Needs the passwordfile path.
-    meta.set('password', 'password');
+    //Needs the passwordfile path.asd
+    meta.set('other', 'things');
+    meta.add('password', 'password');
+    meta.add('random', 'stuff');
     const emptyMessage = new clientPB.EmptyMessage();
     console.log('meta', meta);
-    const echoMessage = new clientPB.EchoMessage();
-    echoMessage.setChallenge("Hello!");
-    // const res2 = await grpcClient.echo(echoMessage, meta);
     const res = await grpcClient.sessionRequestJWT(emptyMessage, meta); //FIXME: I have no idea why this isn't working, ask lucas about it.
     return res.getToken();
   });
@@ -176,7 +176,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    // throw new Error("Not implemented.");
+    throw new Error("Not implemented.");
     // await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
     // return;
   }); // FIXME, Is it needed?
@@ -390,30 +390,70 @@ async function setHandlers() {
       await getAgentClient();
     }
     const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
-    // switch(actionMessage.getNodeOrProviderCase())
-    throw Error();
+    switch(actionMessage.getNodeOrProviderCase()) {
+      default:
+      case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
+      case SetActionsMessage.NodeOrProviderCase.NODE:
+        await grpcClient.gestaltsSetActionByNode(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+          )
+        break;
+      case SetActionsMessage.NodeOrProviderCase.IDENTITY:
+        await grpcClient.gestaltsSetActionByIdentity(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        )
+        break;
+    }
   });
 
   ipcMain.handle('UntrustGestalt', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.untrustGestalt.bind(client))(
-    //   pb.StringMessage.deserializeBinary(request),
-    // )) as pb.EmptyMessage;
-    // return res.serializeBinary();
+    const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
+    switch(actionMessage.getNodeOrProviderCase()) {
+      default:
+      case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
+      case SetActionsMessage.NodeOrProviderCase.NODE:
+        await grpcClient.gestaltsUnsetActionByNode(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        )
+        break;
+      case SetActionsMessage.NodeOrProviderCase.IDENTITY:
+        await grpcClient.gestaltsUnsetActionByIdentity(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        )
+        break;
+    }
   });
 
   ipcMain.handle('GestaltIsTrusted', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    // const res = (await promisifyGrpc(client.gestaltIsTrusted.bind(client))(
-    //   pb.StringMessage.deserializeBinary(request),
-    // )) as pb.BooleanMessage;
-    // return res.serializeBinary();
+    const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
+    switch(actionMessage.getNodeOrProviderCase()) {
+      default:
+      case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
+      case SetActionsMessage.NodeOrProviderCase.NODE: {
+        const res = await grpcClient.gestaltsGetActionsByNode(
+          actionMessage,
+          await client.session.createJWTCallCredentials()
+        );
+        return res.getActionList();
+      }
+      case SetActionsMessage.NodeOrProviderCase.IDENTITY: {
+        const res = await grpcClient.gestaltsGetActionsByIdentity(
+          actionMessage,
+          await client.session.createJWTCallCredentials()
+        );
+        return res.getActionList();
+      }
+    }
   });
 
   ipcMain.handle('GetOAuthClient', async (event, request) => {
