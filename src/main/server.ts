@@ -144,12 +144,15 @@ async function setHandlers() {
 
   ipcMain.handle('start-session', async (event, request) => {
     console.log('got', request);
-    const meta2 = new grpc.Metadata();
+    const meta = new grpc.Metadata();
     //Needs the passwordfile path.
-    meta2.set('password', 'password');
+    meta.set('password', 'password');
     const emptyMessage = new clientPB.EmptyMessage();
-    console.log('meta2', meta2);
-    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta2); //FIXME: I have no idea why this isn't working, ask lucas about it.
+    console.log('meta', meta);
+    const echoMessage = new clientPB.EchoMessage();
+    echoMessage.setChallenge("Hello!");
+    // const res2 = await grpcClient.echo(echoMessage, meta);
+    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta); //FIXME: I have no idea why this isn't working, ask lucas about it.
     return res.getToken();
   });
 

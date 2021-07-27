@@ -50,6 +50,7 @@ import ConsoleSmall from "@/renderer/molecules/console/ConsoleSmall.vue";
 /** Store */
 // import { actions } from '@/renderer/store/modules/Nodes';
 import { actions, STATUS } from '@/renderer/store/modules/Agent';
+import { actions as vaultActions } from '@/renderer/store/modules/Vaults'
 
 /** Assets */
 import Action from '@/renderer/assets/action.svg';
@@ -82,6 +83,7 @@ export default defineComponent({
         console.log("STARTING SESSION...");
         await store.dispatch(actions.StartSession);
         // await store.dispatch(actions.SetStatus, STATUS.ONLINE);
+        // await store.dispatch(vaultActions.LoadVaultNames);//asd
       }
     };
   }
