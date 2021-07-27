@@ -144,12 +144,12 @@ async function setHandlers() {
 
   ipcMain.handle('start-session', async (event, request) => {
     console.log('got', request);
-    const meta = new grpc.Metadata();
+    const meta2 = new grpc.Metadata();
     //Needs the passwordfile path.
-    meta.set('password', 'password');
+    meta2.set('password', 'password');
     const emptyMessage = new clientPB.EmptyMessage();
-    console.log('meta', meta);
-    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta);
+    console.log('meta2', meta2);
+    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta2); //FIXME: I have no idea why this isn't working, ask lucas about it.
     return res.getToken();
   });
 
@@ -194,7 +194,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
-    const res = await grpcClient.nodesAdd(
+    const res = await grpcClient.nodesClaim(
       emptyMessage,
       await client.session.createJWTCallCredentials(),
     );
@@ -287,15 +287,16 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
+  //FIXME: nodesFind was removed, look into it.
   ipcMain.handle('NodesFind', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
     const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
-    await grpcClient.nodesFind(
-      nodeMessage,
-      await client.session.createJWTCallCredentials(),
-    );
+    // await grpcClient.nodesFind(
+    //   nodeMessage,
+    //   await client.session.createJWTCallCredentials(),
+    // );
     return;
   });
 
@@ -385,12 +386,9 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error('Not implemented.');
-    //
-    // const res = (await promisifyGrpc(client.trustGestalt.bind(client))(
-    //   pb.StringMessage.deserializeBinary(request),
-    // )) as pb.EmptyMessage;
-    // return res.serializeBinary();
+    const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
+    // switch(actionMessage.getNodeOrProviderCase())
+    throw Error();
   });
 
   ipcMain.handle('UntrustGestalt', async (event, request) => {
@@ -431,7 +429,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.nodesGetLocalInfo(
+    const res = await grpcClient.nodesGetLocalDetails(
       emptyMessage,
       await client.session.createJWTCallCredentials(),
     );
@@ -443,7 +441,7 @@ async function setHandlers() {
       await getAgentClient();
     }
     const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
-    const res = await grpcClient.nodesGetInfo(
+    const res = await grpcClient.nodesGetDetails(
       nodeMessage,
       await client.session.createJWTCallCredentials(),
     );
@@ -668,28 +666,28 @@ async function setHandlers() {
     // return;
   });
 
-  //FIXME, this should be removed.
   ipcMain.handle('NodesUpdateLocalInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const nodeInfoMessage = clientPB.NodeInfoMessage.deserializeBinary(request);
-    const res = await grpcClient.nodesUpdateLocalInfo(
-      nodeInfoMessage,
-      await client.session.createJWTCallCredentials(),
-    );
+    const nodeInfoMessage = clientPB.NodeDetailsMessage.deserializeBinary(request);
+    // const res = await grpcClient.nodesUpdate(
+    //   nodeInfoMessage,
+    //   await client.session.createJWTCallCredentials(),
+    // );
     return;
   });
 
+  //FIXME, this should be removed.
   ipcMain.handle('NodesUpdateInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const nodeMessage = clientPB.NodeInfoMessage.deserializeBinary(request);
-    await grpcClient.nodesUpdateInfo(
-      nodeMessage,
-      await client.session.createJWTCallCredentials(),
-    );
+    const nodeMessage = clientPB.NodeDetailsMessage.deserializeBinary(request);
+    // await grpcClient.nodesUpdateInfo(
+    //   nodeMessage,
+    //   await client.session.createJWTCallCredentials(),
+    // );
     return;
   });
 

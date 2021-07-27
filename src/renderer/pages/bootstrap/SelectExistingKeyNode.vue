@@ -75,8 +75,13 @@ export default defineComponent({
       unseal: async function() {
         console.warn("Warning, not actually starting a sesson yet.");
         store.commit('Agent/SetPassword', password);
+        console.log("STARTING AGENT");
         await store.dispatch(actions.StartAgent);
-        await store.dispatch(actions.SetStatus, STATUS.ONLINE);
+        console.log("CONNECTING...");
+        await store.dispatch(actions.Connect);
+        console.log("STARTING SESSION...");
+        await store.dispatch(actions.StartSession);
+        // await store.dispatch(actions.SetStatus, STATUS.ONLINE);
       }
     };
   }

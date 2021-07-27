@@ -2,6 +2,7 @@ import { clientPB } from '@matrixai/polykey/src/client';
 import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
 import { keynodePath } from '@/main/server';
 import type { KeynodeState } from '@matrixai/polykey/src/bootstrap';
+import { SetActionsMessage } from "@matrixai/polykey/dist/proto/js/Client_pb";
 const ipcRenderer = window.require('electron').ipcRenderer;
 
 class PolykeyClient {
@@ -121,16 +122,16 @@ class PolykeyClient {
   /// ////////////////
   //TODO: This will need to be redone later.
   static async NodesAdd(
-    request: clientPB.NodeInfoMessage.AsObject,
+    request: clientPB.NodeDetailsMessage.AsObject,
   ): Promise<void> {
-    const nodeInfoMessage = new clientPB.NodeInfoMessage();
+    const nodeInfoMessage = new clientPB.NodeDetailsMessage();
     nodeInfoMessage.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
       nodeInfoMessage.setNodeAddress(request.nodeAddress);
     }
-    if (request.apiAddress !== '') {
-      nodeInfoMessage.setApiAddress(request.apiAddress);
-    }
+    // if (request.apiAddress !== '') {
+    //   nodeInfoMessage.setApiAddress(request.apiAddress);
+    // }
     const res = clientPB.EmptyMessage.deserializeBinary(
       await ipcRenderer.invoke('NodesAdd', nodeInfoMessage.serializeBinary()),
     );
@@ -251,8 +252,8 @@ class PolykeyClient {
     return await ipcRenderer.invoke('GetOAuthClient');
   }
 
-  static async NodesGetLocalInfo(): Promise<clientPB.NodeInfoMessage.AsObject> {
-    const res = clientPB.NodeInfoMessage.deserializeBinary(
+  static async NodesGetLocalInfo(): Promise<clientPB.NodeDetailsMessage.AsObject> {
+    const res = clientPB.NodeDetailsMessage.deserializeBinary(
       await ipcRenderer.invoke('NodesGetLocalInfo'),
     );
     return res.toObject();
@@ -260,10 +261,10 @@ class PolykeyClient {
 
   static async NodesGetInfo(
     peerId: string,
-  ): Promise<clientPB.NodeInfoMessage.AsObject> {
+  ): Promise<clientPB.NodeDetailsMessage.AsObject> {
     const nodeMessage = new clientPB.NodeMessage();
     nodeMessage.setName(peerId);
-    const res = clientPB.NodeInfoMessage.deserializeBinary(
+    const res = clientPB.NodeDetailsMessage.deserializeBinary(
       await ipcRenderer.invoke('NodesGetInfo', nodeMessage.serializeBinary()),
     );
     return res.toObject();
@@ -392,18 +393,22 @@ class PolykeyClient {
   }
 
   static async TrustGestalt(
-    request: clientPB.GestaltTrustMessage,
-  ): Promise<string> {
-    throw new Error('Not implemented.');
-    // const encodedRequest = new pb.StringMessage();
-    // encodedRequest.setS(request.s);
-    // const res = pb.StringMessage.deserializeBinary(
-    //   await ipcRenderer.invoke(
-    //     'TrustGestalt',
-    //     encodedRequest.serializeBinary(),
-    //   ),
-    // );
-    // return res.getS();
+    request: clientPB.SetActionsMessage.AsObject,
+  ): Promise<void> {
+    const actionMessage = new clientPB.SetActionsMessage();
+    if (request.identity) {
+      const providerMessage = new clientPB.ProviderMessage()
+      providerMessage.setId(request.identity.id);
+      providerMessage.setMessage(request.identity.message);
+      actionMessage.setIdentity(providerMessage);
+    }
+    if (request.node){
+      const nodeMessage = new clientPB.NodeMessage();
+      nodeMessage.setName(request.node.name);
+      actionMessage.setNode(nodeMessage);
+    }
+    actionMessage.setAction(request.action);
+    ipcRenderer.invoke('TrustGestalt', actionMessage.serializeBinary());
   }
 
   static async UntrustGestalt(
@@ -598,17 +603,17 @@ class PolykeyClient {
   }
 
   static async UpdateLocalNodeInfo(
-    request: clientPB.NodeInfoMessage.AsObject,
+    request: clientPB.NodeDetailsMessage.AsObject,
   ): Promise<void> {
     throw new Error('Not implemented.');
-    const encodedRequest = new clientPB.NodeInfoMessage();
+    const encodedRequest = new clientPB.NodeDetailsMessage();
     encodedRequest.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
       encodedRequest.setNodeAddress(request.nodeAddress);
     }
-    if (request.apiAddress !== '') {
-      encodedRequest.setApiAddress(request.apiAddress);
-    }
+    // if (request.apiAddress !== '') {
+    //   encodedRequest.setApiAddress(request.apiAddress);
+    // }
     await ipcRenderer.invoke(
       'NodesUpdateLocalInfo',
       encodedRequest.serializeBinary(),
@@ -617,16 +622,16 @@ class PolykeyClient {
   }
 
   static async UpdateNodeInfo(
-    request: clientPB.NodeInfoMessage.AsObject,
+    request: clientPB.NodeDetailsMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new clientPB.NodeInfoMessage();
+    const encodedRequest = new clientPB.NodeDetailsMessage();
     encodedRequest.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
       encodedRequest.setNodeAddress(request.nodeAddress);
     }
-    if (request.apiAddress !== '') {
-      encodedRequest.setApiAddress(request.apiAddress);
-    }
+    // if (request.apiAddress !== '') {
+    //   encodedRequest.setApiAddress(request.apiAddress);
+    // }
     await ipcRenderer.invoke(
       'NodesUpdateInfo',
       encodedRequest.serializeBinary(),

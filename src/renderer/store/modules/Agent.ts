@@ -11,6 +11,7 @@ const [actionsInt, actionsExt] = makeIdentifiers('Agent', [
   'BootstrapKeynode',
   'StartAgent',
   'SetStatus',
+  'Connect',
   'StartSession',
 ]);
 
@@ -119,11 +120,17 @@ export default {
         //Agent was already running.
         commit(mutations.SetStatus, STATUS.LOCKED);
       }
-      await PolykeyClient.ConnectClient(state.keynodePath); //TODO: Make a connect to agent goober
-      await dispatch(BootstrapActions.AddEvent);
     },
     async [actionsInt.SetStatus]({ commit }, status) {
       commit(mutations.SetStatus, status);
+    },
+    async [actionsInt.Connect]({ dispatch }){
+      await PolykeyClient.ConnectClient(state.keynodePath);
+      await dispatch(
+        BootstrapActions.AddEvent,
+        { action: 'Connecting to', name: 'Client' },
+        { root: true },
+      );
     },
     async [actionsInt.StartSession]({ commit }) {
       //Here we need to do
@@ -134,6 +141,7 @@ export default {
       // 5. remove passwordFile.
       // We also need to switch the state back to locked if any GRPC call fails due to invalid session.
       await PolykeyClient.StartSession(state.password);
+      commit(mutations.SetStatus, STATUS.ONLINE);
     },
   },
   mutations: {
