@@ -1,8 +1,6 @@
-import { clientPB } from '@matrixai/polykey/src/client';
-import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
-import { keynodePath } from '@/main/server';
-import type { KeynodeState } from '@matrixai/polykey/src/bootstrap';
-import { SetActionsMessage } from "@matrixai/polykey/dist/proto/js/Client_pb";
+import { clientPB } from "@matrixai/polykey/src/client";
+import type { KeynodeState } from "@matrixai/polykey/src/bootstrap";
+
 const ipcRenderer = window.require('electron').ipcRenderer;
 
 class PolykeyClient {
@@ -132,12 +130,13 @@ class PolykeyClient {
     // if (request.apiAddress !== '') {
     //   nodeInfoMessage.setApiAddress(request.apiAddress);
     // }
-    const res = clientPB.EmptyMessage.deserializeBinary(
+    clientPB.EmptyMessage.deserializeBinary(
       await ipcRenderer.invoke('NodesAdd', nodeInfoMessage.serializeBinary()),
     );
     return;
   }
 
+  //FIXME: Is this used?
   static async AddNodeB64(peerInfoB64: string): Promise<string> {
     throw new Error('Not implemented.');
     // const res = pb.StringMessage.deserializeBinary(
@@ -167,7 +166,7 @@ class PolykeyClient {
     const providerMessage = new clientPB.ProviderMessage();
     providerMessage.setId(request.id);
     providerMessage.setMessage(request.message);
-    const res = clientPB.EmptyMessage.deserializeBinary(
+    clientPB.EmptyMessage.deserializeBinary(
       await ipcRenderer.invoke(
         'AugmentKeynode',
         providerMessage.serializeBinary(),
@@ -207,6 +206,7 @@ class PolykeyClient {
     return;
   }
 
+  //FIXME: Is this used?
   static async DeriveKey(request: clientPB.KeyMessage): Promise<void> {
     throw new Error('Not implemented.');
     // const encodedRequest = new pb.DeriveKeyMessage();
@@ -232,6 +232,7 @@ class PolykeyClient {
     return;
   }
 
+  //FIXME: Not used/implemented.
   static async FindSocialPeer(
     request: clientPB.NodeMessage,
   ): Promise<string[]> {
@@ -271,7 +272,6 @@ class PolykeyClient {
   }
 
   static async keysRootKeyPair(): Promise<clientPB.KeyPairMessage.AsObject> {
-    const emptyMessage = new clientPB.EmptyMessage();
     const res = clientPB.KeyPairMessage.deserializeBinary(
       await ipcRenderer.invoke('keysRootKeyPair'),
     );
@@ -367,13 +367,10 @@ class PolykeyClient {
     return output;
   }
 
-  static async IdentitiesGetInfo(request: clientPB.EmptyMessage): Promise<any> {
-    const emptyMessage = new clientPB.EmptyMessage();
-    const res = clientPB.EmptyMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'IdentitiesGetInfo',
-        emptyMessage.serializeBinary(),
-      ),
+  //FIXME: Should return something, look deeper.
+  static async IdentitiesGetInfo(): Promise<any> {
+    clientPB.EmptyMessage.deserializeBinary(
+      await ipcRenderer.invoke('IdentitiesGetInfo'),
     );
     return;
   }
@@ -567,11 +564,10 @@ class PolykeyClient {
   static async vaultsScan(peerId: string): Promise<string[]> {
     const vaultMessage = new clientPB.VaultMessage();
     vaultMessage.setId(peerId);
-    const res = await ipcRenderer.invoke(
+    return await ipcRenderer.invoke(
       'vaultsScan',
       vaultMessage.serializeBinary(),
     );
-    return res;
   }
 
   static async keysSign(request: clientPB.CryptoMessage): Promise<string> {
@@ -592,6 +588,7 @@ class PolykeyClient {
     // return;
   }
 
+  //FIXME: being changed, update when ready.
   static async UpdateLocalNodeInfo(
     request: clientPB.NodeDetailsMessage.AsObject,
   ): Promise<void> {

@@ -1,19 +1,13 @@
-import os from 'os';
+import os from "os";
 // import fixPath from 'fix-path'; //Broken with webpack.
-import { ipcMain, clipboard } from 'electron';
-import { PolykeyClient } from '@matrixai/polykey/src/index';
-import { GRPCClientClient } from '@matrixai/polykey/src/client';
-import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
-import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
-import { clientPB } from '@matrixai/polykey/src/client';
-import { sleep } from '../utils';
-import * as grpc from '@grpc/grpc-js';
-import {
-  bootstrapPolykeyState,
-  checkKeynodeState,
-} from '@matrixai/polykey/src/bootstrap';
-import { checkAgentRunning } from '@matrixai/polykey/src/agent/utils';
-import { spawnBackgroundAgent } from '@matrixai/polykey/src/agent/utils';
+import { clipboard, ipcMain } from "electron";
+import { PolykeyClient } from "@matrixai/polykey/src/index";
+import { clientPB, GRPCClientClient } from "@matrixai/polykey/src/client";
+import Logger, { LogLevel, StreamHandler } from "@matrixai/logger";
+import { sleep } from "@/utils";
+import * as grpc from "@grpc/grpc-js";
+import { bootstrapPolykeyState, checkKeynodeState } from "@matrixai/polykey/src/bootstrap";
+import { checkAgentRunning, spawnBackgroundAgent } from "@matrixai/polykey/src/agent/utils";
 import { SetActionsMessage } from "@matrixai/polykey/dist/proto/js/Client_pb";
 
 // fixPath(); //Broken with webpack.
@@ -76,68 +70,68 @@ async function setHandlers() {
   /// ////////////////
   // agent control //
   /// ////////////////
-  ipcMain.handle('agent-start-old', async (event, request) => {
-    //FIXME: remove this when confirmed it is un-needed.
-    const password = 'Password';
-
-    // this method has a 3 possible cases:
-    // case 1: polykey agent is not started and is started to return the pid
-    // case 2: polykey agent is already started and returns true
-    // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
-    try {
-      // phase 1: the first thing we ever do is check if the agent is running or not
-      // but we only know the agent is offline if getStatus returns an error (because its offline)
-      // so check status and if it throws we know its offline, if not we assume its online
-      console.log('connectToAgent');
-      console.log(keynodePath);
-
-      const tempClient = client.grpcClient;
-
-      console.log('getStatus');
-      if (!tempClient.started) {
-        throw Error('agent is not running');
-      }
-      // it is here that we know that the agent is running and client is initialize
-    } catch (error) {
-      try {
-        // agent is offline so we start it! //TODO, spawn the agent here.
-        console.log('startAgent');
-        const polykeyPath = getDefaultNodePath();
-
-        //Bootstrapping
-        try {
-          await bootstrapPolykeyState(polykeyPath, password); //FIXME, Do a proper bootstrap. Also breaks if Agent is already running.
-        } catch (e) {
-          console.log("Can't bootstrap state, Error: ", e.message);
-        }
-        let pid: number = 0;
-
-        //Spawning agent.
-        try {
-          pid = await spawnBackgroundAgent(polykeyPath, password); //FIXME: Return a pid or not? work out if this is used anywhere.
-        } catch (e) {
-          console.log('Problem starting agent, might already be started.');
-          console.error(e);
-        }
-        // console.log(pid);
-        await getAgentClient();
-
-        console.log('connectToAgent');
-        const tempClient = client.grpcClient;
-        // we just confirm that the agent has actually been started
-        // if not, it is most likely not initalize so we just throw the error for the frontend to handle
-        console.log('getStatus');
-        console.log('done');
-        if (!tempClient.started) {
-          throw Error('agent could not be started');
-        }
-
-        return pid;
-      } catch (error) {
-        throw Error(error.message);
-      }
-    }
-  });
+  // ipcMain.handle('agent-start-old', async (_event, _request) => {
+  //   //FIXME: remove this when confirmed it is un-needed.
+  //   const password = 'Password';
+  //
+  //   // this method has a 3 possible cases:
+  //   // case 1: polykey agent is not started and is started to return the pid
+  //   // case 2: polykey agent is already started and returns true
+  //   // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
+  //   try {
+  //     // phase 1: the first thing we ever do is check if the agent is running or not
+  //     // but we only know the agent is offline if getStatus returns an error (because its offline)
+  //     // so check status and if it throws we know its offline, if not we assume its online
+  //     console.log('connectToAgent');
+  //     console.log(keynodePath);
+  //
+  //     const tempClient = client.grpcClient;
+  //
+  //     console.log('getStatus');
+  //     if (!tempClient.started) {
+  //       throw Error('agent is not running');
+  //     }
+  //     // it is here that we know that the agent is running and client is initialize
+  //   } catch (error) {
+  //     try {
+  //       // agent is offline so we start it! //TODO, spawn the agent here.
+  //       console.log('startAgent');
+  //       const polykeyPath = getDefaultNodePath();
+  //
+  //       //Bootstrapping
+  //       try {
+  //         await bootstrapPolykeyState(polykeyPath, password); //FIXME, Do a proper bootstrap. Also breaks if Agent is already running.
+  //       } catch (e) {
+  //         console.log("Can't bootstrap state, Error: ", e.message);
+  //       }
+  //       let pid: number = 0;
+  //
+  //       //Spawning agent.
+  //       try {
+  //         pid = await spawnBackgroundAgent(polykeyPath, password); //FIXME: Return a pid or not? work out if this is used anywhere.
+  //       } catch (e) {
+  //         console.log('Problem starting agent, might already be started.');
+  //         console.error(e);
+  //       }
+  //       // console.log(pid);
+  //       await getAgentClient();
+  //
+  //       console.log('connectToAgent');
+  //       const tempClient = client.grpcClient;
+  //       // we just confirm that the agent has actually been started
+  //       // if not, it is most likely not initialize so we just throw the error for the frontend to handle
+  //       console.log('getStatus');
+  //       console.log('done');
+  //       if (!tempClient.started) {
+  //         throw Error('agent could not be started');
+  //       }
+  //
+  //       return pid;
+  //     } catch (error) {
+  //       throw Error(error.message);
+  //     }
+  //   }
+  // });
 
   ipcMain.handle('connect-client', async (event, request) => {
     return await getAgentClient(request.keynodePath);
@@ -146,7 +140,7 @@ async function setHandlers() {
   ipcMain.handle('start-session', async (event, request) => {
     console.log('got', request);
     const meta = new grpc.Metadata();
-    //Needs the passwordfile path.asd
+    //Needs the passwordFile path.asd
     meta.set('other', 'things');
     meta.add('password', 'password');
     meta.add('random', 'stuff');
@@ -172,7 +166,7 @@ async function setHandlers() {
     await bootstrapPolykeyState(request.keynodePath, request.password);
   });
 
-  ipcMain.handle('Stop-Agent', async (event, request) => {
+  ipcMain.handle('Stop-Agent', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -266,7 +260,7 @@ async function setHandlers() {
   });
 
   //FIXME: remove?
-  ipcMain.handle('DeriveKey', async (event, request) => {
+  ipcMain.handle('DeriveKey', async (_event, _request) => {
     //FIXME: Not used, Not actually a thing now?
     if (!client) {
       await getAgentClient();
@@ -303,7 +297,7 @@ async function setHandlers() {
     return;
   });
 
-  ipcMain.on('IdentityGetConnectedInfos', async (event, request) => {
+  ipcMain.on('IdentityGetConnectedInfos', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -320,11 +314,12 @@ async function setHandlers() {
     return data;
   });
 
-  ipcMain.handle('IdentitiesGetInfo', async (event, request) => {
+  //Fixme, this is a generator isn't it?
+  ipcMain.handle('IdentitiesGetInfo', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
+    const emptyMessage = new clientPB.EmptyMessage();
     const res = await grpcClient.identitiesGetInfo(
       emptyMessage,
       await client.session.createJWTCallCredentials(),
@@ -332,7 +327,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.on('IdentitiesDiscoverIdentity', async (event, request) => {
+  ipcMain.on('IdentitiesDiscoverIdentity', async (_event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -344,7 +339,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.on('GestaltsDiscoverNode', async (event, request) => {
+  ipcMain.on('GestaltsDiscoverNode', async (_event, request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -356,7 +351,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GestaltsList', async (event, request) => {
+  ipcMain.handle('GestaltsList', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -456,7 +451,7 @@ async function setHandlers() {
     }
   });
 
-  ipcMain.handle('GetOAuthClient', async (event, request) => {
+  ipcMain.handle('GetOAuthClient', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -467,7 +462,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('NodesGetLocalInfo', async (event, request) => {
+  ipcMain.handle('NodesGetLocalInfo', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -491,7 +486,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('keysRootKeyPair', async (event, request) => {
+  ipcMain.handle('keysRootKeyPair', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -503,16 +498,15 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('certsGet', async (event, request) => {
+  ipcMain.handle('certsGet', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.certsGet(
+    return grpcClient.certsGet(
       emptyMessage,
       await client.session.createJWTCallCredentials(),
     );
-    return res;
   });
 
   ipcMain.handle('vaultsGetSecret', async (event, request) => {
@@ -528,7 +522,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('ListOAuthTokens', async (event, request) => {
+  ipcMain.handle('ListOAuthTokens', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -539,7 +533,7 @@ async function setHandlers() {
     // return res.serializeBinary();
   });
 
-  ipcMain.handle('Nodes-List', async (event, request) => {
+  ipcMain.handle('Nodes-List', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -571,7 +565,7 @@ async function setHandlers() {
     return data;
   });
 
-  ipcMain.handle('vaultsList', async (event, request) => {
+  ipcMain.handle('vaultsList', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -587,7 +581,7 @@ async function setHandlers() {
     return data;
   });
 
-  ipcMain.handle('NewClientCertificate', async (event, request) => {
+  ipcMain.handle('NewClientCertificate', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -611,7 +605,7 @@ async function setHandlers() {
     return;
   });
 
-  ipcMain.handle('NewOAuthToken', async (event, request) => {
+  ipcMain.handle('NewOAuthToken', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -627,7 +621,6 @@ async function setHandlers() {
       await getAgentClient();
     }
     const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
-    const emptyMessage = new clientPB.EmptyMessage();
     const res = await grpcClient.vaultsCreate(
       vaultMessage,
       await client.session.createJWTCallCredentials(),
@@ -659,7 +652,7 @@ async function setHandlers() {
     return;
   });
 
-  ipcMain.handle('RevokeOAuthToken', async (event, request) => {
+  ipcMain.handle('RevokeOAuthToken', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -698,7 +691,7 @@ async function setHandlers() {
     return res.serializeBinary();
   });
 
-  ipcMain.handle('ToggleStealthMode', async (event, request) => {
+  ipcMain.handle('ToggleStealthMode', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
@@ -709,6 +702,7 @@ async function setHandlers() {
     // return;
   });
 
+  //FIXME:
   ipcMain.handle('NodesUpdateLocalInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
