@@ -1,4 +1,4 @@
-import { PolykeyAgent, PolykeyClient } from '@matrixai/polykey/src';
+import { PolykeyAgent, PolykeyClient } from '@matrixai/polykey/dist';
 import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 
 const nodePath = 'tmp/keynode';

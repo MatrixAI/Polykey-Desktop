@@ -1,7 +1,7 @@
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 import FileSaver from 'file-saver';
-import { clientPB } from '@matrixai/polykey/src/client';
+import { clientPB } from '@matrixai/polykey/dist/client';
 import content from '*.svg';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Secrets', [

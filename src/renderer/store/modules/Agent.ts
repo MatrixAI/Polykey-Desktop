@@ -1,7 +1,7 @@
 import PolykeyClient from '@/renderer/resources/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 import { keynodePath } from '@/main/server';
-import { getDefaultNodePath } from '@matrixai/polykey/src/utils';
+import { getDefaultNodePath } from '@matrixai/polykey/dist/utils';
 import { actions as BootstrapActions } from '@/renderer/store/modules/Bootstrap';
 const DELAY = 0;
 
@@ -124,7 +124,7 @@ export default {
     async [actionsInt.SetStatus]({ commit }, status) {
       commit(mutations.SetStatus, status);
     },
-    async [actionsInt.Connect]({ dispatch }){
+    async [actionsInt.Connect]({ dispatch }) {
       await PolykeyClient.ConnectClient(state.keynodePath);
       await dispatch(
         BootstrapActions.AddEvent,

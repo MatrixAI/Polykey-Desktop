@@ -1,14 +1,20 @@
-import os from "os";
+import os from 'os';
 // import fixPath from 'fix-path'; //Broken with webpack.
-import { clipboard, ipcMain } from "electron";
-import { PolykeyClient } from "@matrixai/polykey/src/index";
-import { clientPB, GRPCClientClient } from "@matrixai/polykey/src/client";
-import Logger, { LogLevel, StreamHandler } from "@matrixai/logger";
-import { sleep } from "@/utils";
-import * as grpc from "@grpc/grpc-js";
-import { bootstrapPolykeyState, checkKeynodeState } from "@matrixai/polykey/src/bootstrap";
-import { checkAgentRunning, spawnBackgroundAgent } from "@matrixai/polykey/src/agent/utils";
-import { SetActionsMessage } from "@matrixai/polykey/dist/proto/js/Client_pb";
+import { clipboard, ipcMain } from 'electron';
+import { PolykeyClient } from '@matrixai/polykey/dist/index';
+import { clientPB, GRPCClientClient } from '@matrixai/polykey/dist/client';
+import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
+import { sleep } from '@/utils';
+import * as grpc from '@grpc/grpc-js';
+import {
+  bootstrapPolykeyState,
+  checkKeynodeState,
+} from '@matrixai/polykey/dist/bootstrap';
+import {
+  checkAgentRunning,
+  spawnBackgroundAgent,
+} from '@matrixai/polykey/dist/agent/utils';
+import { SetActionsMessage } from '@matrixai/polykey/dist/proto/js/Client_pb';
 
 // fixPath(); //Broken with webpack.
 
@@ -70,68 +76,6 @@ async function setHandlers() {
   /// ////////////////
   // agent control //
   /// ////////////////
-  // ipcMain.handle('agent-start-old', async (_event, _request) => {
-  //   //FIXME: remove this when confirmed it is un-needed.
-  //   const password = 'Password';
-  //
-  //   // this method has a 3 possible cases:
-  //   // case 1: polykey agent is not started and is started to return the pid
-  //   // case 2: polykey agent is already started and returns true
-  //   // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
-  //   try {
-  //     // phase 1: the first thing we ever do is check if the agent is running or not
-  //     // but we only know the agent is offline if getStatus returns an error (because its offline)
-  //     // so check status and if it throws we know its offline, if not we assume its online
-  //     console.log('connectToAgent');
-  //     console.log(keynodePath);
-  //
-  //     const tempClient = client.grpcClient;
-  //
-  //     console.log('getStatus');
-  //     if (!tempClient.started) {
-  //       throw Error('agent is not running');
-  //     }
-  //     // it is here that we know that the agent is running and client is initialize
-  //   } catch (error) {
-  //     try {
-  //       // agent is offline so we start it! //TODO, spawn the agent here.
-  //       console.log('startAgent');
-  //       const polykeyPath = getDefaultNodePath();
-  //
-  //       //Bootstrapping
-  //       try {
-  //         await bootstrapPolykeyState(polykeyPath, password); //FIXME, Do a proper bootstrap. Also breaks if Agent is already running.
-  //       } catch (e) {
-  //         console.log("Can't bootstrap state, Error: ", e.message);
-  //       }
-  //       let pid: number = 0;
-  //
-  //       //Spawning agent.
-  //       try {
-  //         pid = await spawnBackgroundAgent(polykeyPath, password); //FIXME: Return a pid or not? work out if this is used anywhere.
-  //       } catch (e) {
-  //         console.log('Problem starting agent, might already be started.');
-  //         console.error(e);
-  //       }
-  //       // console.log(pid);
-  //       await getAgentClient();
-  //
-  //       console.log('connectToAgent');
-  //       const tempClient = client.grpcClient;
-  //       // we just confirm that the agent has actually been started
-  //       // if not, it is most likely not initialize so we just throw the error for the frontend to handle
-  //       console.log('getStatus');
-  //       console.log('done');
-  //       if (!tempClient.started) {
-  //         throw Error('agent could not be started');
-  //       }
-  //
-  //       return pid;
-  //     } catch (error) {
-  //       throw Error(error.message);
-  //     }
-  //   }
-  // });
 
   ipcMain.handle('connect-client', async (event, request) => {
     return await getAgentClient(request.keynodePath);
@@ -141,7 +85,7 @@ async function setHandlers() {
     console.log('got', request);
     const meta = new grpc.Metadata();
     //Needs the passwordFile path.asd
-    meta.set('other', 'things');
+    meta.add('other', 'things');
     meta.add('password', 'password');
     meta.add('random', 'stuff');
     const emptyMessage = new clientPB.EmptyMessage();
@@ -170,7 +114,7 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    throw new Error("Not implemented.");
+    throw new Error('Not implemented.');
     // await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
     // return;
   }); // FIXME, Is it needed?
@@ -385,20 +329,20 @@ async function setHandlers() {
       await getAgentClient();
     }
     const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
-    switch(actionMessage.getNodeOrProviderCase()) {
+    switch (actionMessage.getNodeOrProviderCase()) {
       default:
       case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
       case SetActionsMessage.NodeOrProviderCase.NODE:
         await grpcClient.gestaltsSetActionByNode(
           actionMessage,
           await client.session.createJWTCallCredentials(),
-          )
+        );
         break;
       case SetActionsMessage.NodeOrProviderCase.IDENTITY:
         await grpcClient.gestaltsSetActionByIdentity(
           actionMessage,
           await client.session.createJWTCallCredentials(),
-        )
+        );
         break;
     }
   });
@@ -408,20 +352,20 @@ async function setHandlers() {
       await getAgentClient();
     }
     const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
-    switch(actionMessage.getNodeOrProviderCase()) {
+    switch (actionMessage.getNodeOrProviderCase()) {
       default:
       case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
       case SetActionsMessage.NodeOrProviderCase.NODE:
         await grpcClient.gestaltsUnsetActionByNode(
           actionMessage,
           await client.session.createJWTCallCredentials(),
-        )
+        );
         break;
       case SetActionsMessage.NodeOrProviderCase.IDENTITY:
         await grpcClient.gestaltsUnsetActionByIdentity(
           actionMessage,
           await client.session.createJWTCallCredentials(),
-        )
+        );
         break;
     }
   });
@@ -431,20 +375,20 @@ async function setHandlers() {
       await getAgentClient();
     }
     const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
-    switch(actionMessage.getNodeOrProviderCase()) {
+    switch (actionMessage.getNodeOrProviderCase()) {
       default:
       case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
       case SetActionsMessage.NodeOrProviderCase.NODE: {
         const res = await grpcClient.gestaltsGetActionsByNode(
           actionMessage,
-          await client.session.createJWTCallCredentials()
+          await client.session.createJWTCallCredentials(),
         );
         return res.getActionList();
       }
       case SetActionsMessage.NodeOrProviderCase.IDENTITY: {
         const res = await grpcClient.gestaltsGetActionsByIdentity(
           actionMessage,
-          await client.session.createJWTCallCredentials()
+          await client.session.createJWTCallCredentials(),
         );
         return res.getActionList();
       }
@@ -707,7 +651,8 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const nodeInfoMessage = clientPB.NodeDetailsMessage.deserializeBinary(request);
+    const nodeInfoMessage =
+      clientPB.NodeDetailsMessage.deserializeBinary(request);
     // const res = await grpcClient.nodesUpdate(
     //   nodeInfoMessage,
     //   await client.session.createJWTCallCredentials(),

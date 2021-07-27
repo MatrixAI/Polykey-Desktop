@@ -1,6 +1,6 @@
 import PolykeyClient from '@/renderer/resources/client';
 // import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
-import { clientPB } from '@matrixai/polykey/src/client';
+import { clientPB } from '@matrixai/polykey/dist/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Gestalt', [

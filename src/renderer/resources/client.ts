@@ -1,5 +1,5 @@
-import { clientPB } from "@matrixai/polykey/src/client";
-import type { KeynodeState } from "@matrixai/polykey/src/bootstrap";
+import { clientPB } from '@matrixai/polykey/dist/client';
+import type { KeynodeState } from '@matrixai/polykey/dist/bootstrap';
 
 const ipcRenderer = window.require('electron').ipcRenderer;
 
@@ -389,7 +389,9 @@ class PolykeyClient {
     return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
-  private static constructActionMessage(request: clientPB.SetActionsMessage.AsObject) {
+  private static constructActionMessage(
+    request: clientPB.SetActionsMessage.AsObject,
+  ) {
     const actionMessage = new clientPB.SetActionsMessage();
     if (request.identity) {
       const providerMessage = new clientPB.ProviderMessage();
@@ -425,7 +427,10 @@ class PolykeyClient {
     request: clientPB.SetActionsMessage.AsObject,
   ): Promise<string[]> {
     const actionMessage = this.constructActionMessage(request);
-    return await ipcRenderer.invoke('GestaltIsTrusted', actionMessage.serializeBinary());
+    return await ipcRenderer.invoke(
+      'GestaltIsTrusted',
+      actionMessage.serializeBinary(),
+    );
   }
 
   static async ListOAuthTokens(): Promise<string[]> {
