@@ -48,7 +48,6 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "@grpc/grpc-js": "^1.2.5",
     "@matrixai/logger": "^2.0.1",
     "@matrixai/polykey": "file:../js-polykey",
     "@types/jest": "^26.0.20",

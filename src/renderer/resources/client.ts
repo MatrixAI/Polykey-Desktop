@@ -76,7 +76,6 @@ class PolykeyClient {
   static async StartSession(password: string) {
     const request = { password };
     const res = await ipcRenderer.invoke('start-session', request);
-    console.log('The token is: ', res);
     return res;
   }
 

@@ -5,7 +5,7 @@ import { PolykeyClient } from '@matrixai/polykey/dist/index';
 import { clientPB, GRPCClientClient } from '@matrixai/polykey/dist/client';
 import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
 import { sleep } from '@/utils';
-import * as grpc from '@grpc/grpc-js';
+import { createMetadata } from '@matrixai/polykey/dist/client/utils'
 import {
   bootstrapPolykeyState,
   checkKeynodeState,
@@ -83,13 +83,10 @@ async function setHandlers() {
 
   ipcMain.handle('start-session', async (event, request) => {
     console.log('got', request);
-    const meta = new grpc.Metadata();
+    const meta = createMetadata();
+    meta.add('password', request.password);
     //Needs the passwordFile path.asd
-    meta.add('other', 'things');
-    meta.add('password', 'password');
-    meta.add('random', 'stuff');
     const emptyMessage = new clientPB.EmptyMessage();
-    console.log('meta', meta);
     const res = await grpcClient.sessionRequestJWT(emptyMessage, meta); //FIXME: I have no idea why this isn't working, ask lucas about it.
     return res.getToken();
   });
