@@ -15,6 +15,7 @@ import {
   spawnBackgroundAgent,
 } from '@matrixai/polykey/dist/agent/utils';
 import { SetActionsMessage } from '@matrixai/polykey/dist/proto/js/Client_pb';
+import { SessionToken } from "@matrixai/polykey/dist/session/types";
 
 // fixPath(); //Broken with webpack.
 
@@ -82,12 +83,12 @@ async function setHandlers() {
   });
 
   ipcMain.handle('start-session', async (event, request) => {
-    console.log('got', request);
     const meta = createMetadata();
     meta.add('password', request.password);
     //Needs the passwordFile path.asd
     const emptyMessage = new clientPB.EmptyMessage();
-    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta); //FIXME: I have no idea why this isn't working, ask lucas about it.
+    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta);
+    await client.session.start({ token: res.getToken() as SessionToken });
     return res.getToken();
   });
 

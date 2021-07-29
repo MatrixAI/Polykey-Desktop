@@ -75,15 +75,15 @@ export default defineComponent({
       password,
       unseal: async function() {
         console.warn("Warning, not actually starting a sesson yet.");
-        store.commit('Agent/SetPassword', password);
+        store.commit('Agent/SetPassword', password.value);
         console.log("STARTING AGENT");
         await store.dispatch(actions.StartAgent);
         console.log("CONNECTING...");
         await store.dispatch(actions.Connect);
         console.log("STARTING SESSION...");
-        await store.dispatch(actions.StartSession);
+        await store.dispatch(actions.StartSession, password.value);
         // await store.dispatch(actions.SetStatus, STATUS.ONLINE);
-        // await store.dispatch(vaultActions.LoadVaultNames);//asd
+        // await store.dispatch(vaultActions.LoadVaultNames);
       }
     };
   }

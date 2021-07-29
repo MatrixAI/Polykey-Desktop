@@ -132,7 +132,7 @@ export default {
         { root: true },
       );
     },
-    async [actionsInt.StartSession]({ commit }) {
+    async [actionsInt.StartSession]({ commit }, password) {
       //Here we need to do
       // 1. Create a password file.
       // 2. start the session with the agent and store the token.
@@ -140,7 +140,7 @@ export default {
       // 4. set the state to online.
       // 5. remove passwordFile.
       // We also need to switch the state back to locked if any GRPC call fails due to invalid session.
-      await PolykeyClient.StartSession(state.password);
+      await PolykeyClient.StartSession(password);
       commit(mutations.SetStatus, STATUS.ONLINE);
     },
   },
