@@ -59,12 +59,12 @@ export default defineComponent({
       vaults.value = Object.keys(storeVaults)
         .map(key => {
           let vaultName = storeVaults[key];
-          if (vaultName.toUpperCase().match(searchFilter.toUpperCase())) {
+          if (vaultName.name.toUpperCase().match(searchFilter.toUpperCase())) {
             return {
               name: vaultName,
-              icon: toSvg(vaultName, 34),
-              share1: toSvg(vaultName + 'a', 22),
-              share2: toSvg(vaultName + 'b', 22)
+              icon: toSvg(vaultName.id, 34),
+              share1: toSvg(vaultName.id + 'a', 22),
+              share2: toSvg(vaultName.id + 'b', 22)
             };
           }
         })

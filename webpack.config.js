@@ -21,12 +21,12 @@ const electronMain = {
   },
   node: {
     // When in devmode, webpack needs to get it from node_modules
-    __dirname: process.env.NODE_ENV === 'development' ? true : false
+    __dirname: true,
   },
   module: {
     rules: [
       {
-        test: /\.ts?$/,
+        test: /\.tsx?$/,
         loader: 'ts-loader',
       },
       {
@@ -38,7 +38,12 @@ const electronMain = {
       {
         enforce: "pre",
         test: /\.js$/,
-        loader: "source-map-loader"
+        loader: "source-map-loader",
+        options: { //Added to filter out source map warnings for node modules.
+          filterSourceMappingUrl: (url, resourcePath) => {
+            return !/.*\/node_modules\/.*/.test(resourcePath);
+          }
+        }
       },
     ]
   },
@@ -68,6 +73,10 @@ const electronRenderer = {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json'],
     plugins: [new TsConfigPathsPlugin()]
   },
+  node: {
+    // When in devmode, webpack needs to get it from node_modules
+    __dirname: true
+  },
   module: {
     rules: [
       {
@@ -75,7 +84,7 @@ const electronRenderer = {
         loader: 'vue-loader'
       },
       {
-        test: /\.ts?$/,
+        test: /\.tsx?$/,
         loader: 'ts-loader',
         options: {
           appendTsSuffixTo: [/\.vue$/]
@@ -98,7 +107,12 @@ const electronRenderer = {
       {
         enforce: "pre",
         test: /\.js$/,
-        loader: "source-map-loader"
+        loader: "source-map-loader",
+        options: { //Added to filter out source map warnings for node modules.
+          filterSourceMappingUrl: (url, resourcePath) => {
+            return !/.*\/node_modules\/.*/.test(resourcePath);
+          }
+        }
       },
       {
         test: /\.svg$/,
@@ -111,7 +125,13 @@ const electronRenderer = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/renderer/index.html'
+      template: 'src/renderer/index.ejs',
+      inject: 'body',
+      xhtml: true,
+      filename: 'index.html',
+      templateParameters: {
+        title: 'Polykey'
+      }
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({

@@ -50,32 +50,32 @@ rec {
       npm install
     '';
   });
-  electronVersion = "12.0.0";
+  electronVersion = "12.0.9";
   electronBuilds = {
-    "12.0.0" = {
+    "12.0.9" = {
       "linux-x64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-linux-x64.zip";
-        sha256 = "1wciz9bzzng390iw49l3g64c6pjmq8mvfp526qz7h3jh107ahcni";
+        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-linux-x64.zip";
+        sha256 = "0vbg2b1lr7l2l2f6b3vr40wq8mmrv3wipjp6ribbzlr0yxrsic1s";
       };
       "linux-ia32" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-linux-ia32.zip";
-        sha256 = "10wl7c8vmylrn63md13024skikz2yx3361ddqrhciy2px0v1hrbr";
+        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-linux-ia32.zip";
+        sha256 = "1rn6ws7gqd2wb3rdh2lajmn1574n1mzjshxfqcbx96kp4wxmnh1p";
       };
       "win32-x64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-win32-x64.zip";
-        sha256 = "0xwhvm2z7d6qd0724dp7hj0vb3iicxkrmm4fx91kdz3sgsaddcaj";
+        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-win32-x64.zip";
+        sha256 = "0x62k8adc372d22zx4f32msccfpddl74ccfmvdbipn8283wzis9s";
       };
       "win32-ia32" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-win32-ia32.zip";
-        sha256 = "0pdfikcmwl7amm0gij0asn61widfdrqrb8f4gy53h2a75zh4j7nj";
+        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-win32-ia32.zip";
+        sha256 = "0v9rqr1y5516mwk8lpwn5d11rcrv234529nfg3b826q797b1ylbr";
       };
       "darwin-x64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-darwin-x64.zip";
-        sha256 = "1hmglyq9ndw18s90b8kwizh21f7vhny00bkng6kd2qyc1vn6sm0q";
+        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-darwin-x64.zip";
+        sha256 = "0wn86xbrddlh0zmy2x3rh9vh4dywb94a7iai8jskcz4fymwf7wdk";
       };
       "darwin-arm64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.0/electron-v12.0.0-darwin-arm64.zip";
-        sha256 = "17nn5rg4rf1y9rn7hf1bmmlr6dc9vqfd8ypv82kghh2lhm25hlf6";
+        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-darwin-arm64.zip";
+        sha256 = "1sys643ng4bj65kxhlhibcs1f0mgar6p3sw22600vsh560asi2nb";
       };
     };
   };

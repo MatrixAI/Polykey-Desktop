@@ -1,35 +1,56 @@
 import os from 'os';
-import fixPath from 'fix-path';
-import { ipcMain, clipboard } from 'electron';
-import { PolykeyAgent, promisifyGrpc } from '@matrixai/polykey';
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
-import { AgentClient } from '@matrixai/polykey/dist/proto/js/Agent_grpc_pb';
-import { getDefaultNodePath } from './utils';
+// import fixPath from 'fix-path'; //Broken with webpack.
+import { clipboard, ipcMain } from 'electron';
+import { PolykeyClient } from '@matrixai/polykey/dist/index';
+import { clientPB, GRPCClientClient } from '@matrixai/polykey/dist/client';
+import Logger, { LogLevel, StreamHandler } from '@matrixai/logger';
+import { sleep } from '@/utils';
+import { createMetadata } from '@matrixai/polykey/dist/client/utils'
+import {
+  bootstrapPolykeyState,
+  checkKeynodeState,
+} from '@matrixai/polykey/dist/bootstrap';
+import {
+  checkAgentRunning,
+  spawnBackgroundAgent,
+} from '@matrixai/polykey/dist/agent/utils';
+import { SetActionsMessage } from '@matrixai/polykey/dist/proto/js/Client_pb';
+import { SessionToken } from "@matrixai/polykey/dist/session/types";
 
-fixPath();
+// fixPath(); //Broken with webpack.
 
 /** This will default for now */
-const polykeyPath = getDefaultNodePath();
-let client: AgentClient;
+let keynodePath: string; //getDefaultNodePath();
+let client: PolykeyClient;
+let grpcClient: GRPCClientClient;
 
-async function getAgentClient(failOnNotInitialized = false) {
+//TODO, could be wrong, fix this up. functions for now.
+async function getAgentClient(nodePath?: string, failOnNotInitialized = false) {
   // make sure agent is running
   console.log('starting....');
-  console.log(polykeyPath);
+  console.log('Node path: ', nodePath);
+  if (nodePath) keynodePath = nodePath;
+  console.log('keynode path: ', keynodePath);
+  if (keynodePath === undefined) throw Error('No node path set.');
 
-  await PolykeyAgent.startAgent(polykeyPath, true, failOnNotInitialized, true);
+  const clientConfig = {};
+  clientConfig['logger'] = new Logger('CLI Logger', LogLevel.WARN, [
+    new StreamHandler(),
+  ]);
+  clientConfig['logger'].setLevel(LogLevel.DEBUG);
+  clientConfig['nodePath'] = keynodePath;
 
-  console.log('done starting agent..');
-  client = PolykeyAgent.connectToAgent(polykeyPath);
-
-  const res = (await promisifyGrpc(client.getStatus.bind(client))(
-    new pb.EmptyMessage(),
-  )) as pb.AgentStatusMessage;
-  console.log(res.getStatus());
-
-  if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
+  // Temp so we can check it started properly before using it.
+  const tmpClient = new PolykeyClient(clientConfig);
+  await tmpClient.start({});
+  const tmpGrpcClient = tmpClient.grpcClient;
+  if (!tmpGrpcClient.started) {
+    await tmpClient.stop();
     throw Error('agent is not running and could not be restarted');
   }
+  client = tmpClient;
+  grpcClient = tmpGrpcClient;
+  console.log('done starting agent..');
 }
 
 function resolveTilde(filePath: string) {
@@ -56,79 +77,66 @@ async function setHandlers() {
   /// ////////////////
   // agent control //
   /// ////////////////
-  ipcMain.handle('agent-start', async (event, request) => {
-    // this method has a 3 possible cases:
-    // case 1: polykey agent is not started and is started to return the pid
-    // case 2: polykey agent is already started and returns true
-    // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
-    try {
-      // phase 1: the first thing we ever do is check if the agent is running or not
-      // but we only know the agent is offline if getStatus returns an error (because its offline)
-      // so check status and if it throws we know its offline, if not we assume its online
-      console.log('connectToAgent');
-      console.log(polykeyPath);
-      const tempClient = PolykeyAgent.connectToAgent(
-        polykeyPath,
-      ) as AgentClient;
 
-      console.log('getStatus');
-      const res = (await promisifyGrpc(tempClient.getStatus.bind(tempClient))(
-        new pb.EmptyMessage(),
-      )) as pb.AgentStatusMessage;
-      console.log('done2');
-      if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
-        throw Error('agent is not running');
-      }
-      // it is here that we know that the agent is running and client is initialize
-    } catch (error) {
-      try {
-        // agent is offline so we start it!
-        console.log('startAgent');
-        const pid = await PolykeyAgent.startAgent(
-          polykeyPath,
-          true,
-          true,
-          true,
-        );
-        console.log('connectToAgent');
-        const tempClient = PolykeyAgent.connectToAgent(polykeyPath);
-        // we just confirm that the agent has actually been started
-        // if not, it is most likely not initalize so we just throw the error for the frontend to handle
-        console.log('getStatus');
-        const res = (await promisifyGrpc(tempClient.getStatus.bind(tempClient))(
-          new pb.EmptyMessage(),
-        )) as pb.AgentStatusMessage;
-        console.log('done');
-        if (res.getStatus() !== pb.AgentStatusType.ONLINE) {
-          throw Error('agent could not be started');
-        }
-        return pid;
-      } catch (error) {
-        throw Error(error.message);
-      }
+  ipcMain.handle('connect-client', async (event, request) => {
+    return await getAgentClient(request.keynodePath);
+  });
+
+  ipcMain.handle('start-session', async (event, request) => {
+    const meta = createMetadata();
+    meta.add('password', request.password);
+    //Needs the passwordFile path.asd
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = await grpcClient.sessionRequestJWT(emptyMessage, meta);
+    await client.session.start({ token: res.getToken() as SessionToken });
+    return res.getToken();
+  });
+
+  ipcMain.handle('check-agent', async (event, request) => {
+    return await checkAgentRunning(request.keynodePath);
+  });
+
+  ipcMain.handle('spawn-agent', async (event, request) => {
+    return await spawnBackgroundAgent(request.keynodePath, request.password);
+  });
+
+  ipcMain.handle('check-keynode-state', async (event, request) => {
+    return await checkKeynodeState(request.keynodePath);
+  });
+
+  ipcMain.handle('bootstrap-keynode', async (event, request) => {
+    await bootstrapPolykeyState(request.keynodePath, request.password);
+  });
+
+  ipcMain.handle('Stop-Agent', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
     }
-  });
+    throw new Error('Not implemented.');
+    // await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
+    // return;
+  }); // FIXME, Is it needed?
 
-  ipcMain.handle('agent-restart', async (event, request) => {
-    const client = PolykeyAgent.connectToAgent(polykeyPath);
-    await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
-    const pid = <number>(
-      await PolykeyAgent.startAgent(polykeyPath, true, false, true)
-    );
-    await getAgentClient();
-    return pid;
-  });
+  // ipcMain.handle('agent-restart', async (event, request) => {
+  //   await client.stop();
+  //   await client.start({});
+  //   const pid = 0; //FIXME: return pid or not?
+  //   return pid;
+  // });
 
   /// /////////////////
   // agent handlers //
   /// /////////////////
-  ipcMain.handle('AddPeer', async (event, request) => {
+  //TODO: This will need to be redone later.
+  ipcMain.handle('NodesAdd', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.addNode.bind(client))(
-      pb.NodeInfoReadOnlyMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const emptyMessage = clientPB.EmptyMessage.deserializeBinary(request);
+    const res = await grpcClient.nodesClaim(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -136,176 +144,181 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.authenticateProvider.bind(client))(
-      pb.AuthenticateProviderRequest.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.identitiesAuthenticate(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    // return res.serializeBinary(); //TODO FIXME, is a generator.
+  });
+
+  ipcMain.handle('IdentitiesAugmentKeynode', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.identitiesAugmentKeynode(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('AugmentKeynode', async (event, request) => {
+  ipcMain.handle('KeysDecrypt', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.augmentKeynode.bind(client))(
-      pb.AugmentKeynodeRequest.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysDecrypt(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('DecryptFile', async (event, request) => {
+  ipcMain.handle('vaultsDeleteSecret', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.decryptFile.bind(client))(
-      pb.DecryptFileMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const vaultSpecificMessage =
+      clientPB.VaultSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsDeleteSecret(
+      vaultSpecificMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    return;
+  });
+
+  ipcMain.handle('vaultsDelete', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsDelete(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('DeleteKey', async (event, request) => {
+  //FIXME: remove?
+  ipcMain.handle('DeriveKey', async (_event, _request) => {
+    //FIXME: Not used, Not actually a thing now?
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.deleteKey.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    );
-    return;
+    throw new Error('Not implemented.');
+    // await promisifyGrpc(client.deriveKey.bind(client))(
+    //   pb.DeriveKeyMessage.deserializeBinary(request),
+    // );
+    // return;
   });
 
-  ipcMain.handle('DeleteSecret', async (event, request) => {
+  ipcMain.handle('keysEncrypt', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.deleteSecret.bind(client))(
-      pb.SecretPathMessage.deserializeBinary(request),
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysEncrypt(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
     );
-    return;
-  });
-
-  ipcMain.handle('DeleteVault', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.deleteVault.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('DeriveKey', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.deriveKey.bind(client))(
-      pb.DeriveKeyMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('EncryptFile', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.encryptFile.bind(client))(
-      pb.EncryptFileMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
     return res.serializeBinary();
   });
 
-  ipcMain.handle('FindPeer', async (event, request) => {
+  //FIXME: nodesFind was removed, look into it.
+  ipcMain.handle('NodesFind', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.findNode.bind(client))(
-      pb.ContactNodeMessage.deserializeBinary(request),
-    );
+    const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
+    // await grpcClient.nodesFind(
+    //   nodeMessage,
+    //   await client.session.createJWTCallCredentials(),
+    // );
     return;
   });
 
-  ipcMain.on('GetConnectedIdentityInfos-message', async (event, request) => {
+  ipcMain.on('IdentityGetConnectedInfos', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    const responseStream = client.getConnectedIdentityInfos(
-      pb.ProviderSearchMessage.deserializeBinary(request),
-    );
-
-    responseStream.on('data', async (identityInfo: pb.IdentityInfoMessage) => {
-      console.log('recieving data');
-      event.reply(
-        'GetConnectedIdentityInfos-reply',
-        identityInfo.serializeBinary(),
+    const providerSearchMessage = new clientPB.ProviderSearchMessage();
+    const connectedIdentitiesList =
+      await grpcClient.identitiesGetConnectedInfos(
+        providerSearchMessage,
+        await client.session.createJWTCallCredentials(),
       );
-    });
-
-    // responseStream.on('error', () => {});
-    // responseStream.on('end', () => {});
+    const data: Array<Uint8Array> = [];
+    // for await (const identity of connectedIdentitiesList) { FIXME: generator?
+    //   data.push(identity.serializeBinary());
+    // }
+    return data;
   });
 
-  ipcMain.handle('GetIdentityInfo', async (event, request) => {
+  //Fixme, this is a generator isn't it?
+  ipcMain.handle('IdentitiesGetInfo', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getIdentityInfo.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.IdentityInfo;
-
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = await grpcClient.identitiesGetInfo(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.on('DiscoverGestaltIdentity-message', async (event, request) => {
+  ipcMain.on('IdentitiesDiscoverIdentity', async (_event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const responseStream = client.discoverGestaltIdentity(
-      pb.IdentityMessage.deserializeBinary(request),
+    const gestaltMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.gestaltsDiscoverIdentity(
+      gestaltMessage,
+      await client.session.createJWTCallCredentials(),
     );
-
-    responseStream.on('data', async () => {
-      const res = (await promisifyGrpc(client.getGestalts.bind(client))(
-        new pb.EmptyMessage(),
-      )) as pb.GestaltListMessage;
-      event.reply('DiscoverGestaltIdentity-reply', res.serializeBinary());
-    });
-    // responseStream.on('error', () => {});
-    // responseStream.on('end', () => {});
-  });
-
-  ipcMain.on('DiscoverGestaltNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const responseStream = client.discoverGestaltNode(
-      pb.IdentityMessage.deserializeBinary(request),
-    );
-
-    responseStream.on('data', async () => {
-      const res = (await promisifyGrpc(client.getGestalts.bind(client))(
-        new pb.EmptyMessage(),
-      )) as pb.GestaltListMessage;
-      event.reply(res.serializeBinary());
-    });
-    // responseStream.on('error', () => {});
-    // responseStream.on('end', () => {});
-  });
-
-  ipcMain.handle('GetGestalts', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.getGestalts.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.GestaltListMessage;
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetGestaltByIdentity', async (event, request) => {
+  ipcMain.on('GestaltsDiscoverNode', async (_event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getGestaltByIdentity.bind(client))(
-      pb.IdentityMessage.deserializeBinary(request),
-    )) as pb.GestaltMessage;
+    const gestaltMessage = clientPB.GestaltMessage.deserializeBinary(request);
+    const res = await grpcClient.gestaltsDiscoverNode(
+      gestaltMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    return res.serializeBinary();
+  });
+
+  ipcMain.handle('GestaltsList', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const emptyMessage = new clientPB.EmptyMessage();
+    const knownGestalts = await grpcClient.gestaltsList(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+
+    const data: Array<Uint8Array> = [];
+    for await (const gestalt of knownGestalts) {
+      data.push(gestalt.serializeBinary());
+    }
+    return data;
+  });
+
+  ipcMain.handle('GestaltsGetIdentity', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    const res = await grpcClient.gestaltsGetIdentitiy(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
@@ -313,348 +326,398 @@ async function setHandlers() {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.trustGestalt.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.EmptyMessage;
-    return res.serializeBinary();
+    const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
+    switch (actionMessage.getNodeOrProviderCase()) {
+      default:
+      case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
+      case SetActionsMessage.NodeOrProviderCase.NODE:
+        await grpcClient.gestaltsSetActionByNode(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        );
+        break;
+      case SetActionsMessage.NodeOrProviderCase.IDENTITY:
+        await grpcClient.gestaltsSetActionByIdentity(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        );
+        break;
+    }
   });
 
   ipcMain.handle('UntrustGestalt', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.untrustGestalt.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.EmptyMessage;
-    return res.serializeBinary();
+    const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
+    switch (actionMessage.getNodeOrProviderCase()) {
+      default:
+      case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
+      case SetActionsMessage.NodeOrProviderCase.NODE:
+        await grpcClient.gestaltsUnsetActionByNode(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        );
+        break;
+      case SetActionsMessage.NodeOrProviderCase.IDENTITY:
+        await grpcClient.gestaltsUnsetActionByIdentity(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        );
+        break;
+    }
   });
 
   ipcMain.handle('GestaltIsTrusted', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.gestaltIsTrusted.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.BooleanMessage;
+    const actionMessage = clientPB.SetActionsMessage.deserializeBinary(request);
+    switch (actionMessage.getNodeOrProviderCase()) {
+      default:
+      case SetActionsMessage.NodeOrProviderCase.NODE_OR_PROVIDER_NOT_SET: //Should throw an error.
+      case SetActionsMessage.NodeOrProviderCase.NODE: {
+        const res = await grpcClient.gestaltsGetActionsByNode(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        );
+        return res.getActionList();
+      }
+      case SetActionsMessage.NodeOrProviderCase.IDENTITY: {
+        const res = await grpcClient.gestaltsGetActionsByIdentity(
+          actionMessage,
+          await client.session.createJWTCallCredentials(),
+        );
+        return res.getActionList();
+      }
+    }
+  });
+
+  ipcMain.handle('GetOAuthClient', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    throw new Error('Not implemented.');
+    // const res = (await promisifyGrpc(client.getOAuthClient.bind(client))(
+    //   new pb.EmptyMessage(),
+    // )) as pb.OAuthClientMessage;
+    // return res.serializeBinary();
+  });
+
+  ipcMain.handle('NodesGetLocalInfo', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = await grpcClient.nodesGetLocalDetails(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetOAuthClient', async (event, request) => {
+  ipcMain.handle('NodesGetInfo', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getOAuthClient.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.OAuthClientMessage;
+    const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
+    const res = await grpcClient.nodesGetDetails(
+      nodeMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetKey', async (event, request) => {
+  ipcMain.handle('keysRootKeyPair', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getKey.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    const emptyMessage = new clientPB.EmptyMessage();
+    const res = await grpcClient.keysRootKeyPair(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetLocalPeerInfo', async (event, request) => {
+  ipcMain.handle('certsGet', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getLocalNodeInfo.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.NodeInfoMessage;
+    const emptyMessage = new clientPB.EmptyMessage();
+    return grpcClient.certsGet(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+  });
+
+  ipcMain.handle('vaultsGetSecret', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const vaultSpecificMessage =
+      clientPB.VaultSpecificMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsGetSecret(
+      vaultSpecificMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetPeerInfo', async (event, request) => {
+  ipcMain.handle('ListOAuthTokens', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getNodeInfo.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.NodeInfoMessage;
+    throw new Error('Not implemented.');
+    // const res = (await promisifyGrpc(client.listOAuthTokens.bind(client))(
+    //   new pb.EmptyMessage(),
+    // )) as pb.StringListMessage;
+    // return res.serializeBinary();
+  });
+
+  ipcMain.handle('Nodes-List', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const emptyMessage = await clientPB.EmptyMessage;
+    const nodesListGenerator = grpcClient.vaultsListSecrets(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    const data: Array<Uint8Array> = [];
+    for await (const node of nodesListGenerator) {
+      data.push(node.serializeBinary());
+    }
+    return data;
+  });
+
+  ipcMain.handle('vaultsListSecrets', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const vaultMessage = await clientPB.VaultMessage.deserializeBinary(request);
+    const secretListGenerator = grpcClient.vaultsListSecrets(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    const data: Array<Uint8Array> = [];
+    for await (const vault of secretListGenerator) {
+      data.push(vault.serializeBinary());
+    }
+    return data;
+  });
+
+  ipcMain.handle('vaultsList', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const emptyMessage = new clientPB.EmptyMessage();
+    const vaultListGenerator = await grpcClient.vaultsList(
+      emptyMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    const data: Array<Uint8Array> = [];
+    for await (const vault of vaultListGenerator) {
+      data.push(vault.serializeBinary());
+    }
+    return data;
+  });
+
+  ipcMain.handle('NewClientCertificate', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    throw new Error('Not implemented.');
+    // const res = (await promisifyGrpc(client.newClientCertificate.bind(client))(
+    //   pb.NewClientCertificateMessage.deserializeBinary(request),
+    // )) as pb.NewClientCertificateMessage;
+    // return res.serializeBinary();
+  });
+
+  ipcMain.handle('vaultsNewSecret', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const vaultMessage =
+      clientPB.VaultSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsNewSecret(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    ); //NOTE: not returning success?
+    return;
+  });
+
+  ipcMain.handle('NewOAuthToken', async (_event, _request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    throw new Error('Not implemented.');
+    // const res = (await promisifyGrpc(client.newOAuthToken.bind(client))(
+    //   pb.NewOAuthTokenMessage.deserializeBinary(request),
+    // )) as pb.StringMessage;
+    // return res.serializeBinary();
+  });
+
+  ipcMain.handle('vaultsCreate', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const res = await grpcClient.vaultsCreate(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('GetPrimaryKeyPair', async (event, request) => {
+  ipcMain.handle('NodesPing', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.getPrimaryKeyPair.bind(client))(
-      pb.BooleanMessage.deserializeBinary(request),
-    )) as pb.KeyPairMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('GetRootCertificate', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.getRootCertificate.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.StringMessage;
-    return res.getS();
-  });
-
-  ipcMain.handle('GetSecret', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.getSecret.bind(client))(
-      pb.SecretPathMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('GetStatus', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.getStatus.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.AgentStatusMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('ListOAuthTokens', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.listOAuthTokens.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.StringListMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('ListKeys', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.listKeys.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.StringListMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('ListPeers', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.listNodes.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.StringListMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('ListSecrets', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.listSecrets.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.StringListMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('ListVaults', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.listVaults.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.StringListMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('LockNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    (await promisifyGrpc(client.lockNode.bind(client))(
-      new pb.EmptyMessage(),
-    )) as pb.EmptyMessage;
-  });
-
-  ipcMain.handle('NewClientCertificate', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.newClientCertificate.bind(client))(
-      pb.NewClientCertificateMessage.deserializeBinary(request),
-    )) as pb.NewClientCertificateMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('InitializeKeyNode', async (event, request) => {
-    await getAgentClient(false);
-    await promisifyGrpc(client.initializeNode.bind(client))(
-      pb.NewKeyPairMessage.deserializeBinary(request),
+    const nodeMessage = clientPB.NodeMessage.deserializeBinary(request);
+    await grpcClient.nodesPing(
+      nodeMessage,
+      await client.session.createJWTCallCredentials(),
     );
     return;
   });
 
-  ipcMain.handle('NewSecret', async (event, request) => {
+  ipcMain.handle('vaultsPull', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.newSecret.bind(client))(
-      pb.SecretContentMessage.deserializeBinary(request),
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    await grpcClient.vaultsPull(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
     );
     return;
   });
 
-  ipcMain.handle('NewOAuthToken', async (event, request) => {
+  ipcMain.handle('RevokeOAuthToken', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    const res = (await promisifyGrpc(client.newOAuthToken.bind(client))(
-      pb.NewOAuthTokenMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
+    throw new Error('Not implemented.');
+    // await promisifyGrpc(client.revokeOAuthToken.bind(client))(
+    //   pb.StringMessage.deserializeBinary(request),
+    // );
+    // return;
+  });
+
+  ipcMain.handle('vaultsScan', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const vaultMessage = clientPB.VaultMessage.deserializeBinary(request);
+    const vaultListGenerator = grpcClient.vaultsScan(
+      vaultMessage,
+      await client.session.createJWTCallCredentials(),
+    );
+    const data: Array<string> = [];
+    for await (const vault of vaultListGenerator) {
+      data.push(`${vault.getName()}`);
+    }
+    return data;
+  });
+
+  ipcMain.handle('keysSign', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysSign(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
+    );
     return res.serializeBinary();
   });
 
-  ipcMain.handle('NewVault', async (event, request) => {
+  ipcMain.handle('ToggleStealthMode', async (_event, _request) => {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.newVault.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
+    throw new Error('Not implemented.');
+    // await promisifyGrpc(client.toggleStealthMode.bind(client))(
+    //   pb.BooleanMessage.deserializeBinary(request),
+    // );
+    // return;
+  });
+
+  //FIXME:
+  ipcMain.handle('NodesUpdateLocalInfo', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const nodeInfoMessage =
+      clientPB.NodeDetailsMessage.deserializeBinary(request);
+    // const res = await grpcClient.nodesUpdate(
+    //   nodeInfoMessage,
+    //   await client.session.createJWTCallCredentials(),
+    // );
+    return;
+  });
+
+  //FIXME, this should be removed.
+  ipcMain.handle('NodesUpdateInfo', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const nodeMessage = clientPB.NodeDetailsMessage.deserializeBinary(request);
+    // await grpcClient.nodesUpdateInfo(
+    //   nodeMessage,
+    //   await client.session.createJWTCallCredentials(),
+    // );
+    return;
+  });
+
+  ipcMain.handle('vaultsEditSecret', async (event, request) => {
+    if (!client) {
+      await getAgentClient();
+    }
+    const secretSpecificMessage =
+      clientPB.SecretSpecificMessage.deserializeBinary(request);
+    await grpcClient.vaultsEditSecret(
+      secretSpecificMessage,
+      await client.session.createJWTCallCredentials(),
     );
     return;
   });
 
-  ipcMain.handle('PingPeer', async (event, request) => {
+  ipcMain.handle('keysVerify', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.pingNode.bind(client))(
-      pb.ContactNodeMessage.deserializeBinary(request),
+    const cryptoMessage = clientPB.CryptoMessage.deserializeBinary(request);
+    const res = await grpcClient.keysVerify(
+      cryptoMessage,
+      await client.session.createJWTCallCredentials(),
     );
-    return;
-  });
-
-  ipcMain.handle('PullVault', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.pullVault.bind(client))(
-      pb.VaultPathMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('RevokeOAuthToken', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.revokeOAuthToken.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('ScanVaultNames', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.scanVaultNames.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
-    )) as pb.StringListMessage;
     return res.serializeBinary();
-  });
-
-  ipcMain.handle('SignFile', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    const res = (await promisifyGrpc(client.signFile.bind(client))(
-      pb.SignFileMessage.deserializeBinary(request),
-    )) as pb.StringMessage;
-    return res.serializeBinary();
-  });
-
-  ipcMain.handle('StopAgent', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.stopAgent.bind(client))(new pb.EmptyMessage());
-    return;
-  });
-
-  ipcMain.handle('ToggleStealthMode', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.toggleStealthMode.bind(client))(
-      pb.BooleanMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('UnlockNode', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.unlockNode.bind(client))(
-      pb.UnlockNodeMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('UpdateLocalPeerInfo', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.updateLocalNodeInfo.bind(client))(
-      pb.NodeInfoMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('UpdatePeerInfo', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.updateNodeInfo.bind(client))(
-      pb.NodeInfoReadOnlyMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('UpdateSecret', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.updateSecret.bind(client))(
-      pb.SecretContentMessage.deserializeBinary(request),
-    );
-    return;
-  });
-
-  ipcMain.handle('VerifyFile', async (event, request) => {
-    if (!client) {
-      await getAgentClient();
-    }
-    await promisifyGrpc(client.verifyFile.bind(client))(
-      pb.VerifyFileMessage.deserializeBinary(request),
-    );
-    return;
   });
 
   /** Test handlers */
-  ipcMain.handle('SetIdentity', async (event, request) => {
+  ipcMain.handle('GestaltsSetIdentity', async (event, request) => {
     if (!client) {
       await getAgentClient();
     }
-    await promisifyGrpc(client.setIdentity.bind(client))(
-      pb.StringMessage.deserializeBinary(request),
+    const providerMessage = clientPB.ProviderMessage.deserializeBinary(request);
+    await grpcClient.gestaltsGetIdentitiy(
+      providerMessage,
+      await client.session.createJWTCallCredentials(),
     );
     return;
+  });
+
+  // Testing a stream response.
+  ipcMain.on('stream-test', async (event, arg) => {
+    console.log(arg);
+    for (let i = 0; i < arg; i++) {
+      event.reply(i);
+      await sleep(1000);
+    }
   });
 }
 
 export default setHandlers;
-export { polykeyPath };
+export { keynodePath };

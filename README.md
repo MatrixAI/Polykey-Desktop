@@ -1,5 +1,7 @@
 # Polykey
 
+[![pipeline status](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/commits/master)
+
 Polykey is a distributed secret sharing system. It helps you manage your
 secrets, passwords, API keys and more. It is designed for both managing
 personal secrets and infrastructural secrets. This means it can be used
@@ -108,6 +110,50 @@ npm run lint
 npm run lintfix
 ```
 
+#### Linking local code for testing.
+For temporary scaffolding of working with client-refactoring branch of js-polykey use this technique:
+npm install --save-dev ../js-polykey
+This will create a symlink inside the node_modules pointing to js-polykey project.
+This allows us to do things like:
+```ts
+import GRPCClient from '@matrixai/polykey/src/grpc/GRPCClient';
+
+async function main () {
+  console.log(GRPCClient);
+}
+
+main();
+```
+
+Notice that I'm importing from the @matrixai/polykey/src/ and not from dist nor are we just doing @matrixai/polykey directly.
+This is because the dist build might not be working inside js-polykey branch, and we just want to test out source code quickly.
+Then afterwards just use:
+`npm run ts-node -- ./test.ts`
+Assuming that was put into ./test.ts.
+
+#### Other development notes.
+##### Level down conflict.
+The module `level` used in js-polykey conflicts with how webpack builds things.
+You need to make sure the webpack config contains
+```js
+  node: { // When in devmode, webpack needs to get it from node_modules
+    __dirname: true,
+    __filename: true,
+  }
+```
+
+##### Source map warnings on node_modules
+Some modules may be missing source mappings and this will clutter the compile output with warnings.
+We can filter out the warnings by adding the following options to the `webpack.config.js`
+```js
+test: /\.js$/,
+loader: "source-map-loader",
+options: { //Added to filter out source map warnings for node modules.
+  filterSourceMappingUrl: (url, resourcePath) => {
+    return !/.*\/node_modules\/.*/.test(resourcePath);
+  }
+}
+```
 
 ### Building the releases:
 ```
@@ -134,3 +180,97 @@ nix-env -f ./release.nix --install --attr application
 4. npx tsc -p tsconfig-electron.json
 5. npm run make:mac
 6. electron-packager ./dist Polykey --out=out/win --platform=win32 --arch=x64 --icon=icons/icons/win/icon.ico
+
+
+### Tests
+We are using Jest for the testing.
+There were a few changes that were made to get jest working with Polukey.
+
+#### Testing vue.
+For general Vue testing we need the `@vue/test-utils` package.
+```js
+//package.json
+"devDependencies": {
+  "@vue/test-utils": "^2.0.0-beta.14",
+}
+```
+In testing we can use this to mount components and test them via.
+```ts
+import { mount } from '@vue/test-utils';
+import Antd from 'ant-design-vue';
+import DefaultButton from '@/renderer/atoms/button/DefaultButton.vue'
+
+describe('DefaultButton component', () => {
+  const wrapper = mount(DefaultButton, {  //Mounts the component
+    global: {
+      plugins: [Antd],
+    },
+    props: {},
+  });
+  test('Exists.', async () => {
+    expect(wrapper.exists()).toBe(true); //We can use the wrapper to interact with the component.
+    // clicking elements
+    await wrapper.trigger('click') //Clicking
+    // we can get elements to trigger with
+    const button = wrapper.get('data-test=button-to-test');
+    await button.trigger('click');
+    // but for this the button needs the attribute data-test="button-to-test"
+    //I will provide a better example. soon.
+  });
+});
+```
+
+#### Issues
+Issues and their fixes as follows.
+
+##### importing Ant-design-vue
+To avoid warnings when using ant-design-vue the following changes were made to the jest.config.js
+```js
+//The lines were added.
+const transformIgnorePatterns = [
+  '/dist/',
+  // Ignore modules without es dir.
+  // Update: @babel/runtime should also be transformed
+  // 'node_modules/(?!.*(@babel|lodash-es))',
+  'node_modules/(?!@ant-design/icons-vue|@ant-design/icons-svg|lodash-es)/',
+];
+module.exports = {
+  //...
+  transformIgnorePatterns,
+}
+```
+
+##### Tansforms for babel and SVG
+We needed to add a transform for .js files, so `babel-jest` was added.
+In the package.json file
+```js
+//package.json
+"devDependencies": {
+    //...
+    //for babel
+    "@babel/preset-env": "^7.13.10",
+    "babel-jest": "^26.6.3",
+    //...
+    //For SVG and other imports
+    "jest-transform-stub": "^2.0.0",
+}
+```
+Added a babel.config.js file
+```js
+//babel.config.js
+module.exports = {
+  presets: ['@babel/preset-env'],
+};
+```
+Added a line to jest.config.js
+```js
+//jest.config.js
+module.exports = {
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest',        //For babel.
+    "^.+\\.svg$": "jest-transform-stub" //For stubbing svg
+  }
+}
+```
+
+

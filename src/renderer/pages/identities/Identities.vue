@@ -91,7 +91,7 @@ export default defineComponent({
       foundDI,
       addIdentity: async ( key, event ) => {
         try {
-          await PolykeyClient.SetIdentity({s: key});
+          await PolykeyClient.GestaltsSetIdentity({s: key});
           store.dispatch(actions.SearchMode, false);
           store.dispatch(actions.GetGestalts);
         } catch (e) {

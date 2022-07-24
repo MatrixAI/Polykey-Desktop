@@ -8,6 +8,7 @@ in
     nativeBuildInputs = [
       nodejs
       nodePackages.node2nix
+      # electron
       electron
       nodePackages."@electron-forge/cli"
       # debian builds
@@ -20,6 +21,8 @@ in
       mono
       # zip builds
       zip
+      # github releases
+      gitAndTools.gh
     ];
     # prevent electron download from electron in package.json
     ELECTRON_SKIP_BINARY_DOWNLOAD = "1";

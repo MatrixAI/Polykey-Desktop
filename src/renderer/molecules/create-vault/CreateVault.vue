@@ -29,7 +29,7 @@ export default defineComponent({
     const vaultName = ref('');
 
     onMounted(() => {
-      console.log(this);
+      // console.log(this);
     });
 
     return {
@@ -42,7 +42,7 @@ export default defineComponent({
           return;
         }
         try {
-          const results = await PolykeyClient.NewVault(vaultName.value);
+          const results = await PolykeyClient.vaultsCreate(vaultName.value);
           console.log(results)
           store.dispatch(actions.LoadVaultNames);
         } catch (e) {

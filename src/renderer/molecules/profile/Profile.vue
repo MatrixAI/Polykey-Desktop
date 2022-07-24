@@ -23,7 +23,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const profile = computed(() => store.state.User.localPeerInfo);
+    const profile = computed(() => store.state.Nodes.localNodeInfo);
     const { profileOpen } = toRefs(props);
 
     return {

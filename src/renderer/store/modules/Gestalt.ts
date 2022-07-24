@@ -1,5 +1,6 @@
 import PolykeyClient from '@/renderer/resources/client';
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+// import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+import { clientPB } from '@matrixai/polykey/dist/client';
 import { makeIdentifiers } from '@/renderer/store/utils';
 
 const [actionsInt, actionsExt] = makeIdentifiers('Gestalt', [
@@ -167,19 +168,12 @@ export default {
       { dispatch, commit },
       identity: string,
     ) {
-      PolykeyClient.DiscoverGestaltIdentity(
-        {
-          key: identity,
-          providerKey: 'github.com',
-        },
-        (error, result) => {
-          console.log('--- discovery --- ');
-          console.log(result);
-        },
-      );
-      // setInterval(()=>{
-      //   dispatch(actionsInt.GetGestalts)
-      // }, 2000 )
+      const res = await PolykeyClient.GestaltsDiscoverIdentity({
+        id: identity,
+        message: 'github.com',
+      });
+      console.log('--- discovery --- ');
+      console.log(res);
     },
     async [actionsInt.SearchMode]({ commit }, searchMode: boolean) {
       commit(mutations.SetSearchMode, searchMode);
@@ -218,23 +212,26 @@ export default {
       commit(mutations.SetFoundDI, []);
       commit(mutations.SetSearchDI, searchQueryDI);
 
-      await PolykeyClient.GetConnectedIdentityInfos(
-        {
-          providerKey: 'github.com',
-          searchTermList: [searchQueryDI],
+      const res = await PolykeyClient.IdentityGetConnectedInfos({
+        provider: {
+          id: '',
+          message: 'github.com',
         },
-        (error, key) => {
-          console.log('key:', key);
-          const foundDI = state.foundDI;
-          let newFoundDI = [...foundDI];
-          if (newFoundDI.indexOf(key) < 0) {
-            //if (key.toLowerCase().match(searchQueryDI.toLowerCase())) {
-            newFoundDI = [...newFoundDI, key];
-            //}
-            commit(mutations.SetFoundDI, newFoundDI);
-          }
-        },
-      );
+        searchTermList: [searchQueryDI],
+      });
+
+      for (const foundIdentity of res) {
+        if (!foundIdentity.provider) throw Error('Provider is undefined.');
+        console.log('key:', foundIdentity.provider.id);
+        const foundDI = state.foundDI;
+        let newFoundDI = [...foundDI];
+        if (newFoundDI.indexOf(foundIdentity.provider.id) < 0) {
+          //if (key.toLowerCase().match(searchQueryDI.toLowerCase())) {
+          newFoundDI = [...newFoundDI, foundIdentity.provider.id];
+          //}
+          commit(mutations.SetFoundDI, newFoundDI);
+        }
+      }
 
       // try {
       //   const gestaltsByIdentity = await PolykeyClient.GetGestaltByIdentity({
@@ -283,9 +280,8 @@ export default {
         gestalt.keynodes.forEach(async (keynode) => {
           if (keynode.id) {
             try {
-              await PolykeyClient.PingPeer({
-                publicKeyOrHandle: keynode.id,
-                timeout: 300,
+              await PolykeyClient.NodesPing({
+                name: keynode.id,
               });
               keynode.online = true;
             } catch (e) {
@@ -300,7 +296,7 @@ export default {
      * GetGestalts
      */
     async [actionsInt.GetGestalts]({ commit }) {
-      const gestalts = await PolykeyClient.GetGestalts({});
+      const gestalts = await PolykeyClient.GestaltsList();
       const toArrayGestalts = Object.keys(gestalts).map((gestaltId) => {
         return gestalts[gestaltId];
       });

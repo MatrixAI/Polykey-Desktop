@@ -1,6 +1,7 @@
-import * as pb from '@matrixai/polykey/dist/proto/js/Agent_pb';
+import { clientPB } from '@matrixai/polykey/dist/client';
+import type { KeynodeState } from '@matrixai/polykey/dist/bootstrap';
+
 const ipcRenderer = window.require('electron').ipcRenderer;
-// import { ipcRenderer } from 'electron';
 
 class PolykeyClient {
   /// ////////////////////
@@ -13,10 +14,100 @@ class PolykeyClient {
   /// ////////////////
   // Agent Handler //
   /// ////////////////
-  static async StartAgent(): Promise<number | boolean> {
-    console.log('starting agent');
 
-    return await ipcRenderer.invoke('agent-start');
+  // static async StartAgent(): Promise<number | boolean> {
+  //   console.log('starting agent');
+  //   return await ipcRenderer.invoke('agent-start');
+  // }
+
+  //Temp moved agent starting to front end for now, this is just for testing.
+  static async StartAgent() {
+    const password = 'Password';
+    const keynodePath = './tmp';
+
+    // this method has a 3 possible cases:
+    // case 1: polykey agent is not started and is started to return the pid
+    // case 2: polykey agent is already started and returns true
+    // case 3: polykey agent is not initialize (will throw an error of "polykey node has not been initialized, initialize with 'pk agent init'")
+    try {
+      // phase 1: the first thing we ever do is check if the agent is running or not
+      // but we only know the agent is offline if getStatus returns an error (because its offline)
+      // so check status and if it throws we know its offline, if not we assume its online
+      console.log('connectToAgent');
+      console.log(keynodePath);
+      await this.ConnectClient(keynodePath);
+      // it is here that we know that the agent is running and client is initialize
+    } catch (error) {
+      try {
+        // agent is offline so we start it!
+        console.log('startAgent');
+        // const polykeyPath = getDefaultNodePath();
+
+        //Bootstrapping
+        await this.BootstrapKeynode(keynodePath, password);
+        let pid: number = 0;
+
+        //Spawning agent.
+        try {
+          console.log('starting agent.');
+          pid = await this.SpawnAgent(keynodePath, password);
+          console.log('pid: ', pid);
+        } catch (e) {
+          console.log('Problem starting agent, might already be started.');
+          // console.error(e);
+        }
+        console.log('connectToAgent');
+        await this.ConnectClient(keynodePath);
+
+        console.log('done');
+        return pid;
+      } catch (error) {
+        throw Error(error.message);
+      }
+    }
+  }
+
+  static async ConnectClient(keynodePath: string) {
+    console.log('BRUH ', keynodePath);
+    const request = { keynodePath };
+    return await ipcRenderer.invoke('connect-client', request);
+  }
+
+  static async StartSession(password: string) {
+    const request = { password };
+    const res = await ipcRenderer.invoke('start-session', request);
+    return res;
+  }
+
+  static async CheckAgent(keynodePath: string): Promise<boolean> {
+    const request = { keynodePath };
+    return await ipcRenderer.invoke('check-agent', request);
+  }
+
+  static async SpawnAgent(
+    keynodePath: string,
+    password: string,
+  ): Promise<number> {
+    const request = { keynodePath, password };
+    return await ipcRenderer.invoke('spawn-agent', request);
+  }
+
+  static async BootstrapKeynode(keynodePath: string, password: string) {
+    const request = { keynodePath, password };
+    return await ipcRenderer.invoke('bootstrap-keynode', request);
+  }
+
+  /**
+   * @param keynodePath path to the keynode.
+   * @returns number 0 if can initialize, 1 if initialized, 2 if invalid.
+   */
+  static async CheckKeynodeState(keynodePath: string): Promise<KeynodeState> {
+    const request = { keynodePath };
+    return await ipcRenderer.invoke('check-keynode-state', request);
+  }
+
+  static async StopAgent(): Promise<void> {
+    return await ipcRenderer.invoke('Stop-Agent');
   }
 
   static async RestartAgent(): Promise<number> {
@@ -26,681 +117,569 @@ class PolykeyClient {
   /// ////////////////
   // GRPC Handlers //
   /// ////////////////
-  static async AddPeer(request: pb.NodeInfoMessage.AsObject): Promise<string> {
-    const encodedRequest = new pb.NodeInfoMessage();
-    encodedRequest.setPublicKey(request.publicKey);
+  //TODO: This will need to be redone later.
+  static async NodesAdd(
+    request: clientPB.NodeDetailsMessage.AsObject,
+  ): Promise<void> {
+    const nodeInfoMessage = new clientPB.NodeDetailsMessage();
+    nodeInfoMessage.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
-      encodedRequest.setNodeAddress(request.nodeAddress);
+      nodeInfoMessage.setNodeAddress(request.nodeAddress);
     }
-    if (request.apiAddress !== '') {
-      encodedRequest.setApiAddress(request.apiAddress);
-    }
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('AddPeer', encodedRequest.serializeBinary()),
+    // if (request.apiAddress !== '') {
+    //   nodeInfoMessage.setApiAddress(request.apiAddress);
+    // }
+    clientPB.EmptyMessage.deserializeBinary(
+      await ipcRenderer.invoke('NodesAdd', nodeInfoMessage.serializeBinary()),
     );
-    return res.getS();
+    return;
   }
 
-  static async AddPeerB64(peerInfoB64: string): Promise<string> {
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('AddPeerB64', peerInfoB64),
-    );
-    return res.getS();
+  //FIXME: Is this used?
+  static async AddNodeB64(peerInfoB64: string): Promise<string> {
+    throw new Error('Not implemented.');
+    // const res = pb.StringMessage.deserializeBinary(
+    //   await ipcRenderer.invoke('Add-NodeB64', peerInfoB64),
+    // );
+    // return res.getS();
   }
 
   static async AuthenticateProvider(
-    request: pb.AuthenticateProviderRequest.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.AuthenticateProviderRequest();
-    encodedRequest.setProviderKey(request.providerKey);
-    const res = pb.StringMessage.deserializeBinary(
+    request: clientPB.ProviderMessage.AsObject,
+  ): Promise<clientPB.ProviderMessage.AsObject> {
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
+    const res = clientPB.ProviderMessage.deserializeBinary(
       await ipcRenderer.invoke(
         'AuthenticateProvider',
-        encodedRequest.serializeBinary(),
+        providerMessage.serializeBinary(),
       ),
     );
-    return res.getS();
+    return res.toObject();
   }
 
-  static async AugmentKeynode(
-    request: pb.AugmentKeynodeRequest.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.AugmentKeynodeRequest();
-    encodedRequest.setProviderKey(request.providerKey);
-    encodedRequest.setIdentityKey(request.identityKey);
-    const res = pb.StringMessage.deserializeBinary(
+  static async IdentitiesAugmentKeynode(
+    request: clientPB.ProviderMessage.AsObject,
+  ): Promise<void> {
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
+    clientPB.EmptyMessage.deserializeBinary(
       await ipcRenderer.invoke(
         'AugmentKeynode',
-        encodedRequest.serializeBinary(),
+        providerMessage.serializeBinary(),
       ),
     );
-    return res.getS();
+    return;
   }
 
-  static async DecryptFile(
-    request: pb.DecryptFileMessage.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.DecryptFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPrivateKeyPath(request.privateKeyPath);
-    encodedRequest.setPassphrase(request.passphrase);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('DecryptFile', encodedRequest.serializeBinary()),
+  static async DecryptFile(request: clientPB.CryptoMessage): Promise<string> {
+    const res = clientPB.CryptoMessage.deserializeBinary(
+      await ipcRenderer.invoke('KeysDecrypt', request.serializeBinary()),
     );
-    return res.getS();
+    return res.getData();
   }
 
-  static async DeleteKey(keyName: string): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(keyName);
-    await ipcRenderer.invoke('DeleteKey', encodedRequest.serializeBinary());
-    return;
-  }
-
-  static async DeleteSecret(
-    request: pb.SecretPathMessage.AsObject,
+  static async vaultsDeleteSecret(
+    request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new pb.SecretPathMessage();
-    encodedRequest.setVaultName(request.vaultName);
-    encodedRequest.setSecretName(request.secretName);
-    await ipcRenderer.invoke('DeleteSecret', encodedRequest.serializeBinary());
-    return;
-  }
+    const vaultMessage = new clientPB.VaultMessage();
+    const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
 
-  static async DeleteVault(vaultName: string): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(vaultName);
-    await ipcRenderer.invoke('DeleteVault', encodedRequest.serializeBinary());
-    return;
-  }
-
-  static async DeriveKey(request: pb.DeriveKeyMessage.AsObject): Promise<void> {
-    const encodedRequest = new pb.DeriveKeyMessage();
-    encodedRequest.setKeyName(request.keyName);
-    encodedRequest.setPassphrase(request.passphrase);
-    await ipcRenderer.invoke('DeriveKey', encodedRequest.serializeBinary());
-    return;
-  }
-
-  static async EncryptFile(
-    request: pb.EncryptFileMessage.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.EncryptFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPublicKeyPath(request.publicKeyPath);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('EncryptFile', encodedRequest.serializeBinary()),
+    if (!request.vault) throw new Error('Undefined property vault.');
+    vaultMessage.setId(request.vault.id);
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.name);
+    await ipcRenderer.invoke(
+      'vaultsDeleteSecret',
+      vaultSpecificMessage.serializeBinary(),
     );
-    return res.getS();
-  }
-
-  static async FindPeer(
-    request: pb.ContactNodeMessage.AsObject,
-  ): Promise<void> {
-    const encodedRequest = new pb.ContactNodeMessage();
-    encodedRequest.setPublicKeyOrHandle(request.publicKeyOrHandle);
-    encodedRequest.setTimeout(request.timeout);
-    await ipcRenderer.invoke('FindPeer', encodedRequest.serializeBinary());
     return;
   }
 
+  static async vaultsDelete(vaultId: string): Promise<void> {
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setId(vaultId);
+    await ipcRenderer.invoke('vaultsDelete', vaultMessage.serializeBinary());
+    return;
+  }
+
+  //FIXME: Is this used?
+  static async DeriveKey(request: clientPB.KeyMessage): Promise<void> {
+    throw new Error('Not implemented.');
+    // const encodedRequest = new pb.DeriveKeyMessage();
+    // encodedRequest.setKeyName(request.keyName);
+    // encodedRequest.setPassphrase(request.passphrase);
+    // await ipcRenderer.invoke('DeriveKey', encodedRequest.serializeBinary());
+    // return;
+  } //Not relevant anymore.
+
+  static async EncryptFile(request: clientPB.CryptoMessage): Promise<string> {
+    const res = clientPB.CryptoMessage.deserializeBinary(
+      await ipcRenderer.invoke('keysEncrypt', request.serializeBinary()),
+    );
+    return res.getData();
+  }
+
+  static async NodesFind(
+    request: clientPB.NodeMessage.AsObject,
+  ): Promise<void> {
+    const nodeMessage = new clientPB.NodeMessage();
+    nodeMessage.setName(request.name);
+    await ipcRenderer.invoke('NodesFind', nodeMessage.serializeBinary());
+    return;
+  }
+
+  //FIXME: Not used/implemented.
   static async FindSocialPeer(
-    request: pb.ContactNodeMessage.AsObject,
+    request: clientPB.NodeMessage,
   ): Promise<string[]> {
-    const encodedRequest = new pb.ContactNodeMessage();
-    encodedRequest.setPublicKeyOrHandle(request.publicKeyOrHandle);
-    encodedRequest.setTimeout(request.timeout);
-    const res = pb.StringListMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'FindSocialPeer',
-        encodedRequest.serializeBinary(),
-      ),
-    );
-    return res.getSList();
+    throw new Error('Not implemented.');
+    // const encodedRequest = new pb.ContactNodeMessage();
+    // encodedRequest.setPublicKeyOrHandle(request.publicKeyOrHandle);
+    // encodedRequest.setTimeout(request.timeout);
+    // const res = pb.StringListMessage.deserializeBinary(
+    //   await ipcRenderer.invoke(
+    //     'FindSocialPeer',
+    //     encodedRequest.serializeBinary(),
+    //   ),
+    // );
+    // return res.getSList();
   }
 
-  static async GetOAuthClient(): Promise<pb.OAuthClientMessage.AsObject> {
+  static async GetOAuthClient(): Promise<clientPB.CryptoMessage> {
     return await ipcRenderer.invoke('GetOAuthClient');
   }
 
-  static async GetKey(keyName: string): Promise<string> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(keyName);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetKey', encodedRequest.serializeBinary()),
-    );
-    return res.getS();
-  }
-
-  static async GetLocalPeerInfo(): Promise<pb.NodeInfoMessage.AsObject> {
-    const res = pb.NodeInfoMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetLocalPeerInfo'),
+  static async NodesGetLocalInfo(): Promise<clientPB.NodeDetailsMessage.AsObject> {
+    const res = clientPB.NodeDetailsMessage.deserializeBinary(
+      await ipcRenderer.invoke('NodesGetLocalInfo'),
     );
     return res.toObject();
   }
 
-  static async GetPeerInfo(
+  static async NodesGetInfo(
     peerId: string,
-  ): Promise<pb.NodeInfoMessage.AsObject> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(peerId);
-    const res = pb.NodeInfoMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetPeerInfo', encodedRequest.serializeBinary()),
+  ): Promise<clientPB.NodeDetailsMessage.AsObject> {
+    const nodeMessage = new clientPB.NodeMessage();
+    nodeMessage.setName(peerId);
+    const res = clientPB.NodeDetailsMessage.deserializeBinary(
+      await ipcRenderer.invoke('NodesGetInfo', nodeMessage.serializeBinary()),
     );
     return res.toObject();
   }
 
-  static async GetPrimaryKeyPair(
-    includePrivateKey: boolean,
-  ): Promise<pb.KeyPairMessage.AsObject> {
-    const encodedRequest = new pb.BooleanMessage();
-    encodedRequest.setB(includePrivateKey);
-    const res = pb.KeyPairMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'GetPrimaryKeyPair',
-        encodedRequest.serializeBinary(),
-      ),
+  static async keysRootKeyPair(): Promise<clientPB.KeyPairMessage.AsObject> {
+    const res = clientPB.KeyPairMessage.deserializeBinary(
+      await ipcRenderer.invoke('keysRootKeyPair'),
     );
     return res.toObject();
   }
 
   static async GetRootCertificate(): Promise<string> {
-    return await ipcRenderer.invoke('GetRootCertificate');
+    const res = await ipcRenderer.invoke('certsGet');
+    const certificateMessage =
+      clientPB.CertificateMessage.deserializeBinary(res);
+    return certificateMessage.getCert();
   }
 
-  static async GetSecret(
-    request: pb.SecretPathMessage.AsObject,
+  static async vaultsGetSecret(
+    request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<string> {
-    const encodedRequest = new pb.SecretPathMessage();
-    encodedRequest.setVaultName(request.vaultName);
-    encodedRequest.setSecretName(request.secretName);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetSecret', encodedRequest.serializeBinary()),
+    const vaultMessage = new clientPB.VaultMessage();
+    const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
+    if (!request.vault) throw new Error('Undefined property of vault');
+    vaultMessage.setId(request.vault.id);
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.name);
+    const res = await ipcRenderer.invoke(
+      'vaultsGetSecret',
+      vaultSpecificMessage.serializeBinary(),
     );
-    return res.getS();
+    const secretMessage = clientPB.SecretMessage.deserializeBinary(res);
+    return secretMessage.getName();
   }
 
-  static async GetStatus(): Promise<string> {
-    const res = pb.AgentStatusMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetStatus'),
+  static async IdentityGetConnectedInfos(
+    request: clientPB.ProviderSearchMessage.AsObject,
+  ): Promise<clientPB.IdentityInfoMessage.AsObject[]> {
+    //Constructing message.
+    if (!request.provider) throw Error('Provider is undefined.');
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.provider.id);
+    providerMessage.setMessage(request.provider.message);
+
+    const providerSearchMessage = new clientPB.ProviderSearchMessage();
+    providerSearchMessage.setProvider(providerMessage);
+    providerSearchMessage.setSearchTermList(request.searchTermList);
+
+    //getting response and converting to object.
+    const data: Array<Uint8Array> = await ipcRenderer.invoke(
+      'IdentityGetConnectedInfos',
+      providerSearchMessage.serializeBinary(),
     );
-    return pb.AgentStatusType[res.getStatus()];
+    const output: Array<clientPB.IdentityInfoMessage.AsObject> = [];
+    for (const datum of data) {
+      const identityInfoMessage =
+        clientPB.IdentityInfoMessage.deserializeBinary(datum);
+      output.push(identityInfoMessage.toObject());
+    }
+    return output;
   }
 
-  static async GetConnectedIdentityInfos(
-    request: pb.ProviderSearchMessage.AsObject,
-    callback,
-  ): Promise<void> {
-    const encodedRequest = new pb.ProviderSearchMessage();
-    encodedRequest.setProviderKey(request.providerKey);
-    encodedRequest.setSearchTermList(request.searchTermList);
-
-    const streamData = async (event, arg) => {
-      const result = pb.IdentityInfoMessage.deserializeBinary(arg);
-      callback(null, result.getKey());
-    };
-
-    ipcRenderer.once('GetConnectedIdentityInfos-reply', streamData);
-
-    await ipcRenderer.send(
-      'GetConnectedIdentityInfos-message',
-      encodedRequest.serializeBinary(),
+  static async GestaltsDiscoverIdentity(
+    request: clientPB.ProviderMessage.AsObject /*clientPB.ProviderMessage.AsObject*/,
+  ): Promise<clientPB.GestaltMessage.AsObject> {
+    const providerMess = new clientPB.ProviderMessage();
+    providerMess.setId(request.id);
+    providerMess.setMessage(request.message);
+    const res = await ipcRenderer.invoke(
+      'IdentitiesDiscoverIdentity',
+      providerMess.serializeBinary(),
     );
+    return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
-  static async DiscoverGestaltIdentity(
-    request: pb.IdentityMessage.AsObject,
-    callback,
-  ): Promise<void> {
-    const encodedRequest = new pb.IdentityMessage();
-    console.log('discovering', request.key);
-    encodedRequest.setKey(request.key);
-    encodedRequest.setProviderKey(request.providerKey);
+  static async GestaltsDiscoverNode(
+    request: clientPB.GestaltMessage.AsObject,
+  ): Promise<clientPB.GestaltMessage.AsObject> {
+    const gestaltMessage = new clientPB.GestaltMessage();
+    gestaltMessage.setName(request.name);
 
-    await ipcRenderer.send(
-      'DiscoverGestaltIdentity-message',
-      encodedRequest.serializeBinary(),
+    const res = await ipcRenderer.invoke(
+      'GestaltsDiscoverNode',
+      gestaltMessage,
     );
-
-    ipcRenderer.once('DiscoverGestaltIdentity-reply', async (event, arg) => {
-      const result = pb.IdentityMessage.deserializeBinary(arg);
-      console.log(result.getKey());
-      console.log('----provider', result.getProviderKey());
-      callback(null, result.getKey());
-    });
+    return clientPB.GestaltMessage.deserializeBinary(res).toObject();
   }
 
-  // static async DiscoverGestaltNode(request: pb.IdentityMessage.AsObject): Promise<void> {
-  //   const encodedRequest = new pb.IdentityMessage();
-  //   encodedRequest.setKey(request.key);
-  //   encodedRequest.setProviderKey(request.providerKey);
-
-  //   ipcRenderer.on('DiscoverGestaltNode', async (event, arg) => {});
-  // }
-
-  static async GetGestalts(request: pb.EmptyMessage.AsObject): Promise<any> {
-    const encodedRequest = new pb.EmptyMessage();
-    const res = pb.GestaltListMessage.deserializeBinary(
-      await ipcRenderer.invoke('GetGestalts', encodedRequest.serializeBinary()),
-    );
-    const containers: any = {};
-    res.getGestaltMessageList().forEach((value, gestaltIndex) => {
-      if (!containers[gestaltIndex]) {
-        containers[gestaltIndex] = {
-          id: gestaltIndex,
-          trusted: true,
-          keynodes: [],
-          digitalIdentities: [],
-        };
-      }
-
-      value.getIdentitiesMap().forEach((identitiesValue) => {
-        const identityKey = identitiesValue?.getKey();
-        const identityProvider = identitiesValue?.getProvider();
-        containers[gestaltIndex].digitalIdentities.push(identityKey);
-        containers[gestaltIndex].keynodes.push({
-          id: null,
-          name: null,
-          digitalIdentity: [
-            {
-              type: identityProvider,
-              username: identityKey,
-            },
-          ],
-          vaults: [],
-        });
-      });
-
-      /** This is for gestalts that have links already */
-      value.getGestaltMatrixMap().forEach((matrixValue) => {
-        matrixValue.getPairsMap().forEach(async (pairs, key) => {
-          const matrixKey = JSON.parse(key);
-
-          // If p is null then it is a node we only need the list of nodes
-          if (!matrixKey.p) {
-            // Check if there is a node or and identity
-            if (pairs.hasLinkInfoIdentity()) {
-              const linkedIdentity = pairs.getLinkInfoIdentity();
-              const identityKey = linkedIdentity?.getIdentity();
-              const identityProvider = linkedIdentity?.getProvider();
-              // If key is not existing
-              if (!containers[gestaltIndex].keynodes.length) {
-                containers[gestaltIndex].keynodes.push({
-                  id: matrixKey.key,
-                  name: matrixKey.key,
-                  digitalIdentity: [
-                    {
-                      type: identityProvider,
-                      username: identityKey,
-                    },
-                  ],
-                  vaults: [],
-                });
-              } else {
-                if (!containers[gestaltIndex].keynodes[0].id) {
-                  containers[gestaltIndex].keynodes[0] = {
-                    id: matrixKey.key,
-                    name: matrixKey.key,
-                    digitalIdentity: [
-                      {
-                        type: identityProvider,
-                        username: identityKey,
-                      },
-                    ],
-                    vaults: [],
-                  };
-                } else {
-                  // This is when the same identity is linked to the node
-                  containers[gestaltIndex].keynodes[0].digitalIdentity.push({
-                    type: identityProvider,
-                    username: identityKey,
-                  });
-                }
-              }
-            }
-
-            // Still todo
-            if (pairs.hasLinkInfoNode()) {
-            }
-          }
-        });
-      });
-    });
-    return containers;
+  //FIXME, replace object with proper type.
+  static async GestaltsList(): Promise<Array<any>> {
+    const gestaltList = await ipcRenderer.invoke('GestaltsList');
+    const output: Array<any> = [];
+    for (const gestalt of gestaltList) {
+      const gestaltMessage = clientPB.GestaltMessage.deserializeBinary(gestalt);
+      const json = JSON.parse(gestaltMessage.getName());
+      output.push(json);
+    }
+    return output;
   }
 
-  static async GetIdentityInfo(
-    request: pb.EmptyMessage.AsObject,
-  ): Promise<any> {
-    const encodedRequest = new pb.EmptyMessage();
-    const res = pb.IdentityInfo.deserializeBinary(
-      await ipcRenderer.invoke(
-        'GetIdentityInfo',
-        encodedRequest.serializeBinary(),
-      ),
+  //FIXME: Should return something, look deeper.
+  static async IdentitiesGetInfo(): Promise<any> {
+    clientPB.EmptyMessage.deserializeBinary(
+      await ipcRenderer.invoke('IdentitiesGetInfo'),
     );
-    return res.getKey();
+    return;
   }
 
   static async GetGestaltByIdentity(
-    request: pb.IdentityMessage.AsObject,
-  ): Promise<any> {
-    const encodedRequest = new pb.IdentityMessage();
-    encodedRequest.setProviderKey(request.providerKey);
-    encodedRequest.setKey(request.key);
-    const res = pb.GestaltMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'GetGestaltByIdentity',
-        encodedRequest.serializeBinary(),
-      ),
+    request: clientPB.ProviderMessage.AsObject,
+  ): Promise<clientPB.GestaltMessage.AsObject> {
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
+
+    const res = await ipcRenderer.invoke(
+      'GestaltsGetIdentity',
+      providerMessage.serializeBinary(),
     );
-    // return {
-    //   matrix: JSON.parse(atob(res.getGestaltMatrix())),
-    //   nodes: JSON.parse(atob(res.getGestaltNodes())),
-    //   identities: JSON.parse(atob(res.getIdentities()))
-    // };
-    return {
-      matrix: {},
-      nodes: {},
-      identities: {},
-    };
+    return clientPB.GestaltMessage.deserializeBinary(res).toObject();
+  }
+
+  private static constructActionMessage(
+    request: clientPB.SetActionsMessage.AsObject,
+  ) {
+    const actionMessage = new clientPB.SetActionsMessage();
+    if (request.identity) {
+      const providerMessage = new clientPB.ProviderMessage();
+      providerMessage.setId(request.identity.id);
+      providerMessage.setMessage(request.identity.message);
+      actionMessage.setIdentity(providerMessage);
+    }
+    if (request.node) {
+      const nodeMessage = new clientPB.NodeMessage();
+      nodeMessage.setName(request.node.name);
+      actionMessage.setNode(nodeMessage);
+    }
+    return actionMessage;
   }
 
   static async TrustGestalt(
-    request: pb.StringMessage.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(request.s);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'TrustGestalt',
-        encodedRequest.serializeBinary(),
-      ),
-    );
-    return res.getS();
+    request: clientPB.SetActionsMessage.AsObject,
+  ): Promise<void> {
+    const actionMessage = this.constructActionMessage(request);
+    actionMessage.setAction(request.action);
+    ipcRenderer.invoke('TrustGestalt', actionMessage.serializeBinary());
   }
 
   static async UntrustGestalt(
-    request: pb.StringMessage.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(request.s);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'UntrustGestalt',
-        encodedRequest.serializeBinary(),
-      ),
-    );
-    return res.getS();
+    request: clientPB.SetActionsMessage.AsObject,
+  ): Promise<void> {
+    const actionMessage = this.constructActionMessage(request);
+    actionMessage.setAction(request.action);
+    ipcRenderer.invoke('UntrustGestalt', actionMessage.serializeBinary());
   }
 
   static async GestaltIsTrusted(
-    request: pb.StringMessage.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(request.s);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'GestaltIsTrusted',
-        encodedRequest.serializeBinary(),
-      ),
+    request: clientPB.SetActionsMessage.AsObject,
+  ): Promise<string[]> {
+    const actionMessage = this.constructActionMessage(request);
+    return await ipcRenderer.invoke(
+      'GestaltIsTrusted',
+      actionMessage.serializeBinary(),
     );
-    return res.getS();
   }
 
   static async ListOAuthTokens(): Promise<string[]> {
-    const res = pb.StringListMessage.deserializeBinary(
-      await ipcRenderer.invoke('ListOAuthTokens'),
-    );
-    return res.getSList();
+    throw new Error('Not implemented.');
+    // const res = pb.StringListMessage.deserializeBinary(
+    //   await ipcRenderer.invoke('ListOAuthTokens'),
+    // );
+    // return res.getSList();
   }
 
-  static async ListKeys(): Promise<string[]> {
-    const res = pb.StringListMessage.deserializeBinary(
-      await ipcRenderer.invoke('ListKeys'),
-    );
-    return res.getSList();
+  static async NodesList(): Promise<clientPB.NodeMessage.AsObject[]> {
+    const nodesList = await ipcRenderer.invoke('Nodes-List');
+    const output: Array<clientPB.NodeMessage.AsObject> = [];
+    for (const nodesListElement of nodesList) {
+      const element = clientPB.NodeMessage.deserializeBinary(nodesListElement);
+      output.push(element.toObject());
+    }
+    return output;
   }
 
-  static async ListPeers(): Promise<string[]> {
-    const res = pb.StringListMessage.deserializeBinary(
-      await ipcRenderer.invoke('ListPeers'),
+  static async vaultsListSecrets(
+    vaultName: string,
+  ): Promise<clientPB.SecretMessage.AsObject[]> {
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setId(vaultName);
+    const secretList = await ipcRenderer.invoke(
+      'vaultsListSecrets',
+      vaultMessage.serializeBinary(),
     );
-    return res.getSList();
+    const output: Array<clientPB.SecretMessage.AsObject> = [];
+    for (const secretListElement of secretList) {
+      const element =
+        clientPB.SecretMessage.deserializeBinary(secretListElement);
+      output.push(element.toObject());
+    }
+    return output;
   }
 
-  static async ListSecrets(vaultName: string): Promise<string[]> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(vaultName);
-    const res = pb.StringListMessage.deserializeBinary(
-      await ipcRenderer.invoke('ListSecrets', encodedRequest.serializeBinary()),
-    );
-    return res.getSList();
-  }
-
-  static async ListVaults(): Promise<string[]> {
-    const res = pb.StringListMessage.deserializeBinary(
-      await ipcRenderer.invoke('ListVaults'),
-    );
-    return res.getSList();
-  }
-
-  static async LockNode(): Promise<void> {
-    return await ipcRenderer.invoke('LockNode');
+  static async vaultsList(): Promise<clientPB.VaultMessage.AsObject[]> {
+    const data: Array<Uint8Array> = await ipcRenderer.invoke('vaultsList');
+    const output: Array<clientPB.VaultMessage.AsObject> = [];
+    for (const datum of data) {
+      const vaultMessage = clientPB.VaultMessage.deserializeBinary(datum);
+      output.push({
+        name: vaultMessage.getName(),
+        id: vaultMessage.getId(),
+      });
+    }
+    return output;
   }
 
   static async NewClientCertificate(
-    request: pb.NewClientCertificateMessage.AsObject,
-  ): Promise<pb.NewClientCertificateMessage.AsObject> {
-    const encodedRequest = new pb.NewClientCertificateMessage();
-    encodedRequest.setDomain(request.domain);
-    encodedRequest.setCertFile(request.certFile);
-    encodedRequest.setKeyFile(request.keyFile);
-    const res = pb.NewClientCertificateMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'NewClientCertificate',
-        encodedRequest.serializeBinary(),
-      ),
-    );
-    return res.toObject();
+    request: clientPB.CertificateMessage,
+  ): Promise<clientPB.CertificateMessage> {
+    throw new Error('Not implemented.');
+    // const encodedRequest = new pb.NewClientCertificateMessage();
+    // encodedRequest.setDomain(request.domain);
+    // encodedRequest.setCertFile(request.certFile);
+    // encodedRequest.setKeyFile(request.keyFile);
+    // const res = pb.NewClientCertificateMessage.deserializeBinary(
+    //   await ipcRenderer.invoke(
+    //     'NewClientCertificate',
+    //     encodedRequest.serializeBinary(),
+    //   ),
+    // );
+    // return res.toObject();
   }
 
-  static async InitializeKeyNode(
-    request: pb.NewKeyPairMessage.AsObject,
+  static async vaultsNewSecret(
+    request: clientPB.VaultSpecificMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new pb.NewKeyPairMessage();
-    encodedRequest.setPassphrase(request.passphrase);
-    const res = pb.EmptyMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'InitializeKeyNode',
-        encodedRequest.serializeBinary(),
-      ),
+    const vaultMessage = new clientPB.VaultMessage();
+    const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
+    if (!request.vault) throw new Error('Undefined property Vault');
+    vaultMessage.setId(request.vault.id);
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.name);
+    await ipcRenderer.invoke(
+      'vaultsNewSecret',
+      vaultSpecificMessage.serializeBinary(),
     );
     return;
   }
 
-  static async NewSecret(
-    request: pb.SecretContentMessage.AsObject,
+  static async NewOAuthToken(request: clientPB.TokenMessage): Promise<string> {
+    throw new Error('Not implemented.');
+    // const encodedRequest = new pb.NewOAuthTokenMessage();
+    // encodedRequest.setScopesList(request.scopesList);
+    // encodedRequest.setExpiry(request.expiry);
+    // const res = pb.StringMessage.deserializeBinary(
+    //   await ipcRenderer.invoke(
+    //     'NewOAuthToken',
+    //     encodedRequest.serializeBinary(),
+    //   ),
+    // );
+    // return res.getS();
+  }
+
+  static async vaultsCreate(vaultName: string): Promise<void> {
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setName(vaultName);
+    await ipcRenderer.invoke('vaultsCreate', vaultMessage.serializeBinary());
+    return;
+  }
+
+  static async NodesPing(
+    request: clientPB.NodeMessage.AsObject /*clientPB.NodeMessage*/,
   ): Promise<void> {
-    const encodedRequest = new pb.SecretContentMessage();
-    const secretPathMessage = new pb.SecretPathMessage();
-    secretPathMessage.setVaultName(request.secretPath!.vaultName);
-    secretPathMessage.setSecretName(request.secretPath!.secretName);
-    encodedRequest.setSecretPath(secretPathMessage);
-    if (request.secretFilePath !== '') {
-      encodedRequest.setSecretFilePath(request.secretFilePath);
-    } else {
-      encodedRequest.setSecretContent(request.secretContent);
-    }
-    await ipcRenderer.invoke('NewSecret', encodedRequest.serializeBinary());
+    const nodeMessage = new clientPB.NodeMessage();
+    nodeMessage.setName(request.name);
+    await ipcRenderer.invoke('NodesPing', nodeMessage.serializeBinary());
     return;
   }
 
-  static async NewOAuthToken(
-    request: pb.NewOAuthTokenMessage.AsObject,
-  ): Promise<string> {
-    const encodedRequest = new pb.NewOAuthTokenMessage();
-    encodedRequest.setScopesList(request.scopesList);
-    encodedRequest.setExpiry(request.expiry);
-    const res = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'NewOAuthToken',
-        encodedRequest.serializeBinary(),
-      ),
-    );
-    return res.getS();
-  }
-
-  static async NewVault(vaultName: string): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(vaultName);
-    await ipcRenderer.invoke('NewVault', encodedRequest.serializeBinary());
-    return;
-  }
-
-  static async PingPeer(
-    request: pb.ContactNodeMessage.AsObject,
+  static async vaultsPull(
+    request: clientPB.VaultMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new pb.ContactNodeMessage();
-    encodedRequest.setPublicKeyOrHandle(request.publicKeyOrHandle);
-    encodedRequest.setTimeout(request.timeout);
-    await ipcRenderer.invoke('PingPeer', encodedRequest.serializeBinary());
-    return;
-  }
-
-  static async PullVault(request: pb.VaultPathMessage.AsObject): Promise<void> {
-    const encodedRequest = new pb.VaultPathMessage();
-    encodedRequest.setPublicKey(request.publicKey);
-    encodedRequest.setVaultName(request.vaultName);
-    await ipcRenderer.invoke('PullVault', encodedRequest.serializeBinary());
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setId(request.id);
+    vaultMessage.setName(request.name);
+    await ipcRenderer.invoke('vaultsPull', vaultMessage.serializeBinary());
     return;
   }
 
   static async RevokeOAuthToken(token: string): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(token);
-    await ipcRenderer.invoke(
-      'RevokeOAuthToken',
-      encodedRequest.serializeBinary(),
-    );
-    return;
+    throw new Error('Not implemented.');
+    // const encodedRequest = new pb.StringMessage();
+    // encodedRequest.setS(token);
+    // await ipcRenderer.invoke(
+    //   'RevokeOAuthToken',
+    //   encodedRequest.serializeBinary(),
+    // );
+    // return;
   }
 
-  static async ScanVaultNames(peerId: string): Promise<string[]> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(peerId);
-    const res = pb.StringListMessage.deserializeBinary(
-      await ipcRenderer.invoke(
-        'ScanVaultNames',
-        encodedRequest.serializeBinary(),
-      ),
+  static async vaultsScan(peerId: string): Promise<string[]> {
+    const vaultMessage = new clientPB.VaultMessage();
+    vaultMessage.setId(peerId);
+    return await ipcRenderer.invoke(
+      'vaultsScan',
+      vaultMessage.serializeBinary(),
     );
-    return res.getSList();
   }
 
-  static async SignFile(request: pb.SignFileMessage.AsObject): Promise<string> {
-    const encodedRequest = new pb.SignFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPrivateKeyPath(request.privateKeyPath);
-    encodedRequest.setPassphrase(request.passphrase);
-    const response = pb.StringMessage.deserializeBinary(
-      await ipcRenderer.invoke('SignFile', encodedRequest.serializeBinary()),
+  static async keysSign(request: clientPB.CryptoMessage): Promise<string> {
+    const response = clientPB.CryptoMessage.deserializeBinary(
+      await ipcRenderer.invoke('keysSign', request.serializeBinary()),
     );
-    return response.getS();
-  }
-
-  static async StopAgent(): Promise<void> {
-    return await ipcRenderer.invoke('StopAgent');
+    return response.getSignature();
   }
 
   static async ToggleStealthMode(isActive: boolean): Promise<void> {
-    const encodedRequest = new pb.BooleanMessage();
-    encodedRequest.setB(isActive);
-    await ipcRenderer.invoke(
-      'ToggleStealthMode',
-      encodedRequest.serializeBinary(),
-    );
-    return;
+    throw new Error('Not implemented.');
+    // const encodedRequest = new pb.BooleanMessage();
+    // encodedRequest.setB(isActive);
+    // await ipcRenderer.invoke(
+    //   'ToggleStealthMode',
+    //   encodedRequest.serializeBinary(),
+    // );
+    // return;
   }
 
-  static async UnlockNode(
-    request: pb.UnlockNodeMessage.AsObject,
+  //FIXME: being changed, update when ready.
+  static async UpdateLocalNodeInfo(
+    request: clientPB.NodeDetailsMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new pb.UnlockNodeMessage();
-    encodedRequest.setPassphrase(request.passphrase);
-    encodedRequest.setTimeout(request.timeout);
-    await ipcRenderer.invoke('UnlockNode', encodedRequest.serializeBinary());
-    return;
-  }
-
-  static async UpdateLocalPeerInfo(
-    request: pb.NodeInfoMessage.AsObject,
-  ): Promise<void> {
-    const encodedRequest = new pb.NodeInfoMessage();
+    throw new Error('Not implemented.');
+    const encodedRequest = new clientPB.NodeDetailsMessage();
     encodedRequest.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
       encodedRequest.setNodeAddress(request.nodeAddress);
     }
-    if (request.apiAddress !== '') {
-      encodedRequest.setApiAddress(request.apiAddress);
-    }
+    // if (request.apiAddress !== '') {
+    //   encodedRequest.setApiAddress(request.apiAddress);
+    // }
     await ipcRenderer.invoke(
-      'UpdateLocalPeerInfo',
+      'NodesUpdateLocalInfo',
       encodedRequest.serializeBinary(),
     );
     return;
   }
 
-  static async UpdatePeerInfo(
-    request: pb.NodeInfoMessage.AsObject,
+  static async UpdateNodeInfo(
+    request: clientPB.NodeDetailsMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new pb.NodeInfoMessage();
+    const encodedRequest = new clientPB.NodeDetailsMessage();
     encodedRequest.setPublicKey(request.publicKey);
     if (request.nodeAddress !== '') {
       encodedRequest.setNodeAddress(request.nodeAddress);
     }
-    if (request.apiAddress !== '') {
-      encodedRequest.setApiAddress(request.apiAddress);
-    }
+    // if (request.apiAddress !== '') {
+    //   encodedRequest.setApiAddress(request.apiAddress);
+    // }
     await ipcRenderer.invoke(
-      'UpdatePeerInfo',
+      'NodesUpdateInfo',
       encodedRequest.serializeBinary(),
     );
     return;
   }
 
-  static async UpdateSecret(
-    request: pb.SecretContentMessage.AsObject,
+  static async vaultsEditSecret(
+    request: clientPB.SecretSpecificMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new pb.SecretContentMessage();
-    const secretPathMessage = new pb.SecretPathMessage();
-    secretPathMessage.setVaultName(request.secretPath!.vaultName);
-    secretPathMessage.setSecretName(request.secretPath!.secretName);
-    encodedRequest.setSecretPath(secretPathMessage);
-    if (request.secretFilePath !== '') {
-      encodedRequest.setSecretFilePath(request.secretFilePath);
-    } else {
-      encodedRequest.setSecretContent(request.secretContent);
-    }
-    await ipcRenderer.invoke('UpdateSecret', encodedRequest.serializeBinary());
+    const vaultMessage = new clientPB.VaultMessage();
+    const vaultSpecificMessage = new clientPB.VaultSpecificMessage();
+    const secretSpecificMessage = new clientPB.SecretSpecificMessage();
+    if (!request.vault || !request.vault.vault)
+      throw Error('Undefined property vault');
+    vaultMessage.setId(request.vault.vault.id);
+    vaultSpecificMessage.setVault(vaultMessage);
+    vaultSpecificMessage.setName(request.vault.vault.name);
+    secretSpecificMessage.setVault(vaultSpecificMessage);
+    secretSpecificMessage.setContent(request.content);
+    await ipcRenderer.invoke(
+      'vaultsEditSecret',
+      vaultSpecificMessage.serializeBinary(),
+    );
     return;
   }
 
-  static async VerifyFile(
-    request: pb.VerifyFileMessage.AsObject,
+  static async keysVerify(request: clientPB.CryptoMessage): Promise<boolean> {
+    const res = await ipcRenderer.invoke(
+      'keysVerify',
+      request.serializeBinary(),
+    );
+    return clientPB.StatusMessage.deserializeBinary(res).getSuccess();
+  }
+
+  static async GestaltsSetIdentity(
+    request: clientPB.ProviderMessage.AsObject,
   ): Promise<void> {
-    const encodedRequest = new pb.VerifyFileMessage();
-    encodedRequest.setFilePath(request.filePath);
-    encodedRequest.setPublicKeyPath(request.publicKeyPath);
-    await ipcRenderer.invoke('VerifyFile', encodedRequest.serializeBinary());
+    const providerMessage = new clientPB.ProviderMessage();
+    providerMessage.setId(request.id);
+    providerMessage.setMessage(request.message);
+    await ipcRenderer.invoke(
+      'GestaltsSetIdentity',
+      providerMessage.serializeBinary(),
+    );
     return;
   }
 
-  static async SetIdentity(request: pb.StringMessage.AsObject): Promise<void> {
-    const encodedRequest = new pb.StringMessage();
-    encodedRequest.setS(request.s);
-    await ipcRenderer.invoke('SetIdentity', encodedRequest.serializeBinary());
-    return;
+  //testing a stream response.
+  static async streamTest(num: number): Promise<void> {
+    ipcRenderer.send('stream-test', num);
+  }
+
+  static async setHandler(): Promise<void> {
+    ipcRenderer.on('stream-test', (event, arg) => {
+      console.log(arg);
+    });
   }
 }
 

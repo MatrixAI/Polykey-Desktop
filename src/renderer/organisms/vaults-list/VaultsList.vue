@@ -17,8 +17,8 @@
         <div class="flex items-center">
           <div v-html="vault.icon" class="mr-1"></div>
         </div>
-        <div class="flex flex-col cursor-pointer" @click="goToVault(vault.name)">
-          <div class="text-primary1 font-bold opacity-90 mr-3">{{ vault.name }}</div>
+        <div class="flex flex-col cursor-pointer" @click="goToVault(vault.name.name)">
+          <div class="text-primary1 font-bold opacity-90 mr-3">{{ vault.name.name }}</div>
           <div class="text-content1 text-xxs flex">
             <div class="font-bold">You&nbsp;</div>
             <div>commited 2 days</div>

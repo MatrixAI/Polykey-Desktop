@@ -11,24 +11,34 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 /**
  * Libs
  */
-import { defineComponent, watchEffect, ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { defineComponent, onMounted, ref, watchEffect, nextTick } from "vue";
+import type { Config } from "@/renderer/config";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 /** Store */
-import { STATUS, actions } from '@/renderer/store/modules/User';
+import { actions, STATUS } from "@/renderer/store/modules/Agent";
 
 /** Components */
-import Header from '@/renderer/organisms/header/Header.vue';
+import Header from "@/renderer/organisms/header/Header.vue";
 
 export default defineComponent({
   components: {
-    Header
+    Header,
   },
-  setup() {
+  props: {
+    config: {
+      type: Object as PropType<Config>,
+      required: true,
+    },
+  },
+  setup(props) {
+    console.log('Renderer Config', props.config);
+
     const store = useStore();
     const router = useRouter();
 
@@ -37,8 +47,9 @@ export default defineComponent({
 
     watchEffect(() => {
       /** Watch the status here for redirection */
-      const status = store.state.User.status;
+      const status = store.state.Agent.status;
 
+      console.log("watching, found: ", status);
       switch (status) {
         case STATUS.PENDING:
           // Do some loader here
@@ -47,6 +58,7 @@ export default defineComponent({
         case STATUS.UNINITIALIZED:
           return router.replace('/selectKeyNode');
           break;
+        case STATUS.INITIALIZED:
         case STATUS.LOCKED:
           return router.replace('/selectExistingKeyNode');
           break;
@@ -66,16 +78,17 @@ export default defineComponent({
       }
     });
 
-    onMounted(() => {
+    onMounted(async () => {
       /**
        * Check user if isUnlocked if not need to run the polykeyclient
        */
-      store.dispatch(actions.CheckUserStatus);
+      // await store.dispatch(actions.SetKeynodePath, './tmp/keynode'); //FIXME default path.
+      await store.dispatch(actions.CheckAgentStatus);
     });
 
     return {
-      authenticated
+      authenticated,
     };
-  }
+  },
 });
 </script>

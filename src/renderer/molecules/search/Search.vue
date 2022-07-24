@@ -30,7 +30,7 @@ export default defineComponent({
     }
 
     return {
-      full : props.full,
+      // full : props.full,
       inputClass: `${defaultStyle} ${height}`,
       iconClass: `${defaultIconStyle} ${iconMargin}`
     };

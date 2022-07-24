@@ -33,12 +33,7 @@
         </div>
       </div>
     </div>
-    <div class="w-1/3 flex flex-col items-center bg-grey7 p-8">
-      <div class="mt-5 mb-8"><Logo /></div>
-      <div class="bg-grey8 bg-opacity-10 w-full p-5 text-primary4 text-xs font-robotomono">
-        <p>Installing <span>Agent...</span></p>
-      </div>
-    </div>
+    <console-small />
   </div>
 </template>
 
@@ -50,14 +45,18 @@ import { useStore } from 'vuex';
 /** Components */
 import Input from '@/renderer/atoms/input/Input.vue';
 import PrimaryButton from '@/renderer/atoms/button/PrimaryButton.vue';
+import ConsoleSmall from "@/renderer/molecules/console/ConsoleSmall.vue";
 
 /** Store */
-import { actions } from '@/renderer/store/modules/User';
+// import { actions } from '@/renderer/store/modules/Nodes';
+import { actions, STATUS } from '@/renderer/store/modules/Agent';
+import { actions as vaultActions } from '@/renderer/store/modules/Vaults'
 
 /** Assets */
 import Action from '@/renderer/assets/action.svg';
 import Logo from '@/renderer/assets/logo2.svg';
 import Helper from '@/renderer/assets/helper.svg';
+
 
 export default defineComponent({
   components: {
@@ -65,7 +64,8 @@ export default defineComponent({
     Action,
     PrimaryButton,
     Helper,
-    Input
+    Input,
+    ConsoleSmall,
   },
   setup() {
     const store = useStore();
@@ -74,7 +74,16 @@ export default defineComponent({
     return {
       password,
       unseal: async function() {
-        store.dispatch(actions.UnlockKeyNode, password.value);
+        console.warn("Warning, not actually starting a sesson yet.");
+        store.commit('Agent/SetPassword', password.value);
+        console.log("STARTING AGENT");
+        await store.dispatch(actions.StartAgent);
+        console.log("CONNECTING...");
+        await store.dispatch(actions.Connect);
+        console.log("STARTING SESSION...");
+        await store.dispatch(actions.StartSession, password.value);
+        // await store.dispatch(actions.SetStatus, STATUS.ONLINE);
+        // await store.dispatch(vaultActions.LoadVaultNames);
       }
     };
   }
