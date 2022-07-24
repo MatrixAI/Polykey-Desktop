@@ -1,4 +1,4 @@
-{ pkgs ? import ./pkgs.nix {} }:
+{ pkgs ? import ./pkgs.nix {}, ci ? false }:
 
 with pkgs;
 let
@@ -7,10 +7,9 @@ in
   pkgs.mkShell {
     nativeBuildInputs = [
       nodejs
-      nodePackages.node2nix
+      shellcheck
       # electron
       electron
-      nodePackages."@electron-forge/cli"
       # debian builds
       dpkg
       fakeroot
@@ -29,25 +28,33 @@ in
     # use the electron builds from here
     electron_zip_dir = utils.electronZipDir;
     shellHook = ''
-      echo 'Entering Polykey'
+      echo "Entering $(npm pkg get name)"
       set -o allexport
       . ./.env
       set +o allexport
       set -v
+      ${
+        lib.optionalString ci
+        ''
+        set -o errexit
+        set -o nounset
+        set -o pipefail
+        shopt -s inherit_errexit
+        ''
+      }
+      mkdir --parents "$(pwd)/tmp"
 
+      # Built executables and NPM executables
       export PATH="$(pwd)/dist/bin:$(npm bin):$PATH"
 
-      # electron and @electron-forge/cli are both installed in package.json
-      # this ensures that in nix-shell we are using the nix packaged versions
+      # Override `electron` as a development dependency
       export PATH="${lib.makeBinPath
         [
           electron
-          nodePackages."@electron-forge/cli"
         ]
       }:$PATH"
 
-      npm install
-      mkdir --parents "$(pwd)/tmp"
+      npm install --ignore-scripts
 
       # force 022 when using fakeroot
       umask 022

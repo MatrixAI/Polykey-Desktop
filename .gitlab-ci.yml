@@ -1,66 +1,66 @@
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
+# variables:
+#   GIT_SUBMODULE_STRATEGY: recursive
 
-stages:
-  - check
-  - build
-  - release
+# stages:
+#   - check
+#   - build
+#   - release
 
-image: registry.gitlab.com/matrixai/engineering/maintenance/gitlab-runner
+# image: registry.gitlab.com/matrixai/engineering/maintenance/gitlab-runner
 
-lint:
-  stage: check
-  interruptible: true
-  script:
-    - >
-        nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
-        npm install;
-        npm run lint;
-        '
+# lint:
+#   stage: check
+#   interruptible: true
+#   script:
+#     - >
+#         nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
+#         npm install;
+#         npm run lint;
+#         '
 
-test:
-  stage: check
-  interruptible: true
-  script:
-    - >
-        nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
-        npm install;
-        npm run test;
-        '
+# test:
+#   stage: check
+#   interruptible: true
+#   script:
+#     - >
+#         nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
+#         npm install;
+#         npm run test;
+#         '
 
-nix-dry:
-  stage: check
-  interruptible: true
-  script:
-    - nix-build -v -v --dry-run ./release.nix --attr application
-    - nix-build -v -v --dry-run ./release.nix --attr docker
-    - nix-build -v -v --dry-run ./release.nix --attr package.linux.x64.deb
-    - nix-build -v -v --dry-run ./release.nix --attr package.linux.ia32.deb
-    - nix-build -v -v --dry-run ./release.nix --attr package.windows.x64.exe
-    - nix-build -v -v --dry-run ./release.nix --attr package.windows.ia32.exe
-    - nix-build -v -v --dry-run ./release.nix --attr package.darwin.x64.zip
+# nix-dry:
+#   stage: check
+#   interruptible: true
+#   script:
+#     - nix-build -v -v --dry-run ./release.nix --attr application
+#     - nix-build -v -v --dry-run ./release.nix --attr docker
+#     - nix-build -v -v --dry-run ./release.nix --attr package.linux.x64.deb
+#     - nix-build -v -v --dry-run ./release.nix --attr package.linux.ia32.deb
+#     - nix-build -v -v --dry-run ./release.nix --attr package.windows.x64.exe
+#     - nix-build -v -v --dry-run ./release.nix --attr package.windows.ia32.exe
+#     - nix-build -v -v --dry-run ./release.nix --attr package.darwin.x64.zip
 
-nix:
-  interruptible: true
-  stage: build
-  script:
-    - >
-        nix-build ./release.nix
-        --attr application
-        --attr docker
-  only:
-    - master
+# nix:
+#   interruptible: true
+#   stage: build
+#   script:
+#     - >
+#         nix-build ./release.nix
+#         --attr application
+#         --attr docker
+#   only:
+#     - master
 
-packages:
-  interruptible: true
-  stage: release
-  script:
-    - >
-        nix-build ./release.nix
-        --attr package.linux.x64.deb
-        --attr package.linux.ia32.deb
-        --attr package.windows.x64.exe
-        --attr package.windows.ia32.exe
-        --attr package.darwin.x64.zip
-  only:
-    - master
+# packages:
+#   interruptible: true
+#   stage: release
+#   script:
+#     - >
+#         nix-build ./release.nix
+#         --attr package.linux.x64.deb
+#         --attr package.linux.ia32.deb
+#         --attr package.windows.x64.exe
+#         --attr package.windows.ia32.exe
+#         --attr package.darwin.x64.zip
+#   only:
+#     - master
