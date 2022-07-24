@@ -50,7 +50,7 @@ async function main(argv = process.argv): Promise<number> {
     sourcemap: true,
     minify: isProduction,
     tsconfig: path.join(projectRoot, 'tsconfig.build.json'),
-    target: ['electron']
+    target: ['chrome', 'es2021']
   });
 
   // for production, you want
