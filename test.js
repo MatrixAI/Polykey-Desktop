@@ -1,7 +1,10 @@
 
 const { app, BrowserWindow } = require('electron');
-console.log('hello');
-console.log(app);
+const process = require('process');
+
+
+const argv = process.argv.slice(2);
+console.log(argv);
 
 app.on('ready', () => {
   // const window = new BrowserWindow({

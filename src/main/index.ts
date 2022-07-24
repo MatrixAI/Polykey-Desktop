@@ -1,15 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import process from 'process';
 
-// const createMainWindow = () => {
-// };
-
-// even if ts-node is used on the main process
-// that doesn't change the fact that the "loader"
-// will be affected
-// BUT I AM still confused HOW
-// does the index.html end up running the "renderer" process
-
 let mainWindow: BrowserWindow;
 
 function createMainWindow () {
@@ -26,6 +17,9 @@ function createMainWindow () {
  * The lifetime is maintained by Electron itself
  */
 async function main(argv = process.argv): Promise<void> {
+  // you can process the command line here
+  // however it's not meant to be a CLI application
+  // so the arguments are basic here
   argv = argv.slice(2);
 
   console.log(argv);

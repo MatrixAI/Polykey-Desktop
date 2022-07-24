@@ -36,6 +36,7 @@
   },
   "main": "dist/index.js",
   "scripts": {
+    "build": "esbuild ./src",
     "postversion": "npm install --package-lock-only --ignore-scripts --silent",
     "ts-node": "ts-node",
     "test": "jest",
@@ -77,6 +78,7 @@
     "electron": "18.1.0",
     "electron-squirrel-startup": "^1.0.0",
     "esbuild": "^0.14.49",
+    "esbuild-plugin-html": "^1.0.0",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",

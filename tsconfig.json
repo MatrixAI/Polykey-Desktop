@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
+    "isolatedModules": true,
     "moduleResolution": "node",
     "module": "CommonJS",
     "target": "ES2021",
