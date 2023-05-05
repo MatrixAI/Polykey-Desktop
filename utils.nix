@@ -3,18 +3,44 @@
 , nix-gitignore
 , nodejs
 , nodePackages
+, electron
 , pkgs
 , lib
 , fetchurl
+, fetchFromGitHub
 }:
 
 rec {
+  # This removes the org scoping
   basename = builtins.baseNameOf node2nixDev.packageName;
-  src = nix-gitignore.gitignoreSource [".git"] ./.;
+  # Filter source to only what's necessary for building
+  src = nix-gitignore.gitignoreSource [
+    # The `.git` itself should be ignored
+    ".git"
+    # Hidden files
+    "/.*"
+    # Nix files
+    "/*.nix"
+    # Benchmarks
+    "/benches"
+    # Docs
+    "/docs"
+    # Tests
+    "/tests"
+    "/jest.config.js"
+  ] ./.;
   nodeVersion = builtins.elemAt (lib.versions.splitVersion nodejs.version) 0;
+  # Custom node2nix directly from GitHub
+  node2nixSrc = fetchFromGitHub {
+    owner = "svanderburg";
+    repo = "node2nix";
+    rev = "9377fe4a45274fab0c7faba4f7c43ffae8421dd2";
+    sha256 = "15zip9w9hivd1p6k82hh4zba02jj6q0g2f1i9b7rrn2hs70qdlai";
+  };
+  node2nix = (import "${node2nixSrc}/release.nix" {}).package.x86_64-linux;
   node2nixDrv = dev: runCommandNoCC "node2nix" {} ''
     mkdir $out
-    ${nodePackages.node2nix}/bin/node2nix \
+    ${node2nix}/bin/node2nix \
       ${lib.optionalString dev "--development"} \
       --input ${src}/package.json \
       --lock ${src}/package-lock.json \
@@ -23,65 +49,64 @@ rec {
       --composition $out/default.nix \
       --nodejs-${nodeVersion}
   '';
-  # the shell attribute has the nodeDependencies, whereas the package does not
-  node2nixProd = (
-    (import (node2nixDrv false) { inherit pkgs nodejs; }).shell.override {
-      dontNpmInstall = true;
-    }
-  ).nodeDependencies;
-  node2nixDev = (import (node2nixDrv true) { inherit pkgs nodejs; }).package.overrideAttrs (attrs: {
+  node2nixProd = (import (node2nixDrv false) { inherit pkgs nodejs; }).nodeDependencies.override (attrs: {
+    # Use filtered source
+    src = src;
+    # Do not run build scripts during npm rebuild and npm install
+    npmFlags = "--ignore-scripts";
+    # Do not run npm install, dependencies are installed by nix
+    dontNpmInstall = true;
+  });
+  node2nixDev = (import (node2nixDrv true) { inherit pkgs nodejs; }).package.override (attrs: {
     buildInputs = attrs.buildInputs ++ [
       # needed to compile lzma-native
       nodePackages.node-pre-gyp
       nodePackages.rimraf
     ];
+    # Use filtered source
     src = src;
-    dontNpmInstall = true;
-    # prevent electron download from electron in package.json
+    # Do not run build scripts during npm rebuild and npm install
+    # They will be executed in the postInstall hook
+    npmFlags = "--ignore-scripts";
+    # Show full compilation flags
+    NIX_DEBUG = 1;
+    # Don't set rpath for native addons
+    # Native addons do not require their own runtime search path
+    # because they dynamically loaded by the nodejs runtime
+    NIX_DONT_SET_RPATH = true;
+    NIX_NO_SELF_RPATH = true;
+    # Prevent electron download from electron in package.json
     ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
     postInstall = ''
-      # The dependencies were prepared in the install phase
-      # See `node2nix` generated `node-env.nix` for details.
+      # Path to headers used by node-gyp for native addons
+      export npm_config_nodedir="${nodejs}"
+      # This will setup the typescript build
       npm run build
-
-      # This call does not actually install packages. The dependencies
-      # are present in `node_modules` already. It creates symlinks in
-      # $out/lib/node_modules/.bin according to `bin` section in `package.json`.
-      npm install
     '';
   });
-  electronVersion = "12.0.9";
   electronBuilds = {
-    "12.0.9" = {
+    "${electron.version}" = {
       "linux-x64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-linux-x64.zip";
-        sha256 = "0vbg2b1lr7l2l2f6b3vr40wq8mmrv3wipjp6ribbzlr0yxrsic1s";
-      };
-      "linux-ia32" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-linux-ia32.zip";
-        sha256 = "1rn6ws7gqd2wb3rdh2lajmn1574n1mzjshxfqcbx96kp4wxmnh1p";
+        url = "https://github.com/electron/electron/releases/download/v${electron.version}/electron-v${electron.version}-linux-x64.zip";
+        sha256 = "1flzjcxxhs1jj05ykmjvqfs7vvywshcjdw5qw9m3x176b2fhd5bz";
       };
       "win32-x64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-win32-x64.zip";
-        sha256 = "0x62k8adc372d22zx4f32msccfpddl74ccfmvdbipn8283wzis9s";
-      };
-      "win32-ia32" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-win32-ia32.zip";
-        sha256 = "0v9rqr1y5516mwk8lpwn5d11rcrv234529nfg3b826q797b1ylbr";
+        url = "https://github.com/electron/electron/releases/download/v${electron.version}/electron-v${electron.version}-win32-x64.zip";
+        sha256 = "1kky2rpch1vd4fgqfy6k31y36cibx4i2g5d1ghk8q23n4v6hwy0x";
       };
       "darwin-x64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-darwin-x64.zip";
-        sha256 = "0wn86xbrddlh0zmy2x3rh9vh4dywb94a7iai8jskcz4fymwf7wdk";
+        url = "https://github.com/electron/electron/releases/download/v${electron.version}/electron-v${electron.version}-darwin-x64.zip";
+        sha256 = "056bb4b8yalw5c3rib1zsc4fi63cv83hjmz5qm9ra342dfk69p94";
       };
       "darwin-arm64" = fetchurl {
-        url = "https://github.com/electron/electron/releases/download/v12.0.9/electron-v12.0.9-darwin-arm64.zip";
-        sha256 = "1sys643ng4bj65kxhlhibcs1f0mgar6p3sw22600vsh560asi2nb";
+        url = "https://github.com/electron/electron/releases/download/v${electron.version}/electron-v${electron.version}-darwin-arm64.zip";
+        sha256 = "0278r4y2y63i6r712hhkkafbgfbzby7zdpg9sc2b7cy90qrz3bcp";
       };
     };
   };
   electronZipDir =
     let
-      electronBuild = electronBuilds."${electronVersion}";
+      electronBuild = electronBuilds."${electron.version}";
     in
       linkFarm "electron-zip-dir"
         [
@@ -90,16 +115,8 @@ rec {
             path = electronBuild.linux-x64;
           }
           {
-            name = "${electronBuild.linux-ia32.name}";
-            path = electronBuild.linux-ia32;
-          }
-          {
             name = "${electronBuild.win32-x64.name}";
             path = electronBuild.win32-x64;
-          }
-          {
-            name = "${electronBuild.win32-ia32.name}";
-            path = electronBuild.win32-ia32;
           }
           {
             name = "${electronBuild.darwin-x64.name}";

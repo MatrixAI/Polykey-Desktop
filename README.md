@@ -1,6 +1,7 @@
-# Polykey
+# Polykey-Desktop
 
-[![pipeline status](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/commits/master)
+staging:[![pipeline status](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/badges/staging/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/commits/staging)
+master:[![pipeline status](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/Polykey-Desktop/commits/master)
 
 Polykey is a distributed secret sharing system. It helps you manage your
 secrets, passwords, API keys and more. It is designed for both managing
@@ -72,20 +73,6 @@ All of other bells and whistles of modern password managers can then be
 built on top of this secure platform.
 
 ---
-
-Current status:
-
-* js-resource-counter - https://github.com/MatrixAI/js-resource-counter
-* js-permaproxy - https://github.com/MatrixAI/js-permaproxy
-* js-virtualfs - https://github.com/MatrixAI/js-virtualfs
-* js-reference-pointer - https://github.com/MatrixAI/js-reference-pointer
-* js-object-tagger - https://github.com/MatrixAI/js-object-tagger
-* js-array-fixed - https://github.com/MatrixAI/js-array-fixed
-* js-tree-order-index - https://github.com/MatrixAI/js-tree-order-index
-* js-virtualgit - https://github.com/MatrixAI/js-virtualgit
-
-The last 2 are still being developed.
-
 
 ### Development
 1. `npm install`
